@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Debug" />
+	<File name="ARTKDetector.cpp" open="1" top="0" tabpos="9">
+		<Cursor position="234" topLine="21" />
+	</File>
+	<File name="ARTKDetector.h" open="1" top="0" tabpos="6">
+		<Cursor position="0" topLine="0" />
+	</File>
+	<File name="MyFrameListener.cpp" open="1" top="0" tabpos="7">
+		<Cursor position="772" topLine="0" />
+	</File>
+	<File name="MyFrameListener.h" open="1" top="0" tabpos="8">
+		<Cursor position="18" topLine="0" />
+	</File>
+	<File name="VideoManager.cpp" open="1" top="0" tabpos="5">
+		<Cursor position="3505" topLine="51" />
+	</File>
+	<File name="main.cpp" open="0" top="0" tabpos="1">
+		<Cursor position="275" topLine="0" />
+	</File>
+	<File name="ogrewidget.cpp" open="1" top="0" tabpos="3">
+		<Cursor position="5362" topLine="144" />
+	</File>
+	<File name="ogrewidget.h" open="1" top="1" tabpos="2">
+		<Cursor position="1111" topLine="13" />
+	</File>
+	<File name="ogrewindow.cpp" open="1" top="0" tabpos="4">
+		<Cursor position="476" topLine="0" />
+	</File>
+	<File name="ogrewindow.h" open="1" top="0" tabpos="1">
+		<Cursor position="355" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>
