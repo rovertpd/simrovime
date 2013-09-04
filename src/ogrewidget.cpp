@@ -159,15 +159,16 @@
             mCamera->setPosition(pos);
             mCamera->lookAt(look);
             mCamera->setFixedYawAxis(true, up);
-
-            Ogre::Entity* ent2 = mSceneMgr->createEntity("Esfera", "Esfera.mesh");
+            mSceneMgr->getEntity("Esfera")->setVisible(true);
+            /*Ogre::Entity* ent2 = mSceneMgr->createEntity("Esfera", "Esfera.mesh");
             Ogre::SceneNode* node2 = mSceneMgr->createSceneNode("Esfera");
             ent2->setMaterialName("Material2");
             node2->attachObject(ent2);
             mSceneMgr->getRootSceneNode()->addChild(node2);
-
+*/
 
           }
+          else  mSceneMgr->getEntity("Esfera")->setVisible(false);
           Ogre::Root::getSingletonPtr()->_fireFrameEnded();
 
       }
@@ -224,12 +225,12 @@
         // Alter the camera aspect ratio to match the viewport
         mCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight()));
 
-        /*Ogre::Entity* ent2 = mSceneMgr->createEntity("Esfera", "Esfera.mesh");
+        Ogre::Entity* ent2 = mSceneMgr->createEntity("Esfera", "Esfera.mesh");
         Ogre::SceneNode* node2 = mSceneMgr->createSceneNode("Esfera");
         ent2->setMaterialName("Material2");
         node2->attachObject(ent2);
         mSceneMgr->getRootSceneNode()->addChild(node2);
-*/
+
         mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
         mSceneMgr->setAmbientLight(Ogre::ColourValue(0.2, 0.2, 0.2));
 
