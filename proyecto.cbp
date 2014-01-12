@@ -33,11 +33,17 @@
 		</Compiler>
 		<Unit filename="ARTKDetector.cpp" />
 		<Unit filename="ARTKDetector.h" />
-		<Unit filename="MyFrameListener.cpp" />
-		<Unit filename="MyFrameListener.h" />
+		<Unit filename="Marca.cpp" />
+		<Unit filename="Marca.h" />
+		<Unit filename="Robot.cpp" />
+		<Unit filename="Robot.h" />
+		<Unit filename="Scene.cpp" />
+		<Unit filename="Scene.h" />
+		<Unit filename="Simrovi.cpp" />
 		<Unit filename="VideoManager.cpp" />
 		<Unit filename="VideoManager.h" />
-		<Unit filename="main.cpp" />
+		<Unit filename="bin/Debug/interfaz.glade" />
+		<Unit filename="interfaz.glade" />
 		<Unit filename="ogrewidget.cpp" />
 		<Unit filename="ogrewidget.h" />
 		<Unit filename="ogrewindow.cpp" />

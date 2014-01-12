@@ -9,6 +9,7 @@
 
     #include "VideoManager.h"
     #include "ARTKDetector.h"
+    #include "Scene.h"
 
     class OgreWidget : public Gtk::Widget
     {
@@ -34,6 +35,10 @@
       virtual bool on_button_press_event(GdkEventButton *event);
       virtual bool on_button_release_event(GdkEventButton *event);
 
+
+      float getRotacion(int id);
+      float getAngulo(float v[2],float v1[2]);
+
       Glib::RefPtr<Gdk::Window> mRefGdkWindow;
 
       Ogre::RenderWindow* mRenderWindow;
@@ -42,5 +47,10 @@
       Ogre::Camera* mCamera;
       VideoManager* _videoManager;
       ARTKDetector* _arDetector;
+      Scene* _scene;
+      Marca* _marcas[5];
+      double _center[2];
+      double _fin[2];
+      int frame;
     };
     #endif

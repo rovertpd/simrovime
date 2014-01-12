@@ -5,18 +5,25 @@
     #include <gdk/gdkx.h>
     #include <iostream>
     #include <cstring>
+    #include <cmath>
 
     #ifdef WIN32
        #include <gdk/gdkwin32.h>
     #endif
 
+    #define PI 3.14159265
+
     OgreWidget::OgreWidget() :
       Glib::ObjectBase("ogrewidget"),
       Gtk::Widget(),
-      mRenderWindow(0), mCamera(0), mSceneMgr(0), mViewport(0)
+      mRenderWindow(0), mSceneMgr(0), mViewport(0), mCamera(0)
     {
       set_flags(Gtk::NO_WINDOW);
       std::cout << "GType name: " << G_OBJECT_TYPE_NAME(gobj()) << std::endl;
+      _center[0] = 0.0;  _center[1] = 0.0;  _scene = Scene::Instance();
+      _fin[0] = 0.0;    _fin[1] = 0.0;  frame = 0;
+      for (int i=0;i<5;i++)
+        _marcas[i] = _scene->getMarca(i);
     }
     void OgreWidget::set_rotation(int value)
     {
@@ -144,31 +151,253 @@
 
     bool OgreWidget::on_expose_event(GdkEventExpose* event)
     {
+      double pattTrans[3][4];
+//      double pattTrans2[3][4];
+//      double m[3][4];
+//      double m2[3][4];
+      double dist01=0.0;
+      double fin[2];
 
       if (mRenderWindow)
       {
+//          double pattTrans[3][4];
           Ogre::Root::getSingletonPtr()->_fireFrameStarted();
           mRenderWindow->update();
           Ogre::Vector3 pos;  Ogre::Vector3 look;   Ogre::Vector3 up;
-
           _videoManager->UpdateFrame();
           _videoManager->DrawCurrentFrame();
-          if (_arDetector->detectMark(_videoManager->getCurrentFrameMat())){
-            std::cout<<"Marca encontrada"<<std::endl;
-            _arDetector->getPosRot(pos, look, up);
-            mCamera->setPosition(pos);
-            mCamera->lookAt(look);
-            mCamera->setFixedYawAxis(true, up);
-            mSceneMgr->getEntity("Esfera")->setVisible(true);
-            /*Ogre::Entity* ent2 = mSceneMgr->createEntity("Esfera", "Esfera.mesh");
-            Ogre::SceneNode* node2 = mSceneMgr->createSceneNode("Esfera");
-            ent2->setMaterialName("Material2");
-            node2->attachObject(ent2);
-            mSceneMgr->getRootSceneNode()->addChild(node2);
-*/
+          if (frame % 5 ==0){
+              if (_arDetector->detectMark(_videoManager->getCurrentFrameMat())){
+                if(_scene->getMarca(0)->getVisible() && _center[0]==0.0){
+                    _scene->getMarca(0)->getPattTans(pattTrans);
+                        if (pattTrans[0][3]>0){
+                            _center[0] = pattTrans[0][3];
+                            _center[1] = pattTrans[1][3];
+                        }else{
+                            _center[0] = pattTrans[0][3] * (-1);
+                            _center[1] = pattTrans[1][3] * (-1);
+                        }
+                }
+                if(_scene->getMarca(2)->getVisible() && _fin[0]==0.0 && _center[0]!=0.0){
+                    _scene->getMarca(2)->getPattTans(pattTrans);
+                    if (pattTrans[0][3]<0){
+                        _fin[0] = pattTrans[0][3] * (-1) + _center[0];
+                        _fin[1] = pattTrans[1][3] * (-1) + _center[1];
+                    }else{
+                        _fin[0] = pattTrans[0][3] + _center[0];
+                        _fin[1] = pattTrans[1][3] + _center[1];
+                    }
+                    printf(" Coordenada de fin final:X %f, Y %f\n",_fin[0],_fin[1]);
+                }
 
+    //            if (_scene->getMarca(0)->getVisible() && _scene->getMarca(2)->getVisible()) {
+    //                _scene->getMarca(0)->getPattTans(pattTrans);
+    //                _scene->getMarca(2)->getPattTans(pattTrans2);
+    //                arUtilMatInv(pattTrans, m);
+    //                arUtilMatMul(m, pattTrans2, m2);
+    //                dist01 = sqrt(pow(m2[0][3],2)+pow(m2[1][3],2)+pow(m2[2][3],2));
+    //                printf ("Distancia objects[1] y objects[2]= %G\n", dist01);
+    //              }
+
+                if (_scene->getMarca(3)->getVisible() && _fin[0]!=0.0){
+                    Robot* robot = _scene->getRobot(0);
+                    std::cout<<robot->getDir()<<" "<<robot->getEst()<<std::endl;
+                    float v[2];
+                    float v1[2];
+                    if (robot->getDir()==0){
+                        robot->setDir(1);
+                        fin[0] = _fin[0];
+                        fin[1] = 0.0;
+                        robot->setFin(fin);
+                        robot->setEst(0);
+                        _scene->getMarca(3)->getPattTans(pattTrans);
+                        v[0] = fin[0] - (pattTrans[0][3] + _center[0]);
+                        v[1] = fin[1] - (pattTrans[1][3] + _center[1]);
+                        v1[0] = 1.0;
+                        v1[1] = 0.0;
+                        float angulo = getAngulo(v,v1);
+                        robot->setRot(angulo);
+                        if (angulo>getRotacion(3)){
+                            if (angulo-getRotacion(3)<180){
+                                robot->izquierda();
+                                robot->izquierda();
+                            }
+                            else{
+                                robot->derecha();
+                                robot->derecha();
+                            }
+                        }else{
+                            if (angulo-getRotacion(3)<180){
+                                robot->derecha();
+                                robot->derecha();
+                            }
+                            else{
+                                robot->izquierda();
+                                robot->izquierda();
+                            }
+                        }
+                        robot->setEst(2);
+                    }
+                    _scene->getMarca(3)->getPattTans(pattTrans);
+                    double m[2];
+                    m[0] = pattTrans[0][3]+_center[0];
+                    m[1] = pattTrans[1][3]+_center[1];
+                    double m2[2];
+                    robot->getFin(m2);
+
+
+                    dist01 = sqrt(pow((m2[0]-m[0]),2)+pow((m2[1]-m[1]),2));
+                    std::cout<<dist01<<std::endl;
+                    std::cout<<getRotacion(3)<<" "<<robot->getRot()<<std::endl;
+                    if (dist01>=100.0){
+                        if(getRotacion(3)<(robot->getRot()-5) || getRotacion(3)>(robot->getRot()+5)){
+                            if (robot->getEst()!=2){
+                                _scene->getMarca(3)->getPattTans(pattTrans);
+                                robot->getFin(m2);
+                                v[0] = m2[0] - (pattTrans[0][3] + _center[0]);
+                                v[1] = m2[1] - (pattTrans[1][3] + _center[1]);
+                                v1[0] = 1.0;
+                                v1[1] = 0.0;
+                                //printf("Pos: %f, %f\n",(pattTrans[0][3] + _center[0]),(pattTrans[1][3] + _center[1]));
+                                //printf("Fin: %f, %f\n",m2[0],m2[1]);
+                                //printf("Vector1: %f, %f\n",v[0],v[1]);
+                                //printf("Vector2: %f, %f\n",v1[0],v1[1]);
+                                float angulo = getAngulo(v,v1);
+                                //printf("Angulo: %f\n",angulo);
+                                robot->setRot(angulo);
+                                if (angulo>getRotacion(3)){
+                                    if (angulo-getRotacion(3)<180){
+                                        robot->izquierda();
+                                    }
+                                    else{
+                                        robot->derecha();
+                                    }
+                                }else{
+                                    if (angulo-getRotacion(3)<180){
+                                        robot->derecha();
+                                    }
+                                    else{
+                                        robot->izquierda();
+                                    }
+                                }
+                                robot->setEst(2);
+                            }else{
+                                if (getRotacion(3)<(robot->getRot()+15) && getRotacion(3)>(robot->getRot()-15)){
+                                    robot->setEst(1);
+                                    robot->avanzar();
+                                }else{
+                                    if (robot->getRot()>getRotacion(3)){
+                                        if (abs(robot->getRot()-getRotacion(3))<180){
+                                            robot->izquierda();
+                                        }
+                                        else{
+                                            robot->derecha();
+                                        }
+                                    }else{
+                                        if (abs(robot->getRot()-getRotacion(3))<180){
+                                            robot->derecha();
+                                        }
+                                        else{
+                                            robot->izquierda();
+                                        }
+                                    }
+                                }
+                            }
+                        }else{
+                                robot->setEst(1);
+                                robot->avanzar();
+                        }
+                    }else{
+                        robot->setEst(0);
+                        switch(robot->getDir()){
+                            case 1:
+                                robot->setDir(2);
+                                fin[0] = _fin[0];
+                                fin[1] = _fin[1];
+                                robot->setFin(fin);
+                            break;
+                            case 2:
+                                robot->setDir(3);
+                                fin[0] = 0.0;
+                                fin[1] = _fin[1];
+                                robot->setFin(fin);
+                            break;
+                            case 3:
+                                robot->setDir(4);
+                                fin[0] = 0.0;
+                                fin[1] = 0.0;
+                                robot->setFin(fin);
+                            break;
+                            case 4:
+                                robot->setDir(1);
+                                fin[0] = _fin[0];
+                                fin[1] = 0.0;
+                                robot->setFin(fin);
+                            break;
+                        }
+                    }
+
+
+
+
+//                    _arDetector->getPosRot(pos, look, up,3);
+//                    mCamera->setPosition(pos);
+//                    mCamera->lookAt(look);
+//                    mCamera->setFixedYawAxis(true, up);
+
+
+                //mSceneMgr->getEntity("Esfera")->setVisible(true);
+
+                }
+                  //else  mSceneMgr->getEntity("Esfera")->setVisible(false);
+              }
           }
-          else  mSceneMgr->getEntity("Esfera")->setVisible(false);
+          frame ++;
+
+//          IplImage* img = 0;
+//          int i,j;
+//          int altura,anchura,anchura_fila,canales;
+//          uchar *data;
+//
+//        int x_v_cont = 0;
+//        int y_v_cont = 0;
+//
+//        int x_v_total = 0;
+//        int y_v_total = 0;
+//        int visto=0;
+//
+//          img=_videoManager->getCurrentFrameIpl();
+//          altura = img->height;
+//          anchura = img->width;
+//          anchura_fila = img->widthStep;
+//          canales = img->nChannels;
+//          data = (uchar *)img->imageData;
+//          //printf("Procesando una imagen de %dx%d píxeles con %d canales\n", altura, anchura, canales);
+//
+//          for (i=0;i<anchura;i++){
+//              for (j=0;j<altura;j++){ //verde oscuro
+//                if ((data[i*anchura_fila+j*canales + 1] > 80) &&
+//                !((data[i*anchura_fila+j*canales + 0] > data[i*anchura_fila+j*canales + 1]/2) ||
+//                (data[i*anchura_fila+j*canales + 2] > data[i*anchura_fila+j*canales + 1]/2))){
+////                data[i*anchura_fila+j*canales + 0]=255;
+////                data[i*anchura_fila+j*canales + 1]=255;
+////                data[i*anchura_fila+j*canales + 2]=255;
+//                y_v_total = y_v_total + i;
+//                x_v_total = x_v_total + j;
+//                y_v_cont++;
+//                x_v_cont++;
+//                visto=1;
+//                }
+//              }
+//          }
+//          //cvShowImage("mainWin", img );
+//if (visto==1){
+//            int x_v_medio = x_v_total / x_v_cont;
+//            int y_v_medio = y_v_total / y_v_cont;
+//
+//            printf("Punto medio verde en %d, %d, valor: %d\n",x_v_medio, y_v_medio, data[i*anchura_fila+j*canales+1]);
+//}
+//            visto = 0;
           Ogre::Root::getSingletonPtr()->_fireFrameEnded();
 
       }
@@ -203,8 +432,8 @@
     void OgreWidget::createScene()
     {
         // Set default mipmap level & texture filtering
-        //Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
-        //Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(Ogre::TFO_TRILINEAR);
+        Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
+        Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(Ogre::TFO_TRILINEAR);
 
         // Create scene manager
         mSceneMgr = Ogre::Root::getSingletonPtr()->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
@@ -228,6 +457,7 @@
         Ogre::Entity* ent2 = mSceneMgr->createEntity("Esfera", "Esfera.mesh");
         Ogre::SceneNode* node2 = mSceneMgr->createSceneNode("Esfera");
         ent2->setMaterialName("Material2");
+        ent2->setVisible(false);
         node2->attachObject(ent2);
         mSceneMgr->getRootSceneNode()->addChild(node2);
 
@@ -274,4 +504,27 @@
     bool OgreWidget::on_button_release_event(GdkEventButton *event) {
        std::cout << "button release\n";
        return true;
+    }
+
+    float OgreWidget::getRotacion(int id){
+        Ogre::Vector3 pos;  Ogre::Vector3 look;   Ogre::Vector3 up;
+        _arDetector->getPosRot(pos, look, up,id);
+        float mod = atan((-up[0])/up[2]) - PI;
+        if (up[2]<0) mod = mod + PI;
+        else if ((-up[0])<0) mod = mod + 2 * PI;
+        if (mod<0) mod = mod + 2 * PI;
+        return mod * 180 / PI;
+    }
+
+    float OgreWidget::getAngulo(float v[2],float v1[2]){
+//        float dividendo = v[0]*v1[0]+v[1]*v1[1];
+//        float divisor = sqrt(v[0]*v[0]+v[1]*v[1])*sqrt(v1[0]*v1[0]+v1[1]*v1[1]);
+//        float angulo = acos(dividendo/divisor);
+//        return angulo * 180 / PI;
+            float phi= atan((v[1])/(v[0]));
+            if(v[0]<0)
+                phi= phi + PI;
+            else if (v[1]<0)
+                phi = phi + 2 * PI;
+            return phi * 180 / PI;
     }

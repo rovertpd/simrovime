@@ -1,6 +1,7 @@
 
 #include <gtkmm/main.h>
     #include "ogrewindow.h"
+    #include "Scene.h"
 
     int main (int argc, char *argv[])
     {
@@ -12,6 +13,8 @@
         root->initialise(false);
 
         Gtk::Main kit(argc, argv);
+
+        Scene::Instance();
 
         OgreWindow oWindow;
         oWindow.show();

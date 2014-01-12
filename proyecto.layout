@@ -1,34 +1,49 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Debug" />
-	<File name="ARTKDetector.cpp" open="1" top="0" tabpos="9">
-		<Cursor position="234" topLine="21" />
+	<File name="ARTKDetector.cpp" open="1" top="0" tabpos="8">
+		<Cursor position="3891" topLine="79" />
 	</File>
-	<File name="ARTKDetector.h" open="1" top="0" tabpos="6">
-		<Cursor position="0" topLine="0" />
+	<File name="ARTKDetector.h" open="0" top="0" tabpos="11">
+		<Cursor position="353" topLine="0" />
 	</File>
-	<File name="MyFrameListener.cpp" open="1" top="0" tabpos="7">
-		<Cursor position="772" topLine="0" />
+	<File name="Marca.cpp" open="1" top="0" tabpos="9">
+		<Cursor position="1252" topLine="24" />
 	</File>
-	<File name="MyFrameListener.h" open="1" top="0" tabpos="8">
-		<Cursor position="18" topLine="0" />
+	<File name="Marca.h" open="0" top="0" tabpos="8">
+		<Cursor position="573" topLine="0" />
 	</File>
-	<File name="VideoManager.cpp" open="1" top="0" tabpos="5">
-		<Cursor position="3505" topLine="51" />
+	<File name="Robot.cpp" open="1" top="0" tabpos="5">
+		<Cursor position="2223" topLine="78" />
 	</File>
-	<File name="main.cpp" open="0" top="0" tabpos="1">
-		<Cursor position="275" topLine="0" />
+	<File name="Robot.h" open="1" top="0" tabpos="6">
+		<Cursor position="1017" topLine="15" />
 	</File>
-	<File name="ogrewidget.cpp" open="1" top="0" tabpos="3">
-		<Cursor position="5362" topLine="144" />
+	<File name="Scene.cpp" open="1" top="0" tabpos="3">
+		<Cursor position="403" topLine="8" />
 	</File>
-	<File name="ogrewidget.h" open="1" top="1" tabpos="2">
-		<Cursor position="1111" topLine="13" />
+	<File name="Scene.h" open="1" top="0" tabpos="4">
+		<Cursor position="229" topLine="0" />
 	</File>
-	<File name="ogrewindow.cpp" open="1" top="0" tabpos="4">
-		<Cursor position="476" topLine="0" />
+	<File name="Simrovi.cpp" open="0" top="0" tabpos="7">
+		<Cursor position="308" topLine="0" />
 	</File>
-	<File name="ogrewindow.h" open="1" top="0" tabpos="1">
-		<Cursor position="355" topLine="0" />
+	<File name="VideoManager.cpp" open="1" top="0" tabpos="7">
+		<Cursor position="2145" topLine="27" />
+	</File>
+	<File name="VideoManager.h" open="0" top="0" tabpos="6">
+		<Cursor position="210" topLine="0" />
+	</File>
+	<File name="ogrewidget.cpp" open="1" top="1" tabpos="1">
+		<Cursor position="20920" topLine="493" />
+	</File>
+	<File name="ogrewidget.h" open="1" top="0" tabpos="2">
+		<Cursor position="1243" topLine="19" />
+	</File>
+	<File name="ogrewindow.cpp" open="0" top="0" tabpos="3">
+		<Cursor position="1719" topLine="33" />
+	</File>
+	<File name="ogrewindow.h" open="0" top="0" tabpos="13">
+		<Cursor position="704" topLine="0" />
 	</File>
 </CodeBlocks_layout_file>

@@ -7,13 +7,17 @@
     #include <iostream>
 
     #include "ogrewidget.h"
+    #include "Robot.h"
 
     class OgreWindow : public Gtk::Window
     {
 
     public:
       OgreWindow();
-      void rotar();
+      void avanzar();
+      void retroceder();
+      void derecha();
+      void izquierda();
       virtual ~OgreWindow();
       virtual bool on_delete_event(GdkEventAny* event);
       bool hasExited() { return mExited; }
@@ -24,6 +28,7 @@
     protected:
       OgreWidget mOgreWidget;
       bool mExited;
+      //Robot mRobot;
     };
 
     #endif
