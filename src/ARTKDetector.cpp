@@ -76,8 +76,16 @@ bool ARTKDetector::detectMark(cv::Mat* frame/*, int nObjects, Marca objects[]*/)
       _marca->getCenter(center);
       arGetTransMatCont(&_markerInfo[k], pattTrans, center, _marca->getWidth(), pattTrans);
       _marca->setPattTans(pattTrans);
+      _marca->setMarkerInfo(_markerInfo[k]);
       _detected = true;
     } else {  _marca->setVisible(false); }  // El objeto no es visible
+//    if (_marca->getId()==0){
+//        printf("%f, %f\n",pattTrans[0][3],pattTrans[1][3]);
+//        printf("%f, %f\n",_markerInfo[k].vertex[0][0],_markerInfo[k].vertex[0][1]);
+//        printf("%f, %f\n",_markerInfo[k].vertex[1][0],_markerInfo[k].vertex[1][1]);
+//        printf("%f, %f\n",_markerInfo[k].vertex[2][0],_markerInfo[k].vertex[2][1]);
+//        printf("%f, %f\n",_markerInfo[k].vertex[3][0],_markerInfo[k].vertex[3][1]);
+//    }
   }
 
   return _detected;

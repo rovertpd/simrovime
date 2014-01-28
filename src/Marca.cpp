@@ -55,6 +55,12 @@ void Marca::setPattTans(double m[3][4]){
             _pattTrans[i][j] = m[i][j];
     _pattTrans[1][3] = _pattTrans[1][3] * (-1);
 }
+void Marca::setMarkerInfo(ARMarkerInfo markerInfo){
+    _markerInfo=markerInfo;
+}
+ARMarkerInfo Marca::getMarkerInfo(){
+    return _markerInfo;
+}
 Marca& Marca::operator = (const Marca &m)
 {
     if(this!=&m){ //Comprueba que no se esté intentanod igualar un objeto a sí mismo

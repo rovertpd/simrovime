@@ -13,6 +13,7 @@ class Marca {
   double _center[2];            // Centro del patron
   double _pattTrans[3][4];     // Matriz asociada al patron
   double _pos[2];
+  ARMarkerInfo _markerInfo;
 
  public:
   Marca();
@@ -23,6 +24,8 @@ class Marca {
   void getCenter(double c[2]);
   void getPattTans(double m[3][4]);
   void getPos(double p[2]);
+  ARMarkerInfo getMarkerInfo();
+  void setMarkerInfo(ARMarkerInfo markerInfo);
   void setPos(double p[2]);
   void setId(int id);
   void setVisible(bool visible);

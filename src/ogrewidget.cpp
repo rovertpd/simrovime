@@ -187,6 +187,7 @@
                         _fin[0] = pattTrans[0][3] + _center[0];
                         _fin[1] = pattTrans[1][3] + _center[1];
                     }
+
                     printf(" Coordenada de fin final:X %f, Y %f\n",_fin[0],_fin[1]);
                 }
 
