@@ -157,6 +157,8 @@
 //      double m2[3][4];
       double dist01=0.0;
       double fin[2];
+      ARMarkerInfo *mark1;
+      ARMarkerInfo *mark2;
 
       if (mRenderWindow)
       {
@@ -177,6 +179,12 @@
                             _center[0] = pattTrans[0][3] * (-1);
                             _center[1] = pattTrans[1][3] * (-1);
                         }
+                        mark1 = _scene->getMarca(0)->getMarkerInfo();
+                        _scene->setP_sup(mark1->vertex[1][0], mark1->vertex[1][1]);
+                        _scene->setP_sup_der(mark1->vertex[2][0], mark1->vertex[2][1]);
+                        _scene->setP_sup_izq(mark1->vertex[0][0], mark1->vertex[0][1]);
+                        std::cout<<mark1->vertex[0][0]<<"  "<<mark1->vertex[1][0]<<"  "<<mark1->vertex[2][0]<<"  "<<mark1->vertex[3][0]<<std::endl;
+                        std::cout<<mark1->vertex[0][1]<<"  "<<mark1->vertex[1][1]<<"  "<<mark1->vertex[2][1]<<"  "<<mark1->vertex[3][1]<<std::endl;
                 }
                 if(_scene->getMarca(2)->getVisible() && _fin[0]==0.0 && _center[0]!=0.0){
                     _scene->getMarca(2)->getPattTans(pattTrans);
@@ -187,7 +195,10 @@
                         _fin[0] = pattTrans[0][3] + _center[0];
                         _fin[1] = pattTrans[1][3] + _center[1];
                     }
-
+                    mark2 = _scene->getMarca(2)->getMarkerInfo();
+                    _scene->setP_inf(mark2->vertex[3][0], mark2->vertex[3][1]);
+                    _scene->setP_inf_der(mark2->vertex[2][0], mark2->vertex[2][1]);
+                    _scene->setP_inf_izq(mark2->vertex[0][0], mark2->vertex[0][1]);
                     printf(" Coordenada de fin final:X %f, Y %f\n",_fin[0],_fin[1]);
                 }
 

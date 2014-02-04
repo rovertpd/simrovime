@@ -58,8 +58,8 @@ void Marca::setPattTans(double m[3][4]){
 void Marca::setMarkerInfo(ARMarkerInfo markerInfo){
     _markerInfo=markerInfo;
 }
-ARMarkerInfo Marca::getMarkerInfo(){
-    return _markerInfo;
+ARMarkerInfo* Marca::getMarkerInfo(){
+    return &_markerInfo;
 }
 Marca& Marca::operator = (const Marca &m)
 {

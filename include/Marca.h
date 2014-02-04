@@ -24,7 +24,7 @@ class Marca {
   void getCenter(double c[2]);
   void getPattTans(double m[3][4]);
   void getPos(double p[2]);
-  ARMarkerInfo getMarkerInfo();
+  ARMarkerInfo* getMarkerInfo();
   void setMarkerInfo(ARMarkerInfo markerInfo);
   void setPos(double p[2]);
   void setId(int id);

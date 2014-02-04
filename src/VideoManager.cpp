@@ -6,6 +6,7 @@ VideoManager::VideoManager(int device, int w, int h,
   cvSetCaptureProperty(_capture, CV_CAP_PROP_FRAME_WIDTH, w);
   cvSetCaptureProperty(_capture, CV_CAP_PROP_FRAME_HEIGHT, h);
   createBackground (w, h);
+  _scene = Scene::Instance();
   _frameIpl = NULL; _frameMat = NULL;
   std::cout<<"creado el video manager"<<std::endl;
 }
@@ -55,6 +56,27 @@ void VideoManager::UpdateFrame(){
 IplImage* VideoManager::getCurrentFrameIpl(){ return _frameIpl; }
 // = IplImage* getCurrentFrameMat =================================
 cv::Mat* VideoManager::getCurrentFrameMat(){  return _frameMat; }
+
+bool VideoManager::rect_sup(double x, double y){
+    double *sup=_scene->getP_sup();
+    double *sup_der=_scene->getP_sup_der();
+    return ((x-sup[0])*(sup_der[1]-sup[1])-(y-sup[1])*(sup_der[0]-sup[0])<0);
+}
+bool VideoManager::rect_inf(double x, double y){
+    double *inf=_scene->getP_inf();
+    double *inf_izq=_scene->getP_inf_izq();
+    return ((x-inf[0])*(inf_izq[1]-inf[1])-(y-inf[1])*(inf_izq[0]-inf[0])<0);
+}
+bool VideoManager::rect_der(double x, double y){
+    double *inf=_scene->getP_inf();
+    double *inf_der=_scene->getP_inf_der();
+    return ((x-inf_der[0])*(inf[1]-inf_der[1])-(y-inf_der[1])*(inf[0]-inf_der[0])<0);
+}
+bool VideoManager::rect_izq(double x, double y){
+    double *sup=_scene->getP_sup();
+    double *sup_izq=_scene->getP_sup_izq();
+    return ((x-sup_izq[0])*(sup[1]-sup_izq[1])-(y-sup_izq[1])*(sup[0]-sup_izq[0])<0);
+}
 // ================================================================
 //  DrawCurrentFrame: Despliega el ultimo frame actualizado
 void VideoManager::DrawCurrentFrame(){
@@ -70,11 +92,20 @@ void VideoManager::DrawCurrentFrame(){
   Ogre::uint8* pDest = static_cast<Ogre::uint8*>(pixelBox.data);
   for(int j=0;j<_frameMat->rows;j++) {
     for(int i=0;i<_frameMat->cols;i++) {
-      int idx = ((j) * pixelBox.rowPitch + i )*4;
-      pDest[idx] = _frameMat->data[(j*_frameMat->cols+i)*3];
-      pDest[idx+1] = _frameMat->data[(j*_frameMat->cols+i)*3+1];
-      pDest[idx+2] = _frameMat->data[(j*_frameMat->cols+i)*3+2];
-      pDest[idx+3] = 255;
+      if(rect_sup(i,j)&&rect_der(i,j)&&rect_inf(i,j)&&rect_izq(i,j)){
+          int idx = ((j) * pixelBox.rowPitch + i )*4;
+          pDest[idx] = _frameMat->data[(j*_frameMat->cols+i)*3];
+          pDest[idx+1] = _frameMat->data[(j*_frameMat->cols+i)*3+1];
+          pDest[idx+2] = _frameMat->data[(j*_frameMat->cols+i)*3+2];
+          pDest[idx+3] = 255;
+      }
+      else{
+          int idx = ((j) * pixelBox.rowPitch + i )*4;
+          pDest[idx] = 255;
+          pDest[idx+1] = 255;
+          pDest[idx+2] = 255;
+          pDest[idx+3] = 255;
+      }
     }
   }
   pBuffer->unlock();
