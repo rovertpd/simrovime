@@ -77,6 +77,29 @@ bool VideoManager::rect_izq(double x, double y){
     double *sup_izq=_scene->getP_sup_izq();
     return ((x-sup_izq[0])*(sup[1]-sup_izq[1])-(y-sup_izq[1])*(sup[0]-sup_izq[0])<0);
 }
+
+bool VideoManager::color(int x,int y){
+    IplImage* img = 0;
+    int anchura_fila,canales;
+    uchar *data;
+      img=getCurrentFrameIpl();
+      anchura_fila = img->widthStep;
+      canales = img->nChannels;
+      data = (uchar *)img->imageData;
+
+    if ((data[x*anchura_fila+y*canales + 1] > 80) &&
+        !((data[x*anchura_fila+y*canales + 0] > data[x*anchura_fila+y*canales + 1]/2) ||
+        (data[x*anchura_fila+y*canales + 2] > data[x*anchura_fila+y*canales + 1]/2))){
+        return true;
+      }
+      else{
+          return false;
+      }
+}
+
+bool VideoManager::getColor(){
+    return _col;
+}
 // ================================================================
 //  DrawCurrentFrame: Despliega el ultimo frame actualizado
 void VideoManager::DrawCurrentFrame(){
@@ -88,16 +111,37 @@ void VideoManager::DrawCurrentFrame(){
 
   pBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD);
   const Ogre::PixelBox& pixelBox = pBuffer->getCurrentLock();
+  bool colors = false;
+  int x_v_cont = 0;
+  int y_v_cont = 0;
+
+  int x_v_total = 0;
+  int y_v_total = 0;
 
   Ogre::uint8* pDest = static_cast<Ogre::uint8*>(pixelBox.data);
+  _col=false;
   for(int j=0;j<_frameMat->rows;j++) {
     for(int i=0;i<_frameMat->cols;i++) {
       if(rect_sup(i,j)&&rect_der(i,j)&&rect_inf(i,j)&&rect_izq(i,j)){
-          int idx = ((j) * pixelBox.rowPitch + i )*4;
-          pDest[idx] = _frameMat->data[(j*_frameMat->cols+i)*3];
-          pDest[idx+1] = _frameMat->data[(j*_frameMat->cols+i)*3+1];
-          pDest[idx+2] = _frameMat->data[(j*_frameMat->cols+i)*3+2];
-          pDest[idx+3] = 255;
+          if (color(j,i)){
+              int idx = ((j) * pixelBox.rowPitch + i )*4;
+              pDest[idx] = 255;
+              pDest[idx+1] = 0;
+              pDest[idx+2] = 0;
+              pDest[idx+3] = 255;
+              colors=true;
+              y_v_total = y_v_total + i;
+              x_v_total = x_v_total + j;
+              y_v_cont++;
+              x_v_cont++;
+              _col=true;
+          }else{
+              int idx = ((j) * pixelBox.rowPitch + i )*4;
+              pDest[idx] = _frameMat->data[(j*_frameMat->cols+i)*3];
+              pDest[idx+1] = _frameMat->data[(j*_frameMat->cols+i)*3+1];
+              pDest[idx+2] = _frameMat->data[(j*_frameMat->cols+i)*3+2];
+              pDest[idx+3] = 255;
+          }
       }
       else{
           int idx = ((j) * pixelBox.rowPitch + i )*4;
@@ -108,6 +152,16 @@ void VideoManager::DrawCurrentFrame(){
       }
     }
   }
+  if (colors){
+    double fin[2];
+    //_scene->getRobot(0)->setDir(0);
+    fin[0] = x_v_total / x_v_cont;
+    fin[1] = y_v_total / y_v_cont;
+    _scene->getRobot(0)->setFin(fin);
+    //_scene->getRobot(0)->setEst(7);
+    //printf("Punto medio verde en %f, %f\n",fin[0], fin[1]);
+  }
+
   pBuffer->unlock();
   Ogre::Rectangle2D* rect = static_cast<Ogre::Rectangle2D*>
     (_sceneManager->getSceneNode("BackgroundNode")->
