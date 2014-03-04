@@ -119,7 +119,7 @@ void VideoManager::DrawCurrentFrame(){
   int y_v_total = 0;
 
   Ogre::uint8* pDest = static_cast<Ogre::uint8*>(pixelBox.data);
-  _col=false;
+  //_col=false;
   for(int j=0;j<_frameMat->rows;j++) {
     for(int i=0;i<_frameMat->cols;i++) {
       if(rect_sup(i,j)&&rect_der(i,j)&&rect_inf(i,j)&&rect_izq(i,j)){
@@ -134,7 +134,7 @@ void VideoManager::DrawCurrentFrame(){
               x_v_total = x_v_total + j;
               y_v_cont++;
               x_v_cont++;
-              _col=true;
+              //_col=true;
           }else{
               int idx = ((j) * pixelBox.rowPitch + i )*4;
               pDest[idx] = _frameMat->data[(j*_frameMat->cols+i)*3];
@@ -152,15 +152,16 @@ void VideoManager::DrawCurrentFrame(){
       }
     }
   }
-  if (colors){
-    double fin[2];
-    //_scene->getRobot(0)->setDir(0);
-    fin[0] = x_v_total / x_v_cont;
-    fin[1] = y_v_total / y_v_cont;
-    _scene->getRobot(0)->setFin(fin);
-    //_scene->getRobot(0)->setEst(7);
-    //printf("Punto medio verde en %f, %f\n",fin[0], fin[1]);
-  }
+//  if (colors){
+//    double fin[2];
+//    _col=true;
+//    _scene->getRobot(0)->setDir(0);
+//    fin[0] = x_v_total / x_v_cont;
+//    fin[1] = y_v_total / y_v_cont;
+//    _scene->getRobot(0)->setFin(fin);
+//    _scene->getRobot(0)->setEst(7);
+//    printf("Punto medio verde en %f, %f\n",fin[0], fin[1]);
+//  }
 
   pBuffer->unlock();
   Ogre::Rectangle2D* rect = static_cast<Ogre::Rectangle2D*>

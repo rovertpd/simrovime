@@ -216,7 +216,7 @@
                     std::cout<<robot->getDir()<<" "<<robot->getEst()<<std::endl;
                     float v[2];
                     float v1[2];
-                    if ((robot->getEst()==5||robot->getEst()==6||robot->getEst()==7)&&!_videoManager->getColor()){ //movimiento con color y deja de haber color
+                    if ((robot->getEst()==5||robot->getEst()==6||robot->getEst()==7)&&(_videoManager->getColor()==false)){ //movimiento con color y deja de haber color
                         switch(robot->getDir()){
                             case 1:
                                 fin[0] = _fin[0];
@@ -323,7 +323,7 @@
                                 }
                             }else{ //Si esta girando
                                 if (getRotacion(3)<(robot->getRot()+15) && getRotacion(3)>(robot->getRot()-15)){ //Si esta dentro del umbral, parar
-                                    if (robot->getEst() == 2){
+                                    if (robot->getEst() == 2 || robot->getEst() == 0){
                                         robot->setEst(1);
                                     }else{
                                         robot->setEst(5);
@@ -348,7 +348,7 @@
                                 }
                             }
                         }else{  //Dentro del rango de la recta
-                            if (robot->getEst() == 2){
+                            if (robot->getEst() == 2 || robot->getEst() == 0 ){
                                 robot->setEst(1);
                             }else {
                                 robot->setEst(5);
@@ -522,7 +522,7 @@
         _arDetector->getPosRot(pos, look, up,id);
         float mod = atan((-up[0])/up[2]) - PI;
         if (up[2]<0) mod = mod + PI;
-        else if ((-up[0])>0) mod = mod + 2 * PI;
+        else if ((-up[0])<0) mod = mod + 2 * PI;
         if (mod<0) mod = mod + 2 * PI;
         return mod * 180 / PI;
     }
@@ -532,10 +532,9 @@
 //        float divisor = sqrt(v[0]*v[0]+v[1]*v[1])*sqrt(v1[0]*v1[0]+v1[1]*v1[1]);
 //        float angulo = acos(dividendo/divisor);
 //        return angulo * 180 / PI;
-            float phi= atan((v[1])/(v[0]));
-            if(v[0]<0)
-                phi= phi + PI;
-            else if (v[1]<0)
-                phi = phi + 2 * PI;
-            return phi * 180 / PI;
+        float mod = atan((v[1])/v[0]) - PI;
+        if (v[0]<0) mod = mod + PI;
+        else if ((v[1])>0) mod = mod + 2 * PI;
+        if (mod<0) mod = mod + 2 * PI;
+        return mod * 180 / PI;
     }
