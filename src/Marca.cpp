@@ -72,6 +72,9 @@ Marca& Marca::operator = (const Marca &m)
         for (int i=0; i<3; ++i)
             for (int j=0; j<4; ++j)
                 this->_pattTrans[i][j] = m._pattTrans[i][j];
+        this->_pos[0] = m._pos[0];
+        this->_pos[1] = m._pos[1];
+        this->_markerInfo = m._markerInfo;
     }
     return *this;
 }

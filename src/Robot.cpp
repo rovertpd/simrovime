@@ -146,6 +146,8 @@ void Robot::setFin(double f[2]){
 }
 
 Robot& Robot::operator= (const Robot &r){
+    this->_fin[0] = r._fin[0];
+    this->_fin[1] = r._fin[1];
     this->_pos[0] = r._pos[0];
     this->_pos[1] = r._pos[1];
     this->_rot = r._rot;

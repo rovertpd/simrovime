@@ -136,6 +136,7 @@
          createScene();
          _videoManager = new VideoManager(1, 640, 480, mSceneMgr);
          _arDetector = new ARTKDetector(640, 480, 100);
+         _scene->setARTK(_arDetector);
           // Start idle function for frame update/rendering
           Glib::signal_idle().connect( sigc::mem_fun(*this, &OgreWidget::on_idle) );
 
@@ -151,259 +152,21 @@
 
     bool OgreWidget::on_expose_event(GdkEventExpose* event)
     {
-//      double pattTrans[3][4];
-//      double pattTrans2[3][4];
-//      double m[3][4];
-//      double m2[3][4];
-      double dist01=0.0;
-      double fin[2];
-      ARMarkerInfo *mark1;
-      ARMarkerInfo *mark2;
 
       if (mRenderWindow)
       {
-//          double pattTrans[3][4];
           Ogre::Root::getSingletonPtr()->_fireFrameStarted();
           mRenderWindow->update();
           Ogre::Vector3 pos;  Ogre::Vector3 look;   Ogre::Vector3 up;
           _videoManager->UpdateFrame();
-          _videoManager->DrawCurrentFrame();
+          //_videoManager->DrawCurrentFrame();
           if (frame % 5 ==0){
-              if (_arDetector->detectMark(_videoManager->getCurrentFrameMat())){
-                if(_scene->getMarca(0)->getVisible() && _center[0]==0.0){
-                     mark1 = _scene->getMarca(0)->getMarkerInfo();
-                    if (getRotacion(0)>90){
-                         _scene->setP_sup(mark1->vertex[2][0], mark1->vertex[2][1]);
-                        _scene->setP_sup_der(mark1->vertex[3][0], mark1->vertex[3][1]);
-                        _scene->setP_sup_izq(mark1->vertex[1][0], mark1->vertex[1][1]);
-                    }else{
-                         _scene->setP_sup(mark1->vertex[1][0], mark1->vertex[1][1]);
-                        _scene->setP_sup_der(mark1->vertex[2][0], mark1->vertex[2][1]);
-                        _scene->setP_sup_izq(mark1->vertex[0][0], mark1->vertex[0][1]);
-                    }
-                    std::cout<<getRotacion(0)<<std::endl;
-//                        _scene->setP_sup(mark1->vertex[1][0], mark1->vertex[1][1]);
-//                        _scene->setP_sup_der(mark1->vertex[2][0], mark1->vertex[2][1]);
-//                        _scene->setP_sup_izq(mark1->vertex[0][0], mark1->vertex[0][1]);
-                        _center[0] = mark1->pos[0];
-                        _center[1] = mark1->pos[1];
-                        printf(" Coordenada de fin final:X %f, Y %f\n",_center[0],_center[1]);
-                }
-                if(_scene->getMarca(2)->getVisible() && _fin[0]==0.0 && _center[0]!=0.0){
-                    mark2 = _scene->getMarca(2)->getMarkerInfo();
-                    if(getRotacion(2)>90){
-                        _scene->setP_inf(mark2->vertex[0][0], mark2->vertex[0][1]);
-                        _scene->setP_inf_der(mark2->vertex[3][0], mark2->vertex[3][1]);
-                        _scene->setP_inf_izq(mark2->vertex[1][0], mark2->vertex[1][1]);
-                    }else{
-                        _scene->setP_inf(mark2->vertex[3][0], mark2->vertex[3][1]);
-                        _scene->setP_inf_der(mark2->vertex[2][0], mark2->vertex[2][1]);
-                        _scene->setP_inf_izq(mark2->vertex[0][0], mark2->vertex[0][1]);
-                    }
-                    std::cout<<getRotacion(2)<<std::endl;
-//                    _scene->setP_inf(mark2->vertex[3][0], mark2->vertex[3][1]);
-//                    _scene->setP_inf_der(mark2->vertex[2][0], mark2->vertex[2][1]);
-//                    _scene->setP_inf_izq(mark2->vertex[0][0], mark2->vertex[0][1]);
-                    _fin[0] = mark2->pos[0];// + _center[0];
-                    _fin[1] = mark2->pos[1];// + _center[1];
-                    printf(" Coordenada de fin final:X %f, Y %f\n",_fin[0],_fin[1]);
-                }
-//                int i = _videoManager->color();
-//                printf("%d",i);
-
-                if (_scene->getMarca(3)->getVisible() && _fin[0]!=0.0){
-                    Robot* robot = _scene->getRobot(0);
-                    std::cout<<robot->getDir()<<" "<<robot->getEst()<<std::endl;
-                    float v[2];
-                    float v1[2];
-                    if ((robot->getEst()==5||robot->getEst()==6||robot->getEst()==7)&&(_videoManager->getColor()==false)){ //movimiento con color y deja de haber color
-                        switch(robot->getDir()){
-                            case 1:
-                                fin[0] = _fin[0];
-                                fin[1] = _fin[1];
-                                robot->setFin(fin);
-                            break;
-                            case 4:
-                                fin[0] = _center[0];
-                                fin[1] = _fin[1];
-                                robot->setFin(fin);
-                            break;
-                            case 3:
-                                fin[0] = _center[0];
-                                fin[1] = _center[1];
-                                robot->setFin(fin);
-                            break;
-                            case 2:
-                                fin[0] = _fin[0];
-                                fin[1] = _center[1];
-                                robot->setFin(fin);
-                            break;
-                        }
-                        robot->setEst(0);
-                    }
-                    if (robot->getDir()==0){ // sin direccion, estado inicial
-                        robot->setDir(1);
-                        fin[0] = _fin[0];
-                        fin[1] = _fin[1];
-                        robot->setFin(fin);
-                        robot->setEst(0);
-                        //_scene->getMarca(3)->getPattTans(pattTrans);
-                        v[0] = fin[0] - (_scene->getMarca(3)->getMarkerInfo()->pos[0]);// + _center[0]);//pattTrans[0][3] + _center[0]);
-                        v[1] = fin[1] - (_scene->getMarca(3)->getMarkerInfo()->pos[1]);// + _center[1]);//pattTrans[1][3] + _center[1]);
-                        v1[0] = 0.0;
-                        v1[1] = 1.0;
-                        float angulo = getAngulo(v,v1);
-                        robot->setRot(angulo);
-                        if (angulo>getRotacion(3)){
-                            if (angulo-getRotacion(3)<180){
-                                robot->izquierda();
-                                robot->izquierda();
-                            }
-                            else{
-                                robot->derecha();
-                                robot->derecha();
-                            }
-                        }else{
-                            if (angulo-getRotacion(3)<180){
-                                robot->derecha();
-                                robot->derecha();
-                            }
-                            else{
-                                robot->izquierda();
-                                robot->izquierda();
-                            }
-                        }
-                        robot->setEst(2);
-                    }
-                    //_scene->getMarca(3)->getPattTans(pattTrans);
-                    double m[2];
-                    m[0] = _scene->getMarca(3)->getMarkerInfo()->pos[0];// + _center[0];//pattTrans[0][3]+_center[0];
-                    m[1] = _scene->getMarca(3)->getMarkerInfo()->pos[1];// + _center[1];//pattTrans[1][3]+_center[1];
-                    double m2[2];
-                    robot->getFin(m2);
-
-
-                    dist01 = sqrt(pow((m2[0]-m[0]),2)+pow((m2[1]-m[1]),2));
-                    std::cout<<dist01<<" "<<m[0]<<" "<<m[1]<<" "<<m2[0]<<" "<<m2[1]<<std::endl;
-                    std::cout<<getRotacion(3)<<" "<<robot->getRot()<<std::endl;
-                    if (dist01>=70.0){  //Distancia superior al limite
-                        if(getRotacion(3)<(robot->getRot()-5) || getRotacion(3)>(robot->getRot()+5)){   //Fuera del rango de la recta
-                            if (robot->getEst()!=2 && robot->getEst()!=6){ //Si no esta girando
-                                //_scene->getMarca(3)->getPattTans(pattTrans);
-                                robot->getFin(m2);
-                                v[0] = m2[0] - (_scene->getMarca(3)->getMarkerInfo()->pos[0]);// + _center[0]);//pattTrans[0][3] + _center[0]);
-                                v[1] = m2[1] - (_scene->getMarca(3)->getMarkerInfo()->pos[1]);// + _center[1]);//pattTrans[1][3] + _center[1]);
-                                v1[0] = 0.0;
-                                v1[1] = 1.0;
-                                //printf("Pos: %f, %f\n",(pattTrans[0][3] + _center[0]),(pattTrans[1][3] + _center[1]));
-                                //printf("Fin: %f, %f\n",m2[0],m2[1]);
-                                //printf("Vector1: %f, %f\n",v[0],v[1]);
-                                //printf("Vector2: %f, %f\n",v1[0],v1[1]);
-                                float angulo = getAngulo(v,v1);
-                                //printf("Angulo: %f\n",angulo);
-                                robot->setRot(angulo);
-                                if (angulo>getRotacion(3)){
-                                    if (angulo-getRotacion(3)<180){
-                                        robot->izquierda();
-                                    }
-                                    else{
-                                        robot->derecha();
-                                    }
-                                }else{
-                                    if (angulo-getRotacion(3)<180){
-                                        robot->derecha();
-                                    }
-                                    else{
-                                        robot->izquierda();
-                                    }
-                                }if (robot->getEst() == 1 || robot->getEst() == 0){
-                                    robot->setEst(2);
-                                }else{
-                                    robot->setEst(6);
-                                }
-                            }else{ //Si esta girando
-                                if (getRotacion(3)<(robot->getRot()+15) && getRotacion(3)>(robot->getRot()-15)){ //Si esta dentro del umbral, parar
-                                    if (robot->getEst() == 2 || robot->getEst() == 0){
-                                        robot->setEst(1);
-                                    }else{
-                                        robot->setEst(5);
-                                    }
-                                    robot->avanzar();
-                                }else{ //Corregir giro
-                                    if (robot->getRot()>getRotacion(3)){
-                                        if (abs(robot->getRot()-getRotacion(3))<180){
-                                            robot->izquierda();
-                                        }
-                                        else{
-                                            robot->derecha();
-                                        }
-                                    }else{
-                                        if (abs(robot->getRot()-getRotacion(3))<180){
-                                            robot->derecha();
-                                        }
-                                        else{
-                                            robot->izquierda();
-                                        }
-                                    }
-                                }
-                            }
-                        }else{  //Dentro del rango de la recta
-                            if (robot->getEst() == 2 || robot->getEst() == 0 ){
-                                robot->setEst(1);
-                            }else {
-                                robot->setEst(5);
-                            }
-                            robot->avanzar();
-                        }
-                    }else{  //Distancia menor del limite (Alcanzado objetivo)
-                        if (robot->getEst() == 1 || robot->getEst() == 2|| robot->getEst() == 0){   //Si movimiento son color
-                            switch(robot->getDir()){
-                                case 4:
-                                    robot->setDir(1);
-                                    fin[0] = _fin[0];
-                                    fin[1] = _fin[1];
-                                    robot->setFin(fin);
-                                break;
-                                case 3:
-                                    robot->setDir(4);
-                                    fin[0] = _center[0];
-                                    fin[1] = _fin[1];
-                                    robot->setFin(fin);
-                                break;
-                                case 2:
-                                    robot->setDir(3);
-                                    fin[0] = _center[0];
-                                    fin[1] = _center[1];
-                                    robot->setFin(fin);
-                                break;
-                                case 1:
-                                    robot->setDir(2);
-                                    fin[0] = _fin[0];
-                                    fin[1] = _center[1];
-                                    robot->setFin(fin);
-                                break;
-                            }
-                            robot->setEst(0);
-                        }else{  //Si movimiento con color
-                            if (robot->getEst()!=7){
-                                robot->setEst(7);
-                                robot->parar();
-                            }
-                        }
-                    }
-
-
-
-
-//                    _arDetector->getPosRot(pos, look, up,3);
-//                    mCamera->setPosition(pos);
-//                    mCamera->lookAt(look);
-//                    mCamera->setFixedYawAxis(true, up);
-
-
-                //mSceneMgr->getEntity("Esfera")->setVisible(true);
-
-                }
+              _videoManager->DrawCurrentFrame();
+              Marca marcas[5];
+              _scene->getMarcas(marcas);
+              if (_arDetector->detectMark(_videoManager->getCurrentFrameMat(), marcas )){
+                  _scene->setMarcas(marcas);
+                  _scene->Actualizar();     // LLamamos a la escena para que se actualice
                   //else  mSceneMgr->getEntity("Esfera")->setVisible(false);
               }
           }
@@ -519,7 +282,7 @@
 
     float OgreWidget::getRotacion(int id){
         Ogre::Vector3 pos;  Ogre::Vector3 look;   Ogre::Vector3 up;
-        _arDetector->getPosRot(pos, look, up,id);
+        _arDetector->getPosRot(pos, look, up,_scene->getMarca(id));////////////////////////////////////////////////////////////////////////////////////////////
         float mod = atan((-up[0])/up[2]) - PI;
         if (up[2]<0) mod = mod + PI;
         else if ((-up[0])<0) mod = mod + 2 * PI;

@@ -3,7 +3,7 @@
 ARTKDetector::ARTKDetector(int w, int h, int thres/*, int *nObjects, Marca objects[]*/){
   _markerNum=0;   _markerInfo=NULL;  _thres = thres;
   _width = w;     _height = h;       _detected = false;
-  _nObjects = 5;  l=-1;  _scene = Scene::Instance();
+  _nObjects = 5;  l=-1;
   readConfiguration();
   //readPatterns(/*nObjects,objects*/);
 }
@@ -47,7 +47,7 @@ int ARTKDetector::readConfiguration(){
 }
 // ================================================================
 // detectMark (FIXME): Ojo solo soporta una marca de tamano fijo!
-bool ARTKDetector::detectMark(cv::Mat* frame/*, int nObjects, Marca objects[]*/) {
+bool ARTKDetector::detectMark(cv::Mat* frame,/*, int nObjects*/ Marca objects[5]) {
   //double p_width     = 120.0;        // Ancho de marca... FIJO!
   //double p_center[2] = {0.0, 0.0};   // Centro de marca.. FIJO!
   int i, j, k;
@@ -62,7 +62,8 @@ bool ARTKDetector::detectMark(cv::Mat* frame/*, int nObjects, Marca objects[]*/)
   }
 
    for (i=0; i<_nObjects; i++) {
-    _marca = _scene->getMarca(i);
+    //_marca = _scene->getMarca(i);
+    _marca = &objects[i];
     for(j = 0, k = -1; j < _markerNum; j++) {
       if(_marca->getId() == _markerInfo[j].id) {
         if (k == -1) k = j;
@@ -79,13 +80,6 @@ bool ARTKDetector::detectMark(cv::Mat* frame/*, int nObjects, Marca objects[]*/)
       _marca->setMarkerInfo(_markerInfo[k]);
       _detected = true;
     } else {  _marca->setVisible(false); }  // El objeto no es visible
-//    if (_marca->getId()==0){
-//        printf("%f, %f\n",pattTrans[0][3],pattTrans[1][3]);
-//        printf("%f, %f\n",_markerInfo[k].vertex[0][0],_markerInfo[k].vertex[0][1]);
-//        printf("%f, %f\n",_markerInfo[k].vertex[1][0],_markerInfo[k].vertex[1][1]);
-//        printf("%f, %f\n",_markerInfo[k].vertex[2][0],_markerInfo[k].vertex[2][1]);
-//        printf("%f, %f\n",_markerInfo[k].vertex[3][0],_markerInfo[k].vertex[3][1]);
-//    }
   }
 
   return _detected;
@@ -98,11 +92,12 @@ void ARTKDetector::Gl2Mat(double *gl, Ogre::Matrix4 &mat){
 // ================================================================
 // getPosRot: Obtiene posicion y rotacion para la camara
 void ARTKDetector::getPosRot(Ogre::Vector3 &pos,
-                   Ogre::Vector3 &look, Ogre::Vector3 &up,int indice){
+                   Ogre::Vector3 &look, Ogre::Vector3 &up,Marca* marca){
+   //std::cout<<"Marca PosRot "<<marca->getId()<<std::endl;
   if (!_detected) return;
 
   double glAuxd[16]; Ogre::Matrix4 m;
-  _scene->getMarca(indice)->getPattTans(_pattTrans);
+  marca->getPattTans(_pattTrans);
   argConvGlpara(_pattTrans,glAuxd);
   Gl2Mat(glAuxd, m);   // Convertir a Matrix4 de Ogre
 
