@@ -105,6 +105,7 @@ bool VideoManager::getColor(){
 //  DrawCurrentFrame: Despliega el ultimo frame actualizado
 void VideoManager::DrawCurrentFrame(){
   if(_frameMat->rows==0) return;
+  _scene->clearObjs();
   Ogre::TexturePtr tex = Ogre::TextureManager::getSingleton().
      getByName("BackgroundTex",
 	 Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -188,19 +189,19 @@ void VideoManager::DrawCurrentFrame(){
       if (x_r_cont > 0){
             fin[0] = x_r_total / x_r_cont;
             fin[1] = y_r_total / y_r_cont;
-            _scene->addObject(Objeto(1,5,fin));
+            _scene->addObject(*(new Objeto(1,5,fin)));
             printf("Punto medio rojo en %f, %f\n",fin[0], fin[1]);
       }
       if (x_v_cont > 0){
             fin[0] = x_v_total / x_v_cont;
             fin[1] = y_v_total / y_v_cont;
-            _scene->addObject(Objeto(2,3,fin));
+            _scene->addObject(*(new Objeto(2,3,fin)));
             printf("Punto medio verde en %f, %f\n",fin[0], fin[1]);
       }
       if (x_a_cont > 0){
             fin[0] = x_a_total / x_a_cont;
             fin[1] = y_a_total / y_a_cont;
-            _scene->addObject(Objeto(3,1,fin));
+            _scene->addObject(*(new Objeto(3,1,fin)));
             printf("Punto medio azul en %f, %f\n",fin[0], fin[1]);
       }
       _scene->actualizaColores();

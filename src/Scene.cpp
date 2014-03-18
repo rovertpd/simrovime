@@ -305,12 +305,13 @@ void Scene::Actualizar(){
                             }
                         }
                     }
-                    std::cout<<"Estado: "<<robot->getEst()<<" Direccion: "<<robot->getDir()<<std::endl;
-                    double posicionO[2];
-                    robot->getFin(posicionO);
-                    std::cout<<"vector=["<<posicionO[0]<<","<<posicionO[1]<<"]"<<std::endl;
-                    std::cout<<"Rotacion final: "<<robot->getRot()<<" Rotacion actual: "<<getRotacion(i)<<std::endl;
                 }
+                std::cout<<"Estado: "<<robot->getEst()<<" Direccion: "<<robot->getDir()<<std::endl;
+                double posicionO[2];
+                robot->getFin(posicionO);
+                std::cout<<"vectorF=["<<posicionO[0]<<","<<posicionO[1]<<"]"<<std::endl;
+                std::cout<<"vectorI=["<<getMarca(i)->getMarkerInfo()->pos[0]<<","<<getMarca(i)->getMarkerInfo()->pos[1]<<"]"<<std::endl;
+                std::cout<<"Rotacion final: "<<robot->getRot()<<" Rotacion actual: "<<getRotacion(i)<<std::endl;
             }
         }
     }
@@ -414,25 +415,24 @@ void Scene::addObject(Objeto ob){
 
 void Scene::actualizaColores(){
     for (uint i=0; i < _objs.size(); i++){
-        if (int p = pertenece(_objs[i]) >= 0){
-            std::cout<<"Pertenece"<<std::endl;
+        int p = pertenece(_objs[i]);
+        if (p >= 0){
             _objs[i] = _objetos[p];
         }
     }
     _objetos.clear();
-    std::cout<<"Objs 0 robot->"<<_objs[0].getRobot()<<std::endl;
-    double c[2];
-    _objs[0].getPos(c);
-    std::cout<<"Objs 0 pos->"<<c[0]<<" "<<c[1]<<std::endl;
     for (uint i=0; i < _objs.size(); i++){
         _objetos.push_back(_objs[i]);
     }
-    std::cout<<"El objeto 0 tiene asignado el robot:"<<_objetos[0].getRobot()<<std::endl;
     _objs.clear();
 }
 
 void Scene::clearColors(){
     _objetos.clear();
+}
+
+void Scene::clearObjs(){
+    _objs.clear();
 }
 
 int Scene::pertenece(Objeto ob){
