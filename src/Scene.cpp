@@ -64,7 +64,6 @@ void Scene::Actualizar(){
         }
         _center[0] = mark1->pos[0];
         _center[1] = mark1->pos[1];
-        printf(" Coordenada de inicio final:X %f, Y %f\n",_center[0],_center[1]);
         std::cout<<"Rotación inicio: "<<getRotacion(0)<<std::endl;
     }
     if(getMarca(1)->getVisible() && _fin[0]==0.0 && _center[0]!=0.0){
@@ -80,7 +79,6 @@ void Scene::Actualizar(){
         }
         _fin[0] = mark2->pos[0];
         _fin[1] = mark2->pos[1];
-        printf(" Coordenada de fin final:X %f, Y %f\n",_fin[0],_fin[1]);
         std::cout<<"Rotación fin: "<<getRotacion(1)<<std::endl;
     }
 
@@ -306,12 +304,6 @@ void Scene::Actualizar(){
                         }
                     }
                 }
-                std::cout<<"Estado: "<<robot->getEst()<<" Direccion: "<<robot->getDir()<<std::endl;
-                double posicionO[2];
-                robot->getFin(posicionO);
-                std::cout<<"vectorF=["<<posicionO[0]<<","<<posicionO[1]<<"]"<<std::endl;
-                std::cout<<"vectorI=["<<getMarca(i)->getMarkerInfo()->pos[0]<<","<<getMarca(i)->getMarkerInfo()->pos[1]<<"]"<<std::endl;
-                std::cout<<"Rotacion final: "<<robot->getRot()<<" Rotacion actual: "<<getRotacion(i)<<std::endl;
             }
         }
     }

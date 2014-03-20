@@ -160,15 +160,16 @@
           Ogre::Vector3 pos;  Ogre::Vector3 look;   Ogre::Vector3 up;
           _videoManager->UpdateFrame();
           //_videoManager->DrawCurrentFrame();
-          if (frame % 5 ==0){
-              _videoManager->DrawCurrentFrame();
+          if (frame % 3 ==0){
+              _videoManager->DrawCurrentFrame(frame);
+          }
               Marca marcas[5];
               _scene->getMarcas(marcas);
               if (_arDetector->detectMark(_videoManager->getCurrentFrameMat(), marcas )){
                   _scene->setMarcas(marcas);
                   _scene->Actualizar();     // LLamamos a la escena para que se actualice
                   //else  mSceneMgr->getEntity("Esfera")->setVisible(false);
-              }
+
           }
           frame ++;
 

@@ -60,23 +60,27 @@ cv::Mat* VideoManager::getCurrentFrameMat(){  return _frameMat; }
 
 bool VideoManager::rect_sup(double x, double y){
     double *sup=_scene->getP_sup();
-    double *sup_der=_scene->getP_sup_der();
-    return ((x-sup[0])*(sup_der[1]-sup[1])-(y-sup[1])*(sup_der[0]-sup[0])<0);
+    //double *sup_der=_scene->getP_sup_der();
+    //return ((x-sup[0])*(sup_der[1]-sup[1])-(y-sup[1])*(sup_der[0]-sup[0])<0);
+    return (y>sup[1]);
 }
 bool VideoManager::rect_inf(double x, double y){
     double *inf=_scene->getP_inf();
-    double *inf_izq=_scene->getP_inf_izq();
-    return ((x-inf[0])*(inf_izq[1]-inf[1])-(y-inf[1])*(inf_izq[0]-inf[0])<0);
+    //double *inf_izq=_scene->getP_inf_izq();
+    //return ((x-inf[0])*(inf_izq[1]-inf[1])-(y-inf[1])*(inf_izq[0]-inf[0])<0);
+    return (y<inf[1]);
 }
 bool VideoManager::rect_der(double x, double y){
     double *inf=_scene->getP_inf();
-    double *inf_der=_scene->getP_inf_der();
-    return ((x-inf_der[0])*(inf[1]-inf_der[1])-(y-inf_der[1])*(inf[0]-inf_der[0])<0);
+    //double *inf_der=_scene->getP_inf_der();
+    //return ((x-inf_der[0])*(inf[1]-inf_der[1])-(y-inf_der[1])*(inf[0]-inf_der[0])<0);
+    return (x<inf[0]);
 }
 bool VideoManager::rect_izq(double x, double y){
     double *sup=_scene->getP_sup();
-    double *sup_izq=_scene->getP_sup_izq();
-    return ((x-sup_izq[0])*(sup[1]-sup_izq[1])-(y-sup_izq[1])*(sup[0]-sup_izq[0])<0);
+    //double *sup_izq=_scene->getP_sup_izq();
+    //return ((x-sup_izq[0])*(sup[1]-sup_izq[1])-(y-sup_izq[1])*(sup[0]-sup_izq[0])<0);
+    return (x>sup[0]);
 }
 
 int VideoManager::color(int x,int y){
@@ -88,11 +92,11 @@ int VideoManager::color(int x,int y){
     canales = img->nChannels;
     data = (uchar *)img->imageData;
 
-    if ((data[x*anchura_fila+y*canales + 0] > 80) && !((data[x*anchura_fila+y*canales + 1] > data[x*anchura_fila+y*canales + 1]/2) || (data[x*anchura_fila+y*canales + 2] > data[x*anchura_fila+y*canales + 1]/2))){
+    if ((data[x*anchura_fila+y*canales + 0] > 80) && !((data[x*anchura_fila+y*canales + 1] > data[x*anchura_fila+y*canales + 0]/2) || (data[x*anchura_fila+y*canales + 2] > data[x*anchura_fila+y*canales + 0]/2))){
         return 1;
     }else if ((data[x*anchura_fila+y*canales + 1] > 80) && !((data[x*anchura_fila+y*canales + 0] > data[x*anchura_fila+y*canales + 1]/2) || (data[x*anchura_fila+y*canales + 2] > data[x*anchura_fila+y*canales + 1]/2))){
             return 2;
-    }else if ((data[x*anchura_fila+y*canales + 2] > 80) && !((data[x*anchura_fila+y*canales + 0] > data[x*anchura_fila+y*canales + 1]/2) || (data[x*anchura_fila+y*canales + 1] > data[x*anchura_fila+y*canales + 1]/2))){
+    }else if ((data[x*anchura_fila+y*canales + 2] > 80) && !((data[x*anchura_fila+y*canales + 0] > data[x*anchura_fila+y*canales + 2]/2) || (data[x*anchura_fila+y*canales + 1] > data[x*anchura_fila+y*canales + 2]/2))){
             return 3;
     }
     return 0;
@@ -103,7 +107,7 @@ bool VideoManager::getColor(){
 }
 // ================================================================
 //  DrawCurrentFrame: Despliega el ultimo frame actualizado
-void VideoManager::DrawCurrentFrame(){
+void VideoManager::DrawCurrentFrame(int frame){
   if(_frameMat->rows==0) return;
   _scene->clearObjs();
   Ogre::TexturePtr tex = Ogre::TextureManager::getSingleton().
@@ -135,9 +139,9 @@ void VideoManager::DrawCurrentFrame(){
           int col = color(j,i);
           if (col == 1){
               int idx = ((j) * pixelBox.rowPitch + i )*4;
-              pDest[idx] = 255;
+              pDest[idx] = 0;
               pDest[idx+1] = 0;
-              pDest[idx+2] = 0;
+              pDest[idx+2] = 255;
               pDest[idx+3] = 255;
               colors=true;
               y_r_total = y_r_total + i;
@@ -158,8 +162,8 @@ void VideoManager::DrawCurrentFrame(){
               x_v_cont++;
           }else if (col == 3){
               int idx = ((j) * pixelBox.rowPitch + i )*4;
-              pDest[idx] = 255;
-              pDest[idx+1] = 0;
+              pDest[idx] = 0;
+              pDest[idx+1] = 255;
               pDest[idx+2] = 0;
               pDest[idx+3] = 255;
               colors=true;
@@ -186,24 +190,24 @@ void VideoManager::DrawCurrentFrame(){
   }
   if (colors){
       double fin[2];
-      if (x_r_cont > 0){
-            fin[0] = x_r_total / x_r_cont;
-            fin[1] = y_r_total / y_r_cont;
-            _scene->addObject(*(new Objeto(1,5,fin)));
-            printf("Punto medio rojo en %f, %f\n",fin[0], fin[1]);
-      }
+//      if (x_r_cont > 0){
+//            fin[0] = x_r_total / x_r_cont;
+//            fin[1] = y_r_total / y_r_cont;
+//            _scene->addObject(*(new Objeto(1,5,fin)));
+//            printf("Punto medio rojo en %f, %f\n",fin[0], fin[1]);
+//      }
       if (x_v_cont > 0){
             fin[0] = x_v_total / x_v_cont;
             fin[1] = y_v_total / y_v_cont;
             _scene->addObject(*(new Objeto(2,3,fin)));
             printf("Punto medio verde en %f, %f\n",fin[0], fin[1]);
       }
-      if (x_a_cont > 0){
-            fin[0] = x_a_total / x_a_cont;
-            fin[1] = y_a_total / y_a_cont;
-            _scene->addObject(*(new Objeto(3,1,fin)));
-            printf("Punto medio azul en %f, %f\n",fin[0], fin[1]);
-      }
+//      if (x_a_cont > 0){
+//            fin[0] = x_a_total / x_a_cont;
+//            fin[1] = y_a_total / y_a_cont;
+//            _scene->addObject(*(new Objeto(3,1,fin)));
+//            printf("Punto medio azul en %f, %f\n",fin[0], fin[1]);
+//      }
       _scene->actualizaColores();
   }else _scene->clearColors();
 

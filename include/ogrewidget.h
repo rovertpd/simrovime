@@ -8,7 +8,7 @@
     #include <Ogre.h>
 
     #include "VideoManager.h"
-    #include "ARTKDetector.h"
+//    #include "ARTKDetector.h"
     #include "Scene.h"
 
     class OgreWidget : public Gtk::Widget
