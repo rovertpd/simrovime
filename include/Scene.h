@@ -1,7 +1,7 @@
 #ifndef SCENE_H
  #define SCENE_H
 #include "Marca.h"
-#include "Robot.h"
+#include "ARobot.h"
 #include "Objeto.h"
 #include "ARTKDetector.h"
 #include <OGRE/Ogre.h>
@@ -20,7 +20,7 @@ class Scene
       void getMarcas(Marca marcas[5]);
       void setMarcas(Marca marcas[5]);
       Marca* getMarca(int id);
-      Robot* getRobot(int id);
+      ARobot* getARobot(int id);
       void setP_sup(double x,double y);
       void setP_sup_der(double x,double y);
       void setP_sup_izq(double x,double y);
@@ -64,7 +64,7 @@ class Scene
       double _center[2];
       double _fin[2];
       int _lock;
-      vector<Robot> _robots;
+      vector<ARobot> _arobots;
       vector<Marca> _marcas;
       vector<Objeto> _objetos;
       vector<Objeto> _objs;

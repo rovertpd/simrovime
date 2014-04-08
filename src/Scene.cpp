@@ -16,8 +16,8 @@ Marca* Scene::getMarca(int id){
     return &(_marcas[id]);
 }
 
-Robot* Scene::getRobot(int id){
-    return &(_robots[id]);
+ARobot* Scene::getARobot(int id){
+    return &(_arobots[id]);
 }
 void Scene::setP_sup(double x,double y){_p_sup[0] = x; _p_sup[1] = y;}
 void Scene::setP_sup_der(double x,double y){_p_sup_der[0] = x; _p_sup_der[1] = y;}
@@ -86,10 +86,10 @@ void Scene::Actualizar(){
         std::cout<<"Rotación fin: "<<getRotacion(1)<<std::endl;
     }
 
-    Robot* robot;
+    ARobot* arobot;
     if (_fin[0] != 0.0){
         _grid_d = 0;
-        for (int j=0; j<5; j++){
+        for (int j=0; j<2; j++){
             if (getMarca(j)->getVisible()){
                 double m[2],m1[2];
                 m[0] = getMarca(j)->getMarkerInfo()->vertex[0][0];
@@ -104,55 +104,60 @@ void Scene::Actualizar(){
 
         for (int i=2; i<5; i++){
             if (getMarca(i)->getVisible()&&(getLock()==0 || getLock()==i)){
-                cout<<"Aqui 66"<<_path<<endl;
-                if (_path){
-                    cout<<"Aqui 11"<<endl;
-                    _path1 =false;
-                    _path = false;
-                    for(std::vector<char>::iterator it = _lMov.begin(); it != _lMov.end(); it++)
-                        cout<<"Accion: "<<*it<<endl;
-                        cout<<"Aqui 22"<<endl;
-                }else if (!_path1){
-                    cout<<"Aqui 33"<<endl;
-                    int arg[] = {i-2, getMarca(i)->getMarkerInfo()->pos[0], getMarca(i)->getMarkerInfo()->pos[1], _fin[0], _fin[1]};
-                    cout<<"XXXXXXX: "<<arg[1]<<endl;
-                    cout<<"Aqui 44"<<endl;
-                    if (pthread_create( &mithread001, NULL, &Scene::Busca,(void *)arg ) ) {
-                        printf("Error creando el hilo.");
-                        abort();
-                    }
-                    _path1 = true;
-                }
-                if (getMarca(i)->getMarkerInfo()->pos[0]==0.0){ //Inicializamos las posiciones de la trayectoria (los puntos finales)
-                    double fin[2];
-                    if (getMarca(i)->getMarkerInfo()->pos[0] > ((_fin[0] - _center[0]) / 2 + _center[0])){
-                        if (getMarca(i)->getMarkerInfo()->pos[1] > ((_fin[1] - _center[1]) / 2 + _center[1])){
-                            robot->setDir(1);
-                            fin[0] = _fin[0];
-                            fin[1] = _fin[1];
-                            robot->setFin(fin);
-                        }else{
-                            robot->setDir(2);
-                            fin[0] = _fin[0];
-                            fin[1] = _center[1];
-                            robot->setFin(fin);
-                        }
-                    }else{
-                        if (getMarca(i)->getMarkerInfo()->pos[1] > ((_fin[1] - _center[1]) / 2 + _center[1])){
-                            robot->setDir(4);
-                            fin[0] = _center[0];
-                            fin[1] = _fin[1];
-                            robot->setFin(fin);
-                        }else{
-                            robot->setDir(3);
-                            fin[0] = _center[0];
-                            fin[1] = _center[1];
-                            robot->setFin(fin);
-                        }
-                    }
+                arobot = getARobot(i-2);
+//                cout<<"Aqui 66"<<_path<<endl;
+//                if (_path){
+//                    cout<<"Aqui 11"<<endl;
+//                    _path1 =false;
+//                    _path = false;
+//                    for(std::vector<char>::iterator it = _lMov.begin(); it != _lMov.end(); it++)
+//                        cout<<"Accion: "<<*it<<endl;
+//                        cout<<"Aqui 22"<<endl;
+//                }else if (!_path1){
+//                    cout<<"Aqui 33"<<endl;
+//                    int arg[] = {i-2, getMarca(i)->getMarkerInfo()->pos[0], getMarca(i)->getMarkerInfo()->pos[1], _fin[0], _fin[1]};
+//                    cout<<"XXXXXXX: "<<arg[1]<<endl;
+//                    cout<<"Aqui 44"<<endl;
+//                    if (pthread_create( &mithread001, NULL, &Scene::Busca,(void *)arg ) ) {
+//                        printf("Error creando el hilo.");
+//                        abort();
+//                    }
+//                    _path1 = true;
+//                }
+                double fin[2];
+                arobot->getFin(fin);
+                cout<<"Posicion finalLLLL: ["<<fin[0]<<","<<fin[1]<<"]"<<endl;
+                if (fin[0] == -1.0){ //Inicializamos las posiciones de la trayectoria (los puntos finales)
+                    arobot->planifica(getMarca(i)->getMarkerInfo(),_center,_fin,0,getRotacion(i));
+                      cout<<"Inicializado"<<endl;
+//                    double fin[2];
+//                    if (getMarca(i)->getMarkerInfo()->pos[0] > ((_fin[0] - _center[0]) / 2 + _center[0])){
+//                        if (getMarca(i)->getMarkerInfo()->pos[1] > ((_fin[1] - _center[1]) / 2 + _center[1])){
+//                            robot->setDir(1);
+//                            fin[0] = _fin[0];
+//                            fin[1] = _fin[1];
+//                            robot->setFin(fin);
+//                        }else{
+//                            robot->setDir(2);
+//                            fin[0] = _fin[0];
+//                            fin[1] = _center[1];
+//                            robot->setFin(fin);
+//                        }
+//                    }else{
+//                        if (getMarca(i)->getMarkerInfo()->pos[1] > ((_fin[1] - _center[1]) / 2 + _center[1])){
+//                            robot->setDir(4);
+//                            fin[0] = _center[0];
+//                            fin[1] = _fin[1];
+//                            robot->setFin(fin);
+//                        }else{
+//                            robot->setDir(3);
+//                            fin[0] = _center[0];
+//                            fin[1] = _center[1];
+//                            robot->setFin(fin);
+//                        }
+//                    }
                 }
                 std::cout<<"Robot: "<<i<<" "<< "getLock: "<<getLock()<<std::endl;
-                robot = getRobot(i-2);
                 setLock(i);
                 if (_objetos.size() > 0){
                     std::cout<<"Hay objetos de color: "<<_objetos.size()<<std::endl;
@@ -162,7 +167,9 @@ void Scene::Actualizar(){
                         std::cout<<"Tengo un objeto asignado: "<<nObjeto<<std::endl;
                         double posicionO[2];
                         _objetos[nObjeto].getPos(posicionO);
-                        robot->setFin(posicionO);
+
+                        arobot->setFin(posicionO);
+                        //cout<<"Objeto x: "<<posicionO[0]<<" Objeto y: "<<posicionO[1]<<endl;
                         double m[2];
                         float v[2];
                         m[0] = getMarca(i)->getMarkerInfo()->pos[0];
@@ -170,34 +177,36 @@ void Scene::Actualizar(){
                         v[0] = posicionO[0] - (getMarca(i)->getMarkerInfo()->pos[0]);
                         v[1] = posicionO[1] - (getMarca(i)->getMarkerInfo()->pos[1]);
                         float angulo = getAngulo(v);
-                        robot->setRot(angulo);
+                        arobot->setAng(angulo);
+                        cout<<"Angulo "<<angulo<<endl;
+                        cout<<"Rotacion "<<getRotacion(i)<<endl;
                         double dist01 = sqrt(pow((posicionO[0]-m[0]),2)+pow((posicionO[1]-m[1]),2));
                         if (dist01 > 75){
-                            if (getRotacion(i)>(angulo+10) || getRotacion(i)<(angulo-10)){
-                                if (angulo>getRotacion(i)){
-                                    if (angulo-getRotacion(i)<180){
-                                        robot->izquierda();
-                                    }
-                                    else{
-                                        robot->derecha();
-                                    }
-                                }else{
-                                    if (angulo-getRotacion(i)<180){
-                                        robot->derecha();
-                                    }
-                                    else{
-                                        robot->izquierda();
-                                    }
-                                }
-                                robot->setEst(6);
-                            }else{  //Ya está orientado (Dentro del umbral)
-                                robot->avanzar();
-                                robot->setEst(5);
-                            }
+                            arobot->planifica(getMarca(i)->getMarkerInfo(),_center,_fin,3,getRotacion(i));
+//                            if (getRotacion(i)>(angulo+10) || getRotacion(i)<(angulo-10)){
+//                                if (angulo>getRotacion(i)){
+//                                    if (angulo-getRotacion(i)<180){
+//                                        robot->izquierda();
+//                                    }
+//                                    else{
+//                                        robot->derecha();
+//                                    }
+//                                }else{
+//                                    if (angulo-getRotacion(i)<180){
+//                                        robot->derecha();
+//                                    }
+//                                    else{
+//                                        robot->izquierda();
+//                                    }
+//                                }
+//                                robot->setEst(6);
+//                            }else{  //Ya está orientado (Dentro del umbral)
+//                                robot->avanzar();
+//                                robot->setEst(5);
+//                            }
                         }else{  //Cerca del objeto (Distancia < limite)
                             setLock(0);
-                            robot->parar();
-                            robot->setEst(7);
+                            arobot->detener();
                         }
                     }else{  //No hay color asignado
                         std::cout<<"No tengo objeto asignado"<<std::endl;
@@ -207,7 +216,7 @@ void Scene::Actualizar(){
                             _objetos[prioritario].setRobot(i);
                             double pO[2];
                             _objetos[prioritario].getPos(pO);
-                            robot->setFin(pO);
+                            arobot->setFin(pO);
                             double m[2];
                             float v[2];
                             m[0] = getMarca(i)->getMarkerInfo()->pos[0];
@@ -215,72 +224,72 @@ void Scene::Actualizar(){
                             v[0] = pO[0] - (getMarca(i)->getMarkerInfo()->pos[0]);
                             v[1] = pO[1] - (getMarca(i)->getMarkerInfo()->pos[1]);
                             float angulo = getAngulo(v);
-                            robot->setRot(angulo);
+                            arobot->setAng(angulo);
                             double dist01 = sqrt(pow((pO[0]-m[0]),2)+pow((pO[1]-m[1]),2));
                             if (dist01 > 75){
-                                if (getRotacion(i)>(angulo+10) || getRotacion(i)<(angulo-10)){
-                                    if (angulo>getRotacion(i)){
-                                        if (angulo-getRotacion(i)<180){
-                                            robot->izquierda();
-                                        }
-                                        else{
-                                            robot->derecha();
-                                        }
-                                    }else{
-                                        if (angulo-getRotacion(i)<180){
-                                            robot->derecha();
-                                        }
-                                        else{
-                                            robot->izquierda();
-                                        }
-                                    }
-                                    robot->setEst(6);
-                                }else{  //Ya está orientado (Dentro del umbral)
-                                    robot->avanzar();
-                                    robot->setEst(5);
-                                }
+                                arobot->planifica(getMarca(i)->getMarkerInfo(),_center,_fin,2,getRotacion(i));
+//                                if (getRotacion(i)>(angulo+10) || getRotacion(i)<(angulo-10)){
+//                                    if (angulo>getRotacion(i)){
+//                                        if (angulo-getRotacion(i)<180){
+//                                            robot->izquierda();
+//                                        }
+//                                        else{
+//                                            robot->derecha();
+//                                        }
+//                                    }else{
+//                                        if (angulo-getRotacion(i)<180){
+//                                            robot->derecha();
+//                                        }
+//                                        else{
+//                                            robot->izquierda();
+//                                        }
+//                                    }
+//                                    robot->setEst(6);
+//                                }else{  //Ya está orientado (Dentro del umbral)
+//                                    robot->avanzar();
+//                                    robot->setEst(5);
+//                                }
                             }else{  //Cerca del objeto (Distancia < limite)
                                 setLock(0);
-                                robot->parar();
-                                robot->setEst(7);
+                                arobot->detener();
                             }
-                            cout<<"Aqui 55"<<endl;
                         }
                     }
                 }else{
                     std::cout<<"Robot: "<<i<<" "<< " no tiene objeto a vigilar"<<std::endl;
                     double fin[2];
                     setLock(0);
-                    if (robot->getEst()>4){
-                        if (getMarca(i)->getMarkerInfo()->pos[0] > ((_fin[0] - _center[0]) / 2 + _center[0])){
-                            if (getMarca(i)->getMarkerInfo()->pos[1] > ((_fin[1] - _center[1]) / 2 + _center[1])){
-                                robot->setDir(1);
-                                fin[0] = _fin[0];
-                                fin[1] = _fin[1];
-                                robot->setFin(fin);
-                            }else{
-                                robot->setDir(2);
-                                fin[0] = _fin[0];
-                                fin[1] = _center[1];
-                                robot->setFin(fin);
-                            }
-                        }else{
-                            if (getMarca(i)->getMarkerInfo()->pos[1] > ((_fin[1] - _center[1]) / 2 + _center[1])){
-                                robot->setDir(4);
-                                fin[0] = _center[0];
-                                fin[1] = _fin[1];
-                                robot->setFin(fin);
-                            }else{
-                                robot->setDir(3);
-                                fin[0] = _center[0];
-                                fin[1] = _center[1];
-                                robot->setFin(fin);
-                            }
-                        }
-                        robot->setEst(0);
+                    if (arobot->getEst()>4){
+                        arobot->planifica(getMarca(i)->getMarkerInfo(),_center,_fin,1,getRotacion(i));
+//                        if (getMarca(i)->getMarkerInfo()->pos[0] > ((_fin[0] - _center[0]) / 2 + _center[0])){
+//                            if (getMarca(i)->getMarkerInfo()->pos[1] > ((_fin[1] - _center[1]) / 2 + _center[1])){
+//                                robot->setDir(1);
+//                                fin[0] = _fin[0];
+//                                fin[1] = _fin[1];
+//                                robot->setFin(fin);
+//                            }else{
+//                                robot->setDir(2);
+//                                fin[0] = _fin[0];
+//                                fin[1] = _center[1];
+//                                robot->setFin(fin);
+//                            }
+//                        }else{
+//                            if (getMarca(i)->getMarkerInfo()->pos[1] > ((_fin[1] - _center[1]) / 2 + _center[1])){
+//                                robot->setDir(4);
+//                                fin[0] = _center[0];
+//                                fin[1] = _fin[1];
+//                                robot->setFin(fin);
+//                            }else{
+//                                robot->setDir(3);
+//                                fin[0] = _center[0];
+//                                fin[1] = _center[1];
+//                                robot->setFin(fin);
+//                            }
+//                        }
+                        arobot->setEst(0);
                     }else{
                         double posicionO[2];
-                        robot->getFin(posicionO);
+                        arobot->getFin(posicionO);
                         double m[2];
                         float v[2];
                         m[0] = getMarca(i)->getMarkerInfo()->pos[0];
@@ -288,55 +297,56 @@ void Scene::Actualizar(){
                         v[0] = posicionO[0] - (getMarca(i)->getMarkerInfo()->pos[0]);
                         v[1] = posicionO[1] - (getMarca(i)->getMarkerInfo()->pos[1]);
                         float angulo = getAngulo(v);
-                        robot->setRot(angulo);
+                        arobot->setAng(angulo);
                         double dist01 = sqrt(pow((posicionO[0]-m[0]),2)+pow((posicionO[1]-m[1]),2));
                         if (dist01 > 75){
-                            if (getRotacion(i)>(angulo+10) || getRotacion(i)<(angulo-10)){
-                                if (angulo>getRotacion(i)){
-                                    if (angulo-getRotacion(i)<180){
-                                        robot->izquierda();
-                                    }
-                                    else{
-                                        robot->derecha();
-                                    }
-                                }else{
-                                    if (angulo-getRotacion(i)<180){
-                                        robot->derecha();
-                                    }
-                                    else{
-                                        robot->izquierda();
-                                    }
-                                }
-                                robot->setEst(2);
-                            }else{  //Ya está orientado (Dentro del umbral)
-                                robot->avanzar();
-                                robot->setEst(1);
-                            }
+                            arobot->planifica(getMarca(i)->getMarkerInfo(),_center,_fin,4,getRotacion(i));
+//                            if (getRotacion(i)>(angulo+10) || getRotacion(i)<(angulo-10)){
+//                                if (angulo>getRotacion(i)){
+//                                    if (angulo-getRotacion(i)<180){
+//                                        robot->izquierda();
+//                                    }
+//                                    else{
+//                                        robot->derecha();
+//                                    }
+//                                }else{
+//                                    if (angulo-getRotacion(i)<180){
+//                                        robot->derecha();
+//                                    }
+//                                    else{
+//                                        robot->izquierda();
+//                                    }
+//                                }
+//                                robot->setEst(2);
+//                            }else{  //Ya está orientado (Dentro del umbral)
+//                                robot->avanzar();
+//                                robot->setEst(1);
+//                            }
                         }else{
-                            switch(robot->getDir()){
+                            switch(arobot->getDir()){
                                 case 4:
-                                    robot->setDir(1);
+                                    arobot->setDir(1);
                                     fin[0] = _fin[0];
                                     fin[1] = _fin[1];
-                                    robot->setFin(fin);
+                                    arobot->setFin(fin);
                                 break;
                                 case 3:
-                                    robot->setDir(4);
+                                    arobot->setDir(4);
                                     fin[0] = _center[0];
                                     fin[1] = _fin[1];
-                                    robot->setFin(fin);
+                                    arobot->setFin(fin);
                                 break;
                                 case 2:
-                                    robot->setDir(3);
+                                    arobot->setDir(3);
                                     fin[0] = _center[0];
                                     fin[1] = _center[1];
-                                    robot->setFin(fin);
+                                    arobot->setFin(fin);
                                 break;
                                 case 1:
-                                    robot->setDir(2);
+                                    arobot->setDir(2);
                                     fin[0] = _fin[0];
                                     fin[1] = _center[1];
-                                    robot->setFin(fin);
+                                    arobot->setFin(fin);
                                 break;
                             }
                         }
@@ -434,7 +444,7 @@ Scene::Scene()
   _objetos.clear();
   _objs.clear();
   _marcas.clear();
-  _robots.clear();
+  _arobots.clear();
   double p_center[2] = {0.0, 0.0};
   char p_patt[] = "data/4x4_26.patt";
   _marcas.push_back(Marca(30.0,p_center,p_patt));
@@ -461,8 +471,8 @@ Scene::Scene()
   _marcas[4].setVisible(false);
   //if((_marcas[4].getId()) < 0) return -1;
 
-  _robots.push_back(Robot(0));
-  _robots.push_back(Robot(1));
+  _arobots.push_back(ARobot(0));
+  _arobots.push_back(ARobot(1));
   //_robots[2] = Robot();
 
 }
@@ -538,6 +548,6 @@ Scene& Scene::operator=(const Scene &s){
   for (int i=0;i<5;i++)
     this->_marcas[i] = s._marcas[i];
   for (int j=0;j<3;j++)
-    this->_robots[j] = s._robots[j];
+    this->_arobots[j] = s._arobots[j];
   return *this;
 }

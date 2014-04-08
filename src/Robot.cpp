@@ -94,26 +94,31 @@ void Robot::avanzar(){
     strcpy(codigo_hacia_arduino,"w");
     puerto=fd;
     enviar_hacia_arduino(puerto);
+    std::cout<<"AVANZAR"<<std::endl;
 }
 void Robot::retroceder(){
     strcpy(codigo_hacia_arduino,"s");
     puerto=fd;
     enviar_hacia_arduino(puerto);
+    std::cout<<"RETROCEDER"<<std::endl;
 }
 void Robot::izquierda(){
     strcpy(codigo_hacia_arduino,"a");
     puerto=fd;
     enviar_hacia_arduino(puerto);
+    std::cout<<"IZQUIERDA"<<std::endl;
 }
 void Robot::derecha(){
     strcpy(codigo_hacia_arduino,"d");
     puerto=fd;
     enviar_hacia_arduino(puerto);
+    std::cout<<"DERECHA"<<std::endl;
 }
 void Robot::parar(){
     strcpy(codigo_hacia_arduino,"x");
     puerto=fd;
     enviar_hacia_arduino(puerto);
+    std::cout<<"PARAR"<<std::endl;
 }
 
 int Robot::getDir(){
