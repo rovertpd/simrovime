@@ -1,11 +1,11 @@
 #include "Robot.h"
 
-Robot::Robot(){
+Robot::Robot(int id){
     _pos[0] = 0.0;
     _pos[1] = 0.0;
     _rot = 0.0;
     puerto = 0;
-    verbose = 1;
+    _id = id;
     fd = 0;
     direccion = 0;
     open_port();
@@ -15,12 +15,17 @@ Robot::Robot(){
 void Robot::open_port()
 {
    char ttyport[33];
-
-   sprintf(ttyport, "/dev/ttyUSB0");
+   if (_id == 2){
+       sprintf(ttyport, "/dev/ttyUSB2");
+   }else if (_id == 1){
+       sprintf(ttyport, "/dev/ttyUSB1");
+   }else{
+       sprintf(ttyport, "/dev/ttyUSB0");
+   }
    fd = open(ttyport, O_RDWR | O_NDELAY);
    if (fd != -1)
    {
-	  if(verbose) printf("\nPuerto %s ok!", ttyport );
+	  printf("\nPuerto %s ok!", ttyport );
    }
 
    if (fd == -1)
@@ -152,7 +157,7 @@ Robot& Robot::operator= (const Robot &r){
     this->_pos[1] = r._pos[1];
     this->_rot = r._rot;
     this->puerto = r.puerto;
-    this->verbose = r.verbose;
+    this->_id = r._id;
     this->fd = r.fd;
     this->direccion = r.direccion;
     return *this;

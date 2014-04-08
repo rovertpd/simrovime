@@ -18,7 +18,7 @@
       Gtk::Widget(),
       mRenderWindow(0), mSceneMgr(0), mViewport(0), mCamera(0)
     {
-      set_flags(Gtk::NO_WINDOW);
+       set_flags(Gtk::NO_WINDOW);
       std::cout << "GType name: " << G_OBJECT_TYPE_NAME(gobj()) << std::endl;
       _center[0] = 0.0;  _center[1] = 0.0;  _scene = Scene::Instance();
       _fin[0] = 0.0;    _fin[1] = 0.0;  frame = 0;
@@ -162,13 +162,14 @@
           //_videoManager->DrawCurrentFrame();
           if (frame % 3 ==0){
               _videoManager->DrawCurrentFrame(frame);
-          }
+
               Marca marcas[5];
               _scene->getMarcas(marcas);
               if (_arDetector->detectMark(_videoManager->getCurrentFrameMat(), marcas )){
                   _scene->setMarcas(marcas);
                   _scene->Actualizar();     // LLamamos a la escena para que se actualice
                   //else  mSceneMgr->getEntity("Esfera")->setVisible(false);
+              }
 
           }
           frame ++;

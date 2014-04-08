@@ -144,10 +144,10 @@ void VideoManager::DrawCurrentFrame(int frame){
               pDest[idx+2] = 255;
               pDest[idx+3] = 255;
               colors=true;
-              y_r_total = y_r_total + i;
-              x_r_total = x_r_total + j;
-              y_r_cont++;
-              x_r_cont++;
+              y_a_total = y_a_total + i;
+              x_a_total = x_a_total + j;
+              y_a_cont++;
+              x_a_cont++;
               //_col=true;
           }else if (col == 2){
               int idx = ((j) * pixelBox.rowPitch + i )*4;
@@ -167,10 +167,10 @@ void VideoManager::DrawCurrentFrame(int frame){
               pDest[idx+2] = 0;
               pDest[idx+3] = 255;
               colors=true;
-              y_a_total = y_a_total + i;
-              x_a_total = x_a_total + j;
-              y_a_cont++;
-              x_a_cont++;
+              y_r_total = y_r_total + i;
+              x_r_total = x_r_total + j;
+              y_r_cont++;
+              x_r_cont++;
           }else{
               int idx = ((j) * pixelBox.rowPitch + i )*4;
               pDest[idx] = _frameMat->data[(j*_frameMat->cols+i)*3];
@@ -186,16 +186,25 @@ void VideoManager::DrawCurrentFrame(int frame){
           pDest[idx+2] = 255;
           pDest[idx+3] = 255;
       }
+      if ((_scene->getGrid()>0.0)){
+        if (((i%_scene->getGrid()) == 0) && ((j%_scene->getGrid())==0)){
+          int idx = ((j) * pixelBox.rowPitch + i )*4;
+          pDest[idx] = 0;
+          pDest[idx+1] = 0;
+          pDest[idx+2] = 0;
+          pDest[idx+3] = 255;
+        }
+      }
     }
   }
   if (colors){
       double fin[2];
-//      if (x_r_cont > 0){
-//            fin[0] = x_r_total / x_r_cont;
-//            fin[1] = y_r_total / y_r_cont;
-//            _scene->addObject(*(new Objeto(1,5,fin)));
-//            printf("Punto medio rojo en %f, %f\n",fin[0], fin[1]);
-//      }
+      if (x_r_cont > 0){
+            fin[0] = x_r_total / x_r_cont;
+            fin[1] = y_r_total / y_r_cont;
+            _scene->addObject(*(new Objeto(1,5,fin)));
+            printf("Punto medio rojo en %f, %f\n",fin[0], fin[1]);
+      }
       if (x_v_cont > 0){
             fin[0] = x_v_total / x_v_cont;
             fin[1] = y_v_total / y_v_cont;
@@ -212,7 +221,7 @@ void VideoManager::DrawCurrentFrame(int frame){
   }else _scene->clearColors();
 
   pBuffer->unlock();
-  Ogre::Rectangle2D* rect = static_cast<Ogre::Rectangle2D*>
-    (_sceneManager->getSceneNode("BackgroundNode")->
-        getAttachedObject(0));
+//  Ogre::Rectangle2D* rect = static_cast<Ogre::Rectangle2D*>
+//    (_sceneManager->getSceneNode("BackgroundNode")->
+//        getAttachedObject(0));
 }

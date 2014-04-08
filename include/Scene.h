@@ -4,8 +4,13 @@
 #include "Robot.h"
 #include "Objeto.h"
 #include "ARTKDetector.h"
-#include <Ogre.h>
+#include <OGRE/Ogre.h>
+#include <boost/lexical_cast.hpp>
+#include <boost/python/str.hpp>
+#include "estado.h"
 #include <vector>
+#include  <pthread.h>
+
 using namespace std;
 
 class Scene
@@ -22,6 +27,8 @@ class Scene
       void setP_inf(double x,double y);
       void setP_inf_der(double x,double y);
       void setP_inf_izq(double x,double y);
+      void setAlto(int alto);
+      void setAncho(int ancho);
       void setARTK(ARTKDetector *artk);
       void Actualizar();
       float getAngulo(float v[2]);
@@ -35,6 +42,7 @@ class Scene
       void clearColors();
       void clearObjs();
       int pertenece(Objeto ob);
+      int getGrid();
       double* getP_sup();
       double* getP_sup_der();
       double* getP_sup_izq();
@@ -45,7 +53,12 @@ class Scene
       Scene();
       //Scene(const Scene & ) ;
       Scene &operator= (const Scene &s) ;
+      vector<int> arrayToVectorMap();
+      void *Busca_Solucion(void *arg);
+      static void *Busca(void *arg);
    private:
+      pthread_mutex_t ptmutex1;
+      pthread_t mithread001;
       ARTKDetector* _arDetector;
       static Scene* pinstance;
       double _center[2];
@@ -55,6 +68,13 @@ class Scene
       vector<Marca> _marcas;
       vector<Objeto> _objetos;
       vector<Objeto> _objs;
+      int _grid_d;
+      int _alto;
+      int _ancho;
+      int **_map;
+      vector<char> _lMov;
+      bool _path;
+      bool _path1;
       double _p_sup[2];
       double _p_sup_der[2];
       double _p_inf_der[2];

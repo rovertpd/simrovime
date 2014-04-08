@@ -25,12 +25,15 @@ void Scene::setP_sup_izq(double x,double y){_p_sup_izq[0] = x; _p_sup_izq[1] = y
 void Scene::setP_inf(double x,double y){_p_inf[0] = x; _p_inf[1] = y;}
 void Scene::setP_inf_der(double x,double y){_p_inf_der[0] = x; _p_inf_der[1] = y;}
 void Scene::setP_inf_izq(double x,double y){_p_inf_izq[0] = x; _p_inf_izq[1] = y;}
+void Scene::setAlto(int alto){_alto = alto;}
+void Scene::setAncho(int ancho){_ancho = ancho;}
 double* Scene::getP_sup(){return _p_sup;}
 double* Scene::getP_sup_der(){return _p_sup_der;}
 double* Scene::getP_sup_izq(){return _p_sup_izq;}
 double* Scene::getP_inf(){return _p_inf;}
 double* Scene::getP_inf_der(){return _p_inf_der;}
 double* Scene::getP_inf_izq(){return _p_inf_izq;}
+int Scene::getGrid(){return _grid_d;}
 
 void Scene::setARTK(ARTKDetector *artk){
     _arDetector = artk;
@@ -49,6 +52,7 @@ void Scene::setMarcas(Marca marcas[5]){
 }
 
 void Scene::Actualizar(){
+    cout<<"Aqui 77"<<endl;
     ARMarkerInfo *mark1;
     ARMarkerInfo *mark2;
     if(getMarca(0)->getVisible() && _center[0]==0.0){
@@ -84,8 +88,41 @@ void Scene::Actualizar(){
 
     Robot* robot;
     if (_fin[0] != 0.0){
+        _grid_d = 0;
+        for (int j=0; j<5; j++){
+            if (getMarca(j)->getVisible()){
+                double m[2],m1[2];
+                m[0] = getMarca(j)->getMarkerInfo()->vertex[0][0];
+                m[1] = getMarca(j)->getMarkerInfo()->vertex[0][1];
+                m1[0] = getMarca(j)->getMarkerInfo()->vertex[2][0];
+                m1[1] = getMarca(j)->getMarkerInfo()->vertex[2][1];
+                if(sqrt(pow(m1[0]-m[0],2)+pow(m1[1]-m[1],2)) > _grid_d){
+                    _grid_d = sqrt(pow(m1[0]-m[0],2)+pow(m1[1]-m[1],2));
+                }
+            }
+        }
+
         for (int i=2; i<5; i++){
             if (getMarca(i)->getVisible()&&(getLock()==0 || getLock()==i)){
+                cout<<"Aqui 66"<<_path<<endl;
+                if (_path){
+                    cout<<"Aqui 11"<<endl;
+                    _path1 =false;
+                    _path = false;
+                    for(std::vector<char>::iterator it = _lMov.begin(); it != _lMov.end(); it++)
+                        cout<<"Accion: "<<*it<<endl;
+                        cout<<"Aqui 22"<<endl;
+                }else if (!_path1){
+                    cout<<"Aqui 33"<<endl;
+                    int arg[] = {i-2, getMarca(i)->getMarkerInfo()->pos[0], getMarca(i)->getMarkerInfo()->pos[1], _fin[0], _fin[1]};
+                    cout<<"XXXXXXX: "<<arg[1]<<endl;
+                    cout<<"Aqui 44"<<endl;
+                    if (pthread_create( &mithread001, NULL, &Scene::Busca,(void *)arg ) ) {
+                        printf("Error creando el hilo.");
+                        abort();
+                    }
+                    _path1 = true;
+                }
                 if (getMarca(i)->getMarkerInfo()->pos[0]==0.0){ //Inicializamos las posiciones de la trayectoria (los puntos finales)
                     double fin[2];
                     if (getMarca(i)->getMarkerInfo()->pos[0] > ((_fin[0] - _center[0]) / 2 + _center[0])){
@@ -114,7 +151,7 @@ void Scene::Actualizar(){
                         }
                     }
                 }
-                std::cout<<"Robot: "<<i-2<<" "<< "getLock: "<<getLock()<<std::endl;
+                std::cout<<"Robot: "<<i<<" "<< "getLock: "<<getLock()<<std::endl;
                 robot = getRobot(i-2);
                 setLock(i);
                 if (_objetos.size() > 0){
@@ -207,6 +244,7 @@ void Scene::Actualizar(){
                                 robot->parar();
                                 robot->setEst(7);
                             }
+                            cout<<"Aqui 55"<<endl;
                         }
                     }
                 }else{
@@ -304,9 +342,64 @@ void Scene::Actualizar(){
                         }
                     }
                 }
+//                double m[4],m1[4];
+//                m[0] = getMarca(i)->getMarkerInfo()->vertex[0][0];
+//                m1[0] = getMarca(i)->getMarkerInfo()->vertex[0][1];
+//                m[1] = getMarca(i)->getMarkerInfo()->vertex[1][0];
+//                m1[1] = getMarca(i)->getMarkerInfo()->vertex[1][1];
+//                m[2] = getMarca(i)->getMarkerInfo()->vertex[2][0];
+//                m1[2] = getMarca(i)->getMarkerInfo()->vertex[2][1];
+//                m[3] = getMarca(i)->getMarkerInfo()->vertex[3][0];
+//                m1[3] = getMarca(i)->getMarkerInfo()->vertex[3][1];
             }
         }
     }
+}
+
+vector<int> Scene::arrayToVectorMap(){
+        vector<int> ret;
+        for(int i = 0; i < _ancho%_grid_d; i++)
+                for(int j = 0; j < _alto%_grid_d; j++)
+                        ret.push_back(_map[i][j]);
+        return ret;
+}
+
+void *Scene::Busca(void *arg){
+    return ((Scene *)arg)->Busca_Solucion(arg);
+}
+
+void *Scene::Busca_Solucion(void *arg){
+  int *ida = (int*)arg;
+  int id = ida[0];
+  int posx = ida[1];
+  int posy = ida[2];
+  int posxF = ida[3];
+  int posyF = ida[4];
+  Estado * e = new Estado(id,posx,posy,_ancho%_grid_d,_alto%_grid_d,posxF,posyF,arrayToVectorMap());
+  _path = false;
+  cout<<"posx: "<<posx<<endl;
+  cout<<"posx de estado: "<<e->get_posx()<<endl;
+  try{
+      object mainobj = import("__main__");
+      object dictionary(mainobj.attr("__dict__"));
+      object result;
+      result = exec_file("IA.py",dictionary, dictionary);
+      object busqueda = dictionary["Ejecutar"];
+      if(!busqueda.is_none()){
+        boost::shared_ptr<Estado> estado(e);
+          busqueda(ptr(estado.get()));
+          Estado *obj = ptr(estado.get());
+          std::vector<char> aux = obj->get_mov();
+          for(std::vector<char>::iterator it = aux.begin(); it != aux.end(); it++)
+              _lMov.push_back(*it);
+          pthread_mutex_lock(&ptmutex1);
+          _path = true;
+          cout<<"valor de path"<<_path<<endl;
+          pthread_mutex_unlock(&ptmutex1);
+      }
+  }catch(boost::python::error_already_set const &){}
+  cout<<"valor de path"<<_path<<endl;
+  return NULL;
 }
 
 float Scene::getAngulo(float v[2]){
@@ -330,11 +423,14 @@ float Scene::getRotacion(int id){
 
 Scene::Scene()
 {
+  _grid_d=0;
   _center[0]=0.0;
   _center[1]=0.0;
   _fin[0]=0.0;
   _fin[1]=0.0;
   _lock = 0;
+  pthread_mutex_init(&ptmutex1,NULL);
+  _path = false;
   _objetos.clear();
   _objs.clear();
   _marcas.clear();
@@ -355,18 +451,18 @@ Scene::Scene()
   _marcas[2].setVisible(false);
   //if((_marcas[2].getId()) < 0) return -1;
 
-  strcpy(p_patt,"data/identic.patt");
+  strcpy(p_patt,"data/4x4_95.patt");
   _marcas.push_back(Marca(50.0,p_center,p_patt));
   _marcas[3].setVisible(false);
   //if((_marcas[3].getId()) < 0) return -1;
 
-  strcpy(p_patt,"data/identic.patt");
+  strcpy(p_patt,"data/4x4_85.patt");
   _marcas.push_back(Marca(50.0,p_center,p_patt));
   _marcas[4].setVisible(false);
   //if((_marcas[4].getId()) < 0) return -1;
 
-  _robots.push_back(Robot());
-  //_robots[1] = Robot();
+  _robots.push_back(Robot(0));
+  _robots.push_back(Robot(1));
   //_robots[2] = Robot();
 
 }

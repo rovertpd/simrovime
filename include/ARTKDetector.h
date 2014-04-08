@@ -1,7 +1,7 @@
     #include <AR/ar.h>
     #include <AR/gsub.h>
     #include <AR/param.h>
-    #include <Ogre.h>
+    #include <OGRE/Ogre.h>
     #include <iostream>
     #include "cv.h"
     #include "Marca.h"

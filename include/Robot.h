@@ -22,7 +22,7 @@ class Robot{
         char codigo_desde_arduino[99];
         char dato[2];
         int fd;   /* File descriptor for the port */
-        int verbose;
+        int _id;
         int puerto;
         int direccion;
         double _fin[2];
@@ -33,7 +33,7 @@ class Robot{
         int recibir_desde_arduino(int puerto);
 
     public:
-        Robot();
+        Robot(int id);
         void avanzar();
         void retroceder();
         void izquierda();
