@@ -130,8 +130,12 @@ void VideoManager::DrawCurrentFrame(int frame){
   int y_a_cont = 0;
   int x_a_total = 0;
   int y_a_total = 0;
-
   Ogre::uint8* pDest = static_cast<Ogre::uint8*>(pixelBox.data);
+  if (_scene->getGrid()>0){
+      for (int j=0;j<_scene->getAncho()/_scene->getGrid();j++)
+        for (int i=0;i<_scene->getAlto()/_scene->getGrid();i++)
+          _scene->setMap(i,j,0);
+  }
   //_col=false;
   for(int j=0;j<_frameMat->rows;j++) {
     for(int i=0;i<_frameMat->cols;i++) {
@@ -148,6 +152,7 @@ void VideoManager::DrawCurrentFrame(int frame){
               x_a_total = x_a_total + j;
               y_a_cont++;
               x_a_cont++;
+              _scene->setMap(j/_scene->getGrid(),i/_scene->getGrid(),1);
               //_col=true;
           }else if (col == 2){
               int idx = ((j) * pixelBox.rowPitch + i )*4;
@@ -160,6 +165,7 @@ void VideoManager::DrawCurrentFrame(int frame){
               x_v_total = x_v_total + j;
               y_v_cont++;
               x_v_cont++;
+              _scene->setMap(j/_scene->getGrid(),i/_scene->getGrid(),2);
           }else if (col == 3){
               int idx = ((j) * pixelBox.rowPitch + i )*4;
               pDest[idx] = 0;
@@ -171,6 +177,7 @@ void VideoManager::DrawCurrentFrame(int frame){
               x_r_total = x_r_total + j;
               y_r_cont++;
               x_r_cont++;
+              _scene->setMap(j/_scene->getGrid(),i/_scene->getGrid(),3);
           }else{
               int idx = ((j) * pixelBox.rowPitch + i )*4;
               pDest[idx] = _frameMat->data[(j*_frameMat->cols+i)*3];
@@ -205,12 +212,12 @@ void VideoManager::DrawCurrentFrame(int frame){
             _scene->addObject(*(new Objeto(1,5,fin)));
             printf("Punto medio rojo en %f, %f\n",fin[0], fin[1]);
       }
-      if (x_v_cont > 0){
-            fin[1] = x_v_total / x_v_cont;
-            fin[0] = y_v_total / y_v_cont;
-            _scene->addObject(*(new Objeto(2,3,fin)));
-            printf("Punto medio verde en %f, %f\n",fin[0], fin[1]);
-      }
+//      if (x_v_cont > 0){
+//            fin[1] = x_v_total / x_v_cont;
+//            fin[0] = y_v_total / y_v_cont;
+//            _scene->addObject(*(new Objeto(2,3,fin)));
+//            printf("Punto medio verde en %f, %f\n",fin[0], fin[1]);
+//      }
 //      if (x_a_cont > 0){
 //            fin[1] = x_a_total / x_a_cont;
 //            fin[0] = y_a_total / y_a_cont;

@@ -6,7 +6,9 @@
 #include <AR/ar.h>
 #include <AR/gsub.h>
 #include <AR/param.h>
+#include <vector>
 
+using namespace std;
 
 class ARobot{
     private:
@@ -17,6 +19,8 @@ class ARobot{
         double _fin[2];
         int _estado;
         Robot *_robot;
+        bool _path;
+        vector<char> _lMov;
         ARMarkerInfo *_markerInfo;
         //float angulo;
 
@@ -27,6 +31,9 @@ class ARobot{
         double getAng();
         int getEst();
         void getFin(double f[2]);
+        bool getPath();
+        void addMov(char mov);
+        void setPath(bool path);
         void setEst(int est);
         void setAng(double ang);
         void setFin(double f[2]);

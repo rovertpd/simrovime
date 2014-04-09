@@ -51,6 +51,22 @@ void Scene::setMarcas(Marca marcas[5]){
     }
 }
 
+void Scene::setMap(int h, int a, int valor){
+    _map[h][a] = valor;
+}
+
+int Scene::getMap(int h, int a){
+    return _map[h][a];
+}
+
+int Scene::getAncho(){
+    return _ancho;
+}
+
+int Scene::getAlto(){
+    return _alto;
+}
+
 void Scene::Actualizar(){
     cout<<"Aqui 77"<<endl;
     ARMarkerInfo *mark1;
@@ -83,12 +99,8 @@ void Scene::Actualizar(){
         }
         _fin[0] = mark2->pos[0];
         _fin[1] = mark2->pos[1];
-        std::cout<<"Rotación fin: "<<getRotacion(1)<<std::endl;
-    }
 
-    ARobot* arobot;
-    if (_fin[0] != 0.0){
-        _grid_d = 0;
+        _grid_d = 1000;
         for (int j=0; j<2; j++){
             if (getMarca(j)->getVisible()){
                 double m[2],m1[2];
@@ -96,15 +108,32 @@ void Scene::Actualizar(){
                 m[1] = getMarca(j)->getMarkerInfo()->vertex[0][1];
                 m1[0] = getMarca(j)->getMarkerInfo()->vertex[2][0];
                 m1[1] = getMarca(j)->getMarkerInfo()->vertex[2][1];
-                if(sqrt(pow(m1[0]-m[0],2)+pow(m1[1]-m[1],2)) > _grid_d){
+                if(sqrt(pow(m1[0]-m[0],2)+pow(m1[1]-m[1],2)) < _grid_d){
                     _grid_d = sqrt(pow(m1[0]-m[0],2)+pow(m1[1]-m[1],2));
                 }
             }
         }
 
+        _map = new int *[_alto/_grid_d];
+        for (int i = 0; i < _alto/_grid_d; i++){
+            _map[i] = new int [_ancho/_grid_d];
+        }
+//        int x[_alto/_grid_d];
+//        int y[_ancho/_grid_d];
+//        *_map = x;
+//        for (int al = 0; al < _alto/_grid_d; al++){
+//            _map[al] = y;
+//        }
+        std::cout<<"Rotación fin: "<<getRotacion(1)<<std::endl;
+        cout<<"Tamaño del grid: "<<_grid_d<<endl;
+    }
+
+    ARobot* arobot;
+    if (_fin[0] != 0.0){
         for (int i=2; i<5; i++){
             if (getMarca(i)->getVisible()&&(getLock()==0 || getLock()==i)){
                 arobot = getARobot(i-2);
+
 //                cout<<"Aqui 66"<<_path<<endl;
 //                if (_path){
 //                    cout<<"Aqui 11"<<endl;
@@ -126,10 +155,8 @@ void Scene::Actualizar(){
 //                }
                 double fin[2];
                 arobot->getFin(fin);
-                cout<<"Posicion finalLLLL: ["<<fin[0]<<","<<fin[1]<<"]"<<endl;
                 if (fin[0] == -1.0){ //Inicializamos las posiciones de la trayectoria (los puntos finales)
                     arobot->planifica(getMarca(i)->getMarkerInfo(),_center,_fin,0,getRotacion(i));
-                      cout<<"Inicializado"<<endl;
 //                    double fin[2];
 //                    if (getMarca(i)->getMarkerInfo()->pos[0] > ((_fin[0] - _center[0]) / 2 + _center[0])){
 //                        if (getMarca(i)->getMarkerInfo()->pos[1] > ((_fin[1] - _center[1]) / 2 + _center[1])){
@@ -178,8 +205,6 @@ void Scene::Actualizar(){
                         v[1] = posicionO[1] - (getMarca(i)->getMarkerInfo()->pos[1]);
                         float angulo = getAngulo(v);
                         arobot->setAng(angulo);
-                        cout<<"Angulo "<<angulo<<endl;
-                        cout<<"Rotacion "<<getRotacion(i)<<endl;
                         double dist01 = sqrt(pow((posicionO[0]-m[0]),2)+pow((posicionO[1]-m[1]),2));
                         if (dist01 > 75){
                             arobot->planifica(getMarca(i)->getMarkerInfo(),_center,_fin,3,getRotacion(i));
@@ -374,43 +399,43 @@ vector<int> Scene::arrayToVectorMap(){
         return ret;
 }
 
-void *Scene::Busca(void *arg){
-    return ((Scene *)arg)->Busca_Solucion(arg);
-}
-
-void *Scene::Busca_Solucion(void *arg){
-  int *ida = (int*)arg;
-  int id = ida[0];
-  int posx = ida[1];
-  int posy = ida[2];
-  int posxF = ida[3];
-  int posyF = ida[4];
-  Estado * e = new Estado(id,posx,posy,_ancho%_grid_d,_alto%_grid_d,posxF,posyF,arrayToVectorMap());
-  _path = false;
-  cout<<"posx: "<<posx<<endl;
-  cout<<"posx de estado: "<<e->get_posx()<<endl;
-  try{
-      object mainobj = import("__main__");
-      object dictionary(mainobj.attr("__dict__"));
-      object result;
-      result = exec_file("IA.py",dictionary, dictionary);
-      object busqueda = dictionary["Ejecutar"];
-      if(!busqueda.is_none()){
-        boost::shared_ptr<Estado> estado(e);
-          busqueda(ptr(estado.get()));
-          Estado *obj = ptr(estado.get());
-          std::vector<char> aux = obj->get_mov();
-          for(std::vector<char>::iterator it = aux.begin(); it != aux.end(); it++)
-              _lMov.push_back(*it);
-          pthread_mutex_lock(&ptmutex1);
-          _path = true;
-          cout<<"valor de path"<<_path<<endl;
-          pthread_mutex_unlock(&ptmutex1);
-      }
-  }catch(boost::python::error_already_set const &){}
-  cout<<"valor de path"<<_path<<endl;
-  return NULL;
-}
+//void *Scene::Busca(void *arg){
+//    return ((Scene *)arg)->Busca_Solucion(arg);
+//}
+//
+//void *Scene::Busca_Solucion(void *arg){
+//  int *ida = (int*)arg;
+//  int id = ida[0];
+//  int posx = ida[1];
+//  int posy = ida[2];
+//  int posxF = ida[3];
+//  int posyF = ida[4];
+//  Estado * e = new Estado(id,posx,posy,_ancho%_grid_d,_alto%_grid_d,posxF,posyF,arrayToVectorMap());
+//  _path = false;
+//  cout<<"posx: "<<posx<<endl;
+//  cout<<"posx de estado: "<<e->get_posx()<<endl;
+//  try{
+//      object mainobj = import("__main__");
+//      object dictionary(mainobj.attr("__dict__"));
+//      object result;
+//      result = exec_file("IA.py",dictionary, dictionary);
+//      object busqueda = dictionary["Ejecutar"];
+//      if(!busqueda.is_none()){
+//        boost::shared_ptr<Estado> estado(e);
+//          busqueda(ptr(estado.get()));
+//          Estado *obj = ptr(estado.get());
+//          std::vector<char> aux = obj->get_mov();
+//          for(std::vector<char>::iterator it = aux.begin(); it != aux.end(); it++)
+//              _lMov.push_back(*it);
+//          pthread_mutex_lock(&ptmutex1);
+//          _path = true;
+//          cout<<"valor de path"<<_path<<endl;
+//          pthread_mutex_unlock(&ptmutex1);
+//      }
+//  }catch(boost::python::error_already_set const &){}
+//  cout<<"valor de path"<<_path<<endl;
+//  return NULL;
+//}
 
 float Scene::getAngulo(float v[2]){
     v[1] = -v[1];
@@ -440,7 +465,6 @@ Scene::Scene()
   _fin[1]=0.0;
   _lock = 0;
   pthread_mutex_init(&ptmutex1,NULL);
-  _path = false;
   _objetos.clear();
   _objs.clear();
   _marcas.clear();

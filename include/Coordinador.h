@@ -76,11 +76,5 @@ class Scene
       int _alto;
       int _ancho;
       int **_map;
-      double _p_sup[2];
-      double _p_sup_der[2];
-      double _p_inf_der[2];
-      double _p_inf[2];
-      double _p_inf_izq[2];
-      double _p_sup_izq[2];
 };
 #endif

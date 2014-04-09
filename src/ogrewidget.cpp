@@ -137,6 +137,8 @@
          _videoManager = new VideoManager(1, 640, 480, mSceneMgr);
          _arDetector = new ARTKDetector(640, 480, 100);
          _scene->setARTK(_arDetector);
+         _scene->setAlto(480);
+         _scene->setAncho(640);
           // Start idle function for frame update/rendering
           Glib::signal_idle().connect( sigc::mem_fun(*this, &OgreWidget::on_idle) );
 
@@ -160,7 +162,16 @@
           Ogre::Vector3 pos;  Ogre::Vector3 look;   Ogre::Vector3 up;
           _videoManager->UpdateFrame();
           //_videoManager->DrawCurrentFrame();
-          if (frame % 3 ==0){
+          if ((frame % 10 ==1) && (_scene->getGrid()>0)){
+              std::cout<<"Entra aqui"<<std::endl;
+              for (int j=0;j<_scene->getAncho()/_scene->getGrid();j++){
+                for (int i=0;i<_scene->getAlto()/_scene->getGrid();i++){
+                  std::cout<<_scene->getMap(i,j);
+                }
+                std::cout<<""<<std::endl;
+              }
+              std::cout<<"Sale de aqui"<<std::endl;
+          }
               _videoManager->DrawCurrentFrame(frame);
 
               Marca marcas[5];
@@ -171,7 +182,7 @@
                   //else  mSceneMgr->getEntity("Esfera")->setVisible(false);
               }
 
-          }
+          //}
           frame ++;
 
           Ogre::Root::getSingletonPtr()->_fireFrameEnded();

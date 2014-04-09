@@ -1,3 +1,6 @@
+#ifndef STATE_H
+ #define STATE_H
+
 #include <boost/python/detail/wrap_python.hpp>
 #include <boost/python/object.hpp>
 #include <boost/python/dict.hpp>
@@ -68,4 +71,4 @@ class Estado{
       return ret;
     }
 };
-
+#endif

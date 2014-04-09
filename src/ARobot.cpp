@@ -6,6 +6,7 @@ ARobot::ARobot(int id){
     _ang = 0.0;
     _fin[0] = -1.0;
     _fin[1] = -1.0;
+    _path = false;
     _id = id;
     _direccion = 0;
     _robot = new Robot(_id);
@@ -17,6 +18,18 @@ int ARobot::getId(){
 
 int ARobot::getDir(){
     return _direccion;
+}
+
+bool ARobot::getPath(){
+    return _path;
+}
+
+void ARobot::addMov(char mov){
+    _lMov.push_back(mov);
+}
+
+void ARobot::setPath(bool path){
+    _path = path;
 }
 
 void ARobot::setDir(int dir){
@@ -62,6 +75,7 @@ void ARobot::planifica(ARMarkerInfo *markerInfo,double inicio[2],double fin[2],i
     std::cout<<"Angulo final: "<<_ang<<std::endl;
     std::cout<<"Posicion: ["<<_pos[0]<<","<<_pos[1]<<"]"<<std::endl;
     std::cout<<"Posicion final: ["<<_fin[0]<<","<<_fin[1]<<"]"<<std::endl;
+    std::cout<<"Estado: "<<_estado<<" Direccion: "<<_direccion<<std::endl;
     std::cout<<"Accion: "<<accion<<std::endl;
     if ((accion == 0) || (accion == 1)){
         double final[2];
