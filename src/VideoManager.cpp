@@ -2,12 +2,13 @@
 
 VideoManager::VideoManager(int device, int w, int h,
 			   Ogre::SceneManager* sm){
+  _filter = Filter::Instance();
   _sceneManager = sm;
   _capture = cvCreateCameraCapture(device);
   cvSetCaptureProperty(_capture, CV_CAP_PROP_FRAME_WIDTH, w);
   cvSetCaptureProperty(_capture, CV_CAP_PROP_FRAME_HEIGHT, h);
   createBackground (w, h);
-  _scene = Scene::Instance();
+  //_scene = Scene::Instance();
   _frameIpl = NULL; _frameMat = NULL;
   std::cout<<"creado el video manager"<<std::endl;
 }
@@ -47,6 +48,11 @@ void VideoManager::createBackground(int cols, int rows){
   Ogre::SceneNode* node = _sceneManager->getRootSceneNode()->createChildSceneNode("BackgroundNode");
   node->attachObject(rect);
 }
+
+void VideoManager::attach(Scene *s){
+    _scene.push_back(s);
+}
+
 // ================================================================
 //  UpdateFrame: Actualiza los punteros de frame Ipl y frame Mat
 void VideoManager::UpdateFrame(){
@@ -58,30 +64,30 @@ IplImage* VideoManager::getCurrentFrameIpl(){ return _frameIpl; }
 // = IplImage* getCurrentFrameMat =================================
 cv::Mat* VideoManager::getCurrentFrameMat(){  return _frameMat; }
 
-bool VideoManager::rect_sup(double x, double y){
-    double *sup=_scene->getP_sup();
-    //double *sup_der=_scene->getP_sup_der();
-    //return ((x-sup[0])*(sup_der[1]-sup[1])-(y-sup[1])*(sup_der[0]-sup[0])<0);
-    return (y>sup[1]);
-}
-bool VideoManager::rect_inf(double x, double y){
-    double *inf=_scene->getP_inf();
-    //double *inf_izq=_scene->getP_inf_izq();
-    //return ((x-inf[0])*(inf_izq[1]-inf[1])-(y-inf[1])*(inf_izq[0]-inf[0])<0);
-    return (y<inf[1]);
-}
-bool VideoManager::rect_der(double x, double y){
-    double *inf=_scene->getP_inf();
-    //double *inf_der=_scene->getP_inf_der();
-    //return ((x-inf_der[0])*(inf[1]-inf_der[1])-(y-inf_der[1])*(inf[0]-inf_der[0])<0);
-    return (x<inf[0]);
-}
-bool VideoManager::rect_izq(double x, double y){
-    double *sup=_scene->getP_sup();
-    //double *sup_izq=_scene->getP_sup_izq();
-    //return ((x-sup_izq[0])*(sup[1]-sup_izq[1])-(y-sup_izq[1])*(sup[0]-sup_izq[0])<0);
-    return (x>sup[0]);
-}
+//bool VideoManager::rect_sup(double x, double y){
+//    double *sup=_scene->getP_sup();
+//    //double *sup_der=_scene->getP_sup_der();
+//    //return ((x-sup[0])*(sup_der[1]-sup[1])-(y-sup[1])*(sup_der[0]-sup[0])<0);
+//    return (y>sup[1]);
+//}
+//bool VideoManager::rect_inf(double x, double y){
+//    double *inf=_scene->getP_inf();
+//    //double *inf_izq=_scene->getP_inf_izq();
+//    //return ((x-inf[0])*(inf_izq[1]-inf[1])-(y-inf[1])*(inf_izq[0]-inf[0])<0);
+//    return (y<inf[1]);
+//}
+//bool VideoManager::rect_der(double x, double y){
+//    double *inf=_scene->getP_inf();
+//    //double *inf_der=_scene->getP_inf_der();
+//    //return ((x-inf_der[0])*(inf[1]-inf_der[1])-(y-inf_der[1])*(inf[0]-inf_der[0])<0);
+//    return (x<inf[0]);
+//}
+//bool VideoManager::rect_izq(double x, double y){
+//    double *sup=_scene->getP_sup();
+//    //double *sup_izq=_scene->getP_sup_izq();
+//    //return ((x-sup_izq[0])*(sup[1]-sup_izq[1])-(y-sup_izq[1])*(sup[0]-sup_izq[0])<0);
+//    return (x>sup[0]);
+//}
 
 int VideoManager::color(int x,int y){
     IplImage* img = 0;
@@ -109,7 +115,7 @@ bool VideoManager::getColor(){
 //  DrawCurrentFrame: Despliega el ultimo frame actualizado
 void VideoManager::DrawCurrentFrame(int frame){
   if(_frameMat->rows==0) return;
-  _scene->clearObjs();
+  //_scene->clearObjs();
   Ogre::TexturePtr tex = Ogre::TextureManager::getSingleton().
      getByName("BackgroundTex",
 	 Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -131,15 +137,15 @@ void VideoManager::DrawCurrentFrame(int frame){
   int x_a_total = 0;
   int y_a_total = 0;
   Ogre::uint8* pDest = static_cast<Ogre::uint8*>(pixelBox.data);
-  if (_scene->getGrid()>0){
-      for (int j=0;j<_scene->getAncho()/_scene->getGrid();j++)
-        for (int i=0;i<_scene->getAlto()/_scene->getGrid();i++)
-          _scene->setMap(i,j,0);
-  }
+////////////////////////////  if (_filter->getGrid()>0){
+////////////////////////////      for (int j=0;j<_scene->getAncho()/_filter->getGrid();j++)
+////////////////////////////        for (int i=0;i<_scene->getAlto()/_filter->getGrid();i++)
+////////////////////////////          _scene->setMap(i,j,0);
+////////////////////////////  }
   //_col=false;
   for(int j=0;j<_frameMat->rows;j++) {
     for(int i=0;i<_frameMat->cols;i++) {
-      if(rect_sup(i,j)&&rect_der(i,j)&&rect_inf(i,j)&&rect_izq(i,j)){
+      if(_filter->rect_sup(i,j)&&_filter->rect_der(i,j)&&_filter->rect_inf(i,j)&&_filter->rect_izq(i,j)){
           int col = color(j,i);
           if (col == 1){
               int idx = ((j) * pixelBox.rowPitch + i )*4;
@@ -152,7 +158,7 @@ void VideoManager::DrawCurrentFrame(int frame){
               x_a_total = x_a_total + j;
               y_a_cont++;
               x_a_cont++;
-              _scene->setMap(j/_scene->getGrid(),i/_scene->getGrid(),1);
+//              _scene->setMap(j/_filter->getGrid(),i/_filter->getGrid(),1);
               //_col=true;
           }else if (col == 2){
               int idx = ((j) * pixelBox.rowPitch + i )*4;
@@ -165,7 +171,7 @@ void VideoManager::DrawCurrentFrame(int frame){
               x_v_total = x_v_total + j;
               y_v_cont++;
               x_v_cont++;
-              _scene->setMap(j/_scene->getGrid(),i/_scene->getGrid(),2);
+//              _scene->setMap(j/_filter->getGrid(),i/_filter->getGrid(),2);
           }else if (col == 3){
               int idx = ((j) * pixelBox.rowPitch + i )*4;
               pDest[idx] = 0;
@@ -177,7 +183,7 @@ void VideoManager::DrawCurrentFrame(int frame){
               x_r_total = x_r_total + j;
               y_r_cont++;
               x_r_cont++;
-              _scene->setMap(j/_scene->getGrid(),i/_scene->getGrid(),3);
+//              _scene->setMap(j/_filter->getGrid(),i/_filter->getGrid(),3);
           }else{
               int idx = ((j) * pixelBox.rowPitch + i )*4;
               pDest[idx] = _frameMat->data[(j*_frameMat->cols+i)*3];
@@ -193,8 +199,8 @@ void VideoManager::DrawCurrentFrame(int frame){
           pDest[idx+2] = 255;
           pDest[idx+3] = 255;
       }
-      if ((_scene->getGrid()>0.0)){
-        if (((i%_scene->getGrid()) == 0) && ((j%_scene->getGrid())==0)){
+      if ((_filter->getGrid()>0.0)){
+        if (((i%_filter->getGrid()) == 0) && ((j%_filter->getGrid())==0)){
           int idx = ((j) * pixelBox.rowPitch + i )*4;
           pDest[idx] = 0;
           pDest[idx+1] = 0;
@@ -209,7 +215,9 @@ void VideoManager::DrawCurrentFrame(int frame){
       if (x_r_cont > 0){
             fin[1] = x_r_total / x_r_cont;
             fin[0] = y_r_total / y_r_cont;
-            _scene->addObject(*(new Objeto(1,5,fin)));
+            for (vector<Scene*>::iterator it = _scene.begin(); it != _scene.end(); ++it) {
+              (*it)->addObject(*(new Objeto(1,5,fin)));
+            }
             printf("Punto medio rojo en %f, %f\n",fin[0], fin[1]);
       }
 //      if (x_v_cont > 0){
@@ -224,8 +232,8 @@ void VideoManager::DrawCurrentFrame(int frame){
 //            _scene->addObject(*(new Objeto(3,1,fin)));
 //            printf("Punto medio azul en %f, %f\n",fin[0], fin[1]);
 //      }
-      _scene->actualizaColores();
-  }else _scene->clearColors();
+//      _scene->actualizaColores();
+  }//else _scene->clearColors();
 
   pBuffer->unlock();
 //  Ogre::Rectangle2D* rect = static_cast<Ogre::Rectangle2D*>

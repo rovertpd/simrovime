@@ -1,3 +1,6 @@
+#ifndef ARTK_H
+    #define ARTK_H
+
     #include <AR/ar.h>
     #include <AR/gsub.h>
     #include <AR/param.h>
@@ -30,3 +33,4 @@
              Ogre::Vector3 &up,Marca* marca);
       //void getObjects(Marca ob[5]);
     };
+#endif

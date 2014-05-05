@@ -10,17 +10,28 @@
 #include "estado.h"
 #include <vector>
 #include "ia.h"
+#include "Filter.h"
+
+class Scene;
+
+#include "VideoManager.h"
+#include "Coordinador.h"
 
 using namespace std;
 
 class Scene
 {
    public:
-      static Scene* Instance();
+      Scene();
+      Scene(VideoManager *vm);
+
+      void attach(Coordinador *c);
+
       void getMarcas(Marca marcas[5]);
       void setMarcas(Marca marcas[5]);
       Marca* getMarca(int id);
-      ARobot* getARobot(int id);
+      vector<Objeto> getObjetos();
+//      ARobot* getARobot(int id);
       void setP_sup(double x,double y);
       void setP_sup_der(double x,double y);
       void setP_sup_izq(double x,double y);
@@ -32,13 +43,16 @@ class Scene
       int getAncho();
       int getAlto();
       void setARTK(ARTKDetector *artk);
+      ARTKDetector* getARTK();
       void Actualizar();
       float getAngulo(float v[2]);
       float getRotacion(int id);
-      int getLock();
+//      int getLock();
       int getObjeto(int id);
       int getPrioritario();
-      void setLock(int id);
+//      void setLock(int id);
+      double * getCenter();
+      double * getFin();
       void addObject(Objeto ob);
       void actualizaColores();
       void clearColors();
@@ -54,7 +68,6 @@ class Scene
       double* getP_inf_der();
       double* getP_inf_izq();
    protected:
-      Scene();
       //Scene(const Scene & ) ;
       Scene &operator= (const Scene &s) ;
       vector<int> arrayToVectorMap();
@@ -68,7 +81,8 @@ class Scene
       double _center[2];
       double _fin[2];
       int _lock;
-      vector<ARobot> _arobots;
+      VideoManager* _vmanager;
+//      vector<ARobot> _arobots;
       vector<Marca> _marcas;
       vector<Objeto> _objetos;
       vector<Objeto> _objs;
@@ -76,11 +90,13 @@ class Scene
       int _alto;
       int _ancho;
       int **_map;
+      vector<Coordinador*> _coordinador;
       double _p_sup[2];
       double _p_sup_der[2];
       double _p_inf_der[2];
       double _p_inf[2];
       double _p_inf_izq[2];
       double _p_sup_izq[2];
+      Filter* _filter;
 };
 #endif

@@ -1,7 +1,7 @@
 
 #include <gtkmm/main.h>
     #include "ogrewindow.h"
-    #include "Scene.h"
+    #include "Filter.h"
 
 
 BOOST_PYTHON_MODULE( State )
@@ -25,6 +25,8 @@ BOOST_PYTHON_MODULE( State )
         Py_Initialize();
         initState();
 
+        Filter::Instance();
+
         Ogre::Root* root = new Ogre::Root();
 
         if (!root->showConfigDialog())
@@ -33,8 +35,6 @@ BOOST_PYTHON_MODULE( State )
         root->initialise(false);
 
         Gtk::Main kit(argc, argv);
-
-        Scene::Instance();
 
         OgreWindow oWindow;
         oWindow.show();

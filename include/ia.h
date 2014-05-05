@@ -1,3 +1,6 @@
+#ifndef IA_H
+    #define IA_H
+
 #include <IceUtil/Thread.h>
 #include "estado.h"
 #include "ARobot.h"
@@ -31,3 +34,4 @@ class ia:public IceUtil::Thread{
           cout<<"valor de path"<<agente->getPath()<<endl;
     }
 };
+#endif
