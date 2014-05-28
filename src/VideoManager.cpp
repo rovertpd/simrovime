@@ -8,6 +8,10 @@ VideoManager::VideoManager(int device, int w, int h,
   cvSetCaptureProperty(_capture, CV_CAP_PROP_FRAME_WIDTH, w);
   cvSetCaptureProperty(_capture, CV_CAP_PROP_FRAME_HEIGHT, h);
   createBackground (w, h);
+  for (int i=0; i<3; i++){
+      _colors[i] = false;
+      _objs[i] = NULL;
+  }
   //_scene = Scene::Instance();
   _frameIpl = NULL; _frameMat = NULL;
   std::cout<<"creado el video manager"<<std::endl;
@@ -64,31 +68,6 @@ IplImage* VideoManager::getCurrentFrameIpl(){ return _frameIpl; }
 // = IplImage* getCurrentFrameMat =================================
 cv::Mat* VideoManager::getCurrentFrameMat(){  return _frameMat; }
 
-//bool VideoManager::rect_sup(double x, double y){
-//    double *sup=_scene->getP_sup();
-//    //double *sup_der=_scene->getP_sup_der();
-//    //return ((x-sup[0])*(sup_der[1]-sup[1])-(y-sup[1])*(sup_der[0]-sup[0])<0);
-//    return (y>sup[1]);
-//}
-//bool VideoManager::rect_inf(double x, double y){
-//    double *inf=_scene->getP_inf();
-//    //double *inf_izq=_scene->getP_inf_izq();
-//    //return ((x-inf[0])*(inf_izq[1]-inf[1])-(y-inf[1])*(inf_izq[0]-inf[0])<0);
-//    return (y<inf[1]);
-//}
-//bool VideoManager::rect_der(double x, double y){
-//    double *inf=_scene->getP_inf();
-//    //double *inf_der=_scene->getP_inf_der();
-//    //return ((x-inf_der[0])*(inf[1]-inf_der[1])-(y-inf_der[1])*(inf[0]-inf_der[0])<0);
-//    return (x<inf[0]);
-//}
-//bool VideoManager::rect_izq(double x, double y){
-//    double *sup=_scene->getP_sup();
-//    //double *sup_izq=_scene->getP_sup_izq();
-//    //return ((x-sup_izq[0])*(sup[1]-sup_izq[1])-(y-sup_izq[1])*(sup[0]-sup_izq[0])<0);
-//    return (x>sup[0]);
-//}
-
 int VideoManager::color(int x,int y){
     IplImage* img = 0;
     int anchura_fila,canales;
@@ -108,9 +87,9 @@ int VideoManager::color(int x,int y){
     return 0;
 }
 
-bool VideoManager::getColor(){
-    return _col;
-}
+//bool VideoManager::getColor(){
+//    return _col;
+//}
 // ================================================================
 //  DrawCurrentFrame: Despliega el ultimo frame actualizado
 void VideoManager::DrawCurrentFrame(int frame){
@@ -124,18 +103,23 @@ void VideoManager::DrawCurrentFrame(int frame){
   pBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD);
   const Ogre::PixelBox& pixelBox = pBuffer->getCurrentLock();
   bool colors = false;
-  int x_r_cont = 0;
-  int y_r_cont = 0;
-  int x_r_total = 0;
-  int y_r_total = 0;
-  int x_v_cont = 0;
-  int y_v_cont = 0;
-  int x_v_total = 0;
-  int y_v_total = 0;
-  int x_a_cont = 0;
-  int y_a_cont = 0;
-  int x_a_total = 0;
-  int y_a_total = 0;
+  vector<int*> cont;
+  int c[8] = {0,0,0,0,99999999,99999999,-1,-1}; // x_cont, y_cont, x_total, y_total, x_min, y_min, x_max, y_max
+  cont.push_back(c);    // Rojo
+  cont.push_back(c);    // Verde
+  cont.push_back(c);    // Azul
+//  int x_r_cont = 0;
+//  int y_r_cont = 0;
+//  int x_r_total = 0;
+//  int y_r_total = 0;
+//  int x_v_cont = 0;
+//  int y_v_cont = 0;
+//  int x_v_total = 0;
+//  int y_v_total = 0;
+//  int x_a_cont = 0;
+//  int y_a_cont = 0;
+//  int x_a_total = 0;
+//  int y_a_total = 0;
   Ogre::uint8* pDest = static_cast<Ogre::uint8*>(pixelBox.data);
 ////////////////////////////  if (_filter->getGrid()>0){
 ////////////////////////////      for (int j=0;j<_scene->getAncho()/_filter->getGrid();j++)
@@ -143,6 +127,7 @@ void VideoManager::DrawCurrentFrame(int frame){
 ////////////////////////////          _scene->setMap(i,j,0);
 ////////////////////////////  }
   //_col=false;
+
   for(int j=0;j<_frameMat->rows;j++) {
     for(int i=0;i<_frameMat->cols;i++) {
       if(_filter->rect_sup(i,j)&&_filter->rect_der(i,j)&&_filter->rect_inf(i,j)&&_filter->rect_izq(i,j)){
@@ -154,12 +139,18 @@ void VideoManager::DrawCurrentFrame(int frame){
               pDest[idx+2] = 255;
               pDest[idx+3] = 255;
               colors=true;
-              y_a_total = y_a_total + i;
-              x_a_total = x_a_total + j;
-              y_a_cont++;
-              x_a_cont++;
-//              _scene->setMap(j/_filter->getGrid(),i/_filter->getGrid(),1);
-              //_col=true;
+              cont[2][2] = cont[2][2] + j;
+              cont[2][3] = cont[2][3] + i;
+              cont[2][0] = cont[2][0] + 1;
+              cont[2][1] = cont[2][1] + 1;
+              if (j<cont[2][4]) cont[2][4] = j;
+              else if (j>cont[2][6]) cont[2][6] = j;
+              if (i<cont[2][5]) cont[2][5] = i;
+              else if (i>cont[2][7]) cont[2][7] = i;
+//              y_a_total = y_a_total + i;
+//              x_a_total = x_a_total + j;
+//              y_a_cont++;
+//              x_a_cont++;
           }else if (col == 2){
               int idx = ((j) * pixelBox.rowPitch + i )*4;
               pDest[idx] = 255;
@@ -167,11 +158,18 @@ void VideoManager::DrawCurrentFrame(int frame){
               pDest[idx+2] = 0;
               pDest[idx+3] = 255;
               colors=true;
-              y_v_total = y_v_total + i;
-              x_v_total = x_v_total + j;
-              y_v_cont++;
-              x_v_cont++;
-//              _scene->setMap(j/_filter->getGrid(),i/_filter->getGrid(),2);
+              cont[1][2] = cont[1][2] + j;
+              cont[1][3] = cont[1][3] + i;
+              cont[1][0] = cont[1][0] + 1;
+              cont[1][1] = cont[1][1] + 1;
+              if (j<cont[1][4]) cont[1][4] = j;
+              else if(j>cont[1][6]) cont[1][6] = j;
+              if (i<cont[1][5]) cont[1][5] = i;
+              else if(i>cont[1][7]) cont[1][7] = i;
+//              y_v_total = y_v_total + i;
+//              x_v_total = x_v_total + j;
+//              y_v_cont++;
+//              x_v_cont++;
           }else if (col == 3){
               int idx = ((j) * pixelBox.rowPitch + i )*4;
               pDest[idx] = 0;
@@ -179,11 +177,18 @@ void VideoManager::DrawCurrentFrame(int frame){
               pDest[idx+2] = 0;
               pDest[idx+3] = 255;
               colors=true;
-              y_r_total = y_r_total + i;
-              x_r_total = x_r_total + j;
-              y_r_cont++;
-              x_r_cont++;
-//              _scene->setMap(j/_filter->getGrid(),i/_filter->getGrid(),3);
+              cont[0][2] = cont[0][2] + j;
+              cont[0][3] = cont[0][3] + i;
+              cont[0][0] = cont[0][0] + 1;
+              cont[0][1] = cont[0][1] + 1;
+              if (j<cont[0][4]) cont[0][4] = j;
+              else if(j>cont[0][6]) cont[0][6] = j;
+              if (i<cont[0][5]) cont[0][5] = i;
+              else if(i>cont[0][7]) cont[0][7] = i;
+//              y_r_total = y_r_total + i;
+//              x_r_total = x_r_total + j;
+//              y_r_cont++;
+//              x_r_cont++;
           }else{
               int idx = ((j) * pixelBox.rowPitch + i )*4;
               pDest[idx] = _frameMat->data[(j*_frameMat->cols+i)*3];
@@ -199,44 +204,93 @@ void VideoManager::DrawCurrentFrame(int frame){
           pDest[idx+2] = 255;
           pDest[idx+3] = 255;
       }
-      if ((_filter->getGrid()>0.0)){
-        if (((i%_filter->getGrid()) == 0) && ((j%_filter->getGrid())==0)){
-          int idx = ((j) * pixelBox.rowPitch + i )*4;
-          pDest[idx] = 0;
-          pDest[idx+1] = 0;
-          pDest[idx+2] = 0;
-          pDest[idx+3] = 255;
-        }
-      }
+//      if ((_filter->getGrid()>0.0)){
+//        if (((i%_filter->getGrid()) == 0) && ((j%_filter->getGrid())==0)){
+//          int idx = ((j) * pixelBox.rowPitch + i )*4;
+//          pDest[idx] = 0;
+//          pDest[idx+1] = 0;
+//          pDest[idx+2] = 0;
+//          pDest[idx+3] = 255;
+//        }
+//      }
     }
   }
   if (colors){
       double fin[2];
-      if (x_r_cont > 0){
-            fin[1] = x_r_total / x_r_cont;
-            fin[0] = y_r_total / y_r_cont;
-            for (vector<Scene*>::iterator it = _scene.begin(); it != _scene.end(); ++it) {
-              (*it)->addObject(*(new Objeto(1,5,fin)));
+      if (cont[0][0] > 0){
+            fin[1] = cont[0][2] / cont[0][0]; //x_r_total / x_r_cont;
+            fin[0] = cont[0][3] / cont[0][1]; //y_r_total / y_r_cont;
+            if (!_colors[0]){
+                _objs[0] = (new Objeto(1,5,fin));
+                for (vector<Scene*>::iterator it = _scene.begin(); it != _scene.end(); ++it) {
+                  (*it)->addObject(*_objs[0]);
+                }
+            }else{
+                double* pAnt = _objs[0]->getPos();
+                if (sqrt(pow((fin[0]-pAnt[0]),2)+pow((fin[1]-pAnt[1]),2)) > 20){
+                  for (vector<Scene*>::iterator it = _scene.begin(); it != _scene.end(); ++it) {
+                    double pM[2] = {cont[0][6], cont[0][7]}, pm[2] = {cont[0][4], cont[0][5]};
+                    _objs[0]->setPos(fin, pM, pm);
+                    (*it)->changeObject(0, fin, pM, pm);
+                  }
+                }
             }
+            _colors[0] = true;
             printf("Punto medio rojo en %f, %f\n",fin[0], fin[1]);
       }
 //      if (x_v_cont > 0){
 //            fin[1] = x_v_total / x_v_cont;
 //            fin[0] = y_v_total / y_v_cont;
-//            _scene->addObject(*(new Objeto(2,3,fin)));
+//            if (!_colors[1]){
+//              _objs[1] = (new Objeto(2,3,fin));
+//              for (vector<Scene*>::iterator it = _scene.begin(); it != _scene.end(); ++it) {
+//                (*it)->addObject(*_objs[1]);
+//              }
+//            }else{
+//              double pAnt[2];
+//              _objs[1]->getPos(pAnt);
+//              if (sqrt(pow((fin[0]-pAnt[0]),2)+pow((fin[1]-pAnt[1]),2)) > 20){
+//                for (vector<Scene*>::iterator it = _scene.begin(); it != _scene.end(); ++it) {
+//                  _objs[1]->setPos(fin);
+//                  (*it)->changeObject(1,fin);
+//                }
+//              }
+//            }
+//            _colors[1] = true;
 //            printf("Punto medio verde en %f, %f\n",fin[0], fin[1]);
 //      }
 //      if (x_a_cont > 0){
 //            fin[1] = x_a_total / x_a_cont;
 //            fin[0] = y_a_total / y_a_cont;
-//            _scene->addObject(*(new Objeto(3,1,fin)));
+//            if (!_colors[2]){
+//              _objs[2] = (new Objeto(3,1,fin));
+//              for (vector<Scene*>::iterator it = _scene.begin(); it != _scene.end(); ++it) {
+//                (*it)->addObject(*_objs[2]);
+//              }
+//            }else{
+//              double pAnt[2];
+//              _objs[2]->getPos(pAnt);
+//              if (sqrt(pow((fin[0]-pAnt[0]),2)+pow((fin[1]-pAnt[1]),2)) > 20){
+//                for (vector<Scene*>::iterator it = _scene.begin(); it != _scene.end(); ++it) {
+//                  _objs[0]->setPos(fin);
+//                  (*it)->changeObject(2,fin);
+//                }
+//              }
+//            }
+//            _colors[2] = true;
 //            printf("Punto medio azul en %f, %f\n",fin[0], fin[1]);
 //      }
-//      _scene->actualizaColores();
-  }//else _scene->clearColors();
+  }else {
+      for (int i=0; i<3; i++){
+        if (_colors[i]){
+          _colors[i] = false;
+          _objs[i] = NULL;
+          for (vector<Scene*>::iterator it = _scene.begin(); it != _scene.end(); ++it) {
+            (*it)->deleteObject(i);
+          }
+        }
+      }
+  }
 
   pBuffer->unlock();
-//  Ogre::Rectangle2D* rect = static_cast<Ogre::Rectangle2D*>
-//    (_sceneManager->getSceneNode("BackgroundNode")->
-//        getAttachedObject(0));
 }

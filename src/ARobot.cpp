@@ -7,6 +7,8 @@ ARobot::ARobot(int id){
     _fin[0] = -1.0;
     _fin[1] = -1.0;
     _path = false;
+    _ob = false;
+    _object = NULL;
     _id = id;
     _direccion = 0;
     _robot = new Robot(_id);
@@ -60,6 +62,28 @@ void ARobot::setAng(double ang){
 void ARobot::setFin(double f[2]){
     _fin[0] = f[0];
     _fin[1] = f[1];
+}
+
+void ARobot::deleteObj(){
+    _object = NULL;
+    _ob = false;
+}
+
+void ARobot::setObj(Objeto *obj){
+    _object = obj;
+    _ob = true;
+}
+
+bool ARobot::hasObj(){
+    if (_object!=NULL){
+      return true;
+    }else {
+      return false;
+    }
+}
+
+Objeto* ARobot::getObj(){
+    return _object;
 }
 
 void ARobot::detener(){

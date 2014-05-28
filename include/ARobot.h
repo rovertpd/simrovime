@@ -7,6 +7,7 @@
 #include <AR/gsub.h>
 #include <AR/param.h>
 #include <vector>
+#include "Objeto.h"
 
 using namespace std;
 
@@ -22,6 +23,8 @@ class ARobot{
         bool _path;
         vector<char> _lMov;
         ARMarkerInfo *_markerInfo;
+        Objeto *_object;
+        bool _ob;
         //float angulo;
 
     public:
@@ -38,6 +41,10 @@ class ARobot{
         void setAng(double ang);
         void setFin(double f[2]);
         void setDir(int dir);
+        void setObj(Objeto *obj);
+        Objeto* getObj();
+        bool hasObj();
+        void deleteObj();
 
         void detener();
         void planifica(ARMarkerInfo *markerInfo,double inicio[2],double fin[2],int accion,double rotacion);

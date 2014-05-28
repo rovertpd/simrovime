@@ -3,7 +3,6 @@
 #include "Marca.h"
 #include "ARobot.h"
 #include "Objeto.h"
-#include "ARTKDetector.h"
 #include <OGRE/Ogre.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/python/str.hpp>
@@ -14,6 +13,7 @@
 
 class Scene;
 
+#include "ARTKDetector.h"
 #include "VideoManager.h"
 #include "Coordinador.h"
 
@@ -27,8 +27,8 @@ class Scene
 
       void attach(Coordinador *c);
 
-      void getMarcas(Marca marcas[5]);
-      void setMarcas(Marca marcas[5]);
+      vector<Marca*> getMarcas();
+      void setMarcas(Marca* marcas[5]);
       Marca* getMarca(int id);
       vector<Objeto> getObjetos();
 //      ARobot* getARobot(int id);
@@ -48,15 +48,17 @@ class Scene
       float getAngulo(float v[2]);
       float getRotacion(int id);
 //      int getLock();
-      int getObjeto(int id);
-      int getPrioritario();
+//      int getObjeto(int id);
+//      int getPrioritario();
 //      void setLock(int id);
       double * getCenter();
       double * getFin();
       void addObject(Objeto ob);
-      void actualizaColores();
-      void clearColors();
-      void clearObjs();
+      void deleteObject(int id);
+      void changeObject(int id, double fin[2], double pM[2], double pm[2]);
+//      void actualizaColores();
+//      void clearColors();
+//      void clearObjs();
       void setMap(int h, int a, int valor);
       int getMap(int h, int a);
       int pertenece(Objeto ob);
@@ -71,8 +73,8 @@ class Scene
       //Scene(const Scene & ) ;
       Scene &operator= (const Scene &s) ;
       vector<int> arrayToVectorMap();
-      void *Busca_Solucion(void *arg);
-      static void *Busca(void *arg);
+      //void *Busca_Solucion(void *arg);
+      //static void *Busca(void *arg);
    private:
       pthread_mutex_t ptmutex1;
       pthread_t mithread001;
@@ -82,10 +84,9 @@ class Scene
       double _fin[2];
       int _lock;
       VideoManager* _vmanager;
-//      vector<ARobot> _arobots;
-      vector<Marca> _marcas;
+      vector<Marca*> _marcas;
       vector<Objeto> _objetos;
-      vector<Objeto> _objs;
+      //vector<Objeto> _objs;
       int _grid_d;
       int _alto;
       int _ancho;

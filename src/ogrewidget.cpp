@@ -22,8 +22,8 @@
       std::cout << "GType name: " << G_OBJECT_TYPE_NAME(gobj()) << std::endl;
       _center[0] = 0.0;  _center[1] = 0.0;
       _fin[0] = 0.0;    _fin[1] = 0.0;  frame = 0;
-      for (int i=0;i<5;i++)
-        _marcas[i] = _scene->getMarca(i);
+//      for (int i=0;i<5;i++)
+//        _marcas[i] = _scene->getMarca(i);
     }
     void OgreWidget::set_rotation(int value)
     {
@@ -135,11 +135,11 @@
          loadResources();
          createScene();
          _videoManager = new VideoManager(1, 640, 480, mSceneMgr);
-         _arDetector = new ARTKDetector(640, 480, 100);
          _scene = new Scene(_videoManager);
-         _scene->setARTK(_arDetector);
          _scene->setAlto(480);
          _scene->setAncho(640);
+         _arDetector = new ARTKDetector(640, 480, 100, _scene);
+         _scene->setARTK(_arDetector);
          new Coordinador(_scene);
           // Start idle function for frame update/rendering
           Glib::signal_idle().connect( sigc::mem_fun(*this, &OgreWidget::on_idle) );
@@ -176,11 +176,11 @@
           }
               _videoManager->DrawCurrentFrame(frame);
 
-              Marca marcas[5];
-              _scene->getMarcas(marcas);
-              if (_arDetector->detectMark(_videoManager->getCurrentFrameMat(), marcas )){
-                  _scene->setMarcas(marcas);
-                  _scene->Actualizar();     // LLamamos a la escena para que se actualice
+              //Marca marcas[5];
+              //_scene->getMarcas(marcas);
+              if (_arDetector->detectMark(_videoManager->getCurrentFrameMat())){
+                  //_scene->setMarcas(marcas);
+                  //_scene->Actualizar();     // LLamamos a la escena para que se actualice
                   //else  mSceneMgr->getEntity("Esfera")->setVisible(false);
               }
 

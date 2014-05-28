@@ -26,18 +26,16 @@ int Marca::getVisible(){
 double Marca::getWidth(){
     return _width;
 }
-void Marca::getCenter(double c[2]){
-    c[0]=_center[0];
-    c[1]=_center[1];
+double* Marca::getCenter(){
+    return _center;
 }
 void Marca::getPattTans(double m[3][4]){
     for (int i=0; i<3; ++i)
         for (int j=0; j<4; ++j)
             m[i][j] = _pattTrans[i][j];
 }
-void Marca::getPos(double p[2]){
-    p[0]=_pos[0];
-    p[1]=_pos[1];
+double* Marca::getPos(){
+    return _pos;
 }
 void Marca::setPos(double p[2]){
     _pos[0]=p[0];
@@ -57,6 +55,31 @@ void Marca::setPattTans(double m[3][4]){
 }
 void Marca::setMarkerInfo(ARMarkerInfo markerInfo){
     _markerInfo=markerInfo;
+}
+void Marca::setRot(float r){
+    _rotation = r;
+}
+
+double* Marca::getMax(){
+    return _pmax;
+}
+
+double* Marca::getMin(){
+    return _pmin;
+}
+
+void Marca::setMax(double* max){
+    _pmax[0]=max[0];
+    _pmax[1]=max[1];
+}
+
+void Marca::setMin(double* min){
+    _pmin[0]=min[0];
+    _pmin[1]=min[1];
+}
+
+float Marca::getRot(){
+    return _rotation;
 }
 ARMarkerInfo* Marca::getMarkerInfo(){
     return &_markerInfo;

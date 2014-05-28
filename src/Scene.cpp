@@ -19,33 +19,33 @@ Scene::Scene(VideoManager *vm)
   _lock = 0;
 //  pthread_mutex_init(&ptmutex1,NULL);
   _objetos.clear();
-  _objs.clear();
+//  _objs.clear();
   _marcas.clear();
 //  _arobots.clear();
   double p_center[2] = {0.0, 0.0};
   char p_patt[] = "data/4x4_26.patt";
-  _marcas.push_back(Marca(30.0,p_center,p_patt));
-  _marcas[0].setVisible(false);
+  _marcas.push_back(new Marca(30.0,p_center,p_patt));
+  _marcas[0]->setVisible(false);
   //if((_marcas[0].getId()) < 0) return -1;
 
   strcpy(p_patt,"data/4x4_78.patt");
-  _marcas.push_back(Marca(30.0,p_center,p_patt));
-  _marcas[1].setVisible(false);
+  _marcas.push_back(new Marca(30.0,p_center,p_patt));
+  _marcas[1]->setVisible(false);
   //if((_marcas[1].getId()) < 0) return -1;
 
   strcpy(p_patt,"data/simple.patt");
-  _marcas.push_back(Marca(50.0,p_center,p_patt));
-  _marcas[2].setVisible(false);
+  _marcas.push_back(new Marca(50.0,p_center,p_patt));
+  _marcas[2]->setVisible(false);
   //if((_marcas[2].getId()) < 0) return -1;
 
   strcpy(p_patt,"data/4x4_95.patt");
-  _marcas.push_back(Marca(50.0,p_center,p_patt));
-  _marcas[3].setVisible(false);
+  _marcas.push_back(new Marca(50.0,p_center,p_patt));
+  _marcas[3]->setVisible(false);
   //if((_marcas[3].getId()) < 0) return -1;
 
   strcpy(p_patt,"data/4x4_85.patt");
-  _marcas.push_back(Marca(50.0,p_center,p_patt));
-  _marcas[4].setVisible(false);
+  _marcas.push_back(new Marca(50.0,p_center,p_patt));
+  _marcas[4]->setVisible(false);
   //if((_marcas[4].getId()) < 0) return -1;
 
 //  _arobots.push_back(ARobot(0));
@@ -56,7 +56,7 @@ Scene::Scene(VideoManager *vm)
 
 
 Marca* Scene::getMarca(int id){
-    return &(_marcas[id]);
+    return _marcas[id];
 }
 
 vector<Objeto> Scene::getObjetos(){
@@ -91,14 +91,50 @@ void Scene::setARTK(ARTKDetector *artk){
     _arDetector = artk;
 }
 
-void Scene::getMarcas(Marca marcas[5]){
-    for (int i=0; i<5; i++){
-        marcas[i] = _marcas[i];
-    }
+vector<Marca*> Scene::getMarcas(){
+    return _marcas;
 }
 
-void Scene::setMarcas(Marca marcas[5]){
+void Scene::setMarcas(Marca* marcas[5]){
     for (int i=0; i<5; i++){
+        if (i>1){
+            if (marcas[i]->getVisible()){
+              if(_marcas[i]->getVisible()){
+                  if ((_marcas[i]->getMax()[0]/_grid_d != marcas[i]->getMax()[0]/_grid_d)||
+                      (_marcas[i]->getMax()[1]/_grid_d != marcas[i]->getMax()[1]/_grid_d)||
+                      (_marcas[i]->getMin()[0]/_grid_d != marcas[i]->getMin()[0]/_grid_d)||
+                      (_marcas[i]->getMin()[1]/_grid_d != marcas[i]->getMin()[1]/_grid_d)){
+                      // modificar marca en el map
+                        for (int x=_marcas[i]->getMin()[0]; x<=_marcas[i]->getMax()[0]; x++){
+                            for (int y=_marcas[i]->getMin()[1]; y<=_marcas[i]->getMax()[1]; y++){
+                                _map[x][y] = -1;
+                            }
+                        }
+                        for (int x=marcas[i]->getMin()[0]; x<=marcas[i]->getMax()[0]; x++){
+                            for (int y=marcas[i]->getMin()[1]; y<=marcas[i]->getMax()[1]; y++){
+                                _map[x][y] = i-2;
+                            }
+                        }
+                  }
+              }else {
+                  // Crear marca en el map
+                for (int x=marcas[i]->getMin()[0]; x<=marcas[i]->getMax()[0]; x++){
+                    for (int y=marcas[i]->getMin()[1]; y<=marcas[i]->getMax()[1]; y++){
+                        _map[x][y] = i-2;
+                    }
+                }
+              }
+            } else {
+              if (_marcas[i]->getVisible()){
+                  // borrar marca en el map
+                for (int x=_marcas[i]->getMin()[0]; x<=_marcas[i]->getMax()[0]; x++){
+                    for (int y=_marcas[i]->getMin()[1]; y<=_marcas[i]->getMax()[1]; y++){
+                        _map[x][y] = -1;
+                    }
+                }
+              }//fin if
+            }//fin else
+        }
         _marcas[i] = marcas[i];
     }
 }
@@ -173,6 +209,9 @@ void Scene::Actualizar(){
         _map = new int *[_alto/_grid_d];
         for (int i = 0; i < _alto/_grid_d; i++){
             _map[i] = new int [_ancho/_grid_d];
+            for (int j = 0; j < _ancho/_grid_d; j++){
+                _map[i][j] = -1;
+            }
         }
         _filter->setGrid(_grid_d);
         std::cout<<"Rotación fin: "<<getRotacion(1)<<std::endl;
@@ -271,57 +310,105 @@ ARTKDetector* Scene::getARTK(){
 //    _lock = id;
 //}
 //
-int Scene::getObjeto(int id){
-    int obj = -1;
-    for (uint i=0; i < _objetos.size(); i++){
-        if (_objetos[i].getRobot() == id){
-            obj = i;
-            break;
-        }
-    }
-    return obj;
-}
+//int Scene::getObjeto(int id){
+//    int obj = -1;
+//    for (uint i=0; i < _objetos.size(); i++){
+//        if (_objetos[i].getRobot() == id){
+//            obj = i;
+//            break;
+//        }
+//    }
+//    return obj;
+//}
 
-int Scene::getPrioritario(){
-    int obj = 0;
-    int prioridad = -1;
-    for (uint i=0; i < _objetos.size(); i++){
-        if (_objetos[i].getPrioridad() > prioridad){
-            obj = i;
-            prioridad = _objetos[obj].getPrioridad();
-        }
-    }
-    return obj;
-}
+//int Scene::getPrioritario(){
+//    int obj = 0;
+//    int prioridad = -1;
+//    for (uint i=0; i < _objetos.size(); i++){
+//        if (_objetos[i].getPrioridad() > prioridad){
+//            obj = i;
+//            prioridad = _objetos[obj].getPrioridad();
+//        }
+//    }
+//    return obj;
+//}
 
 void Scene::addObject(Objeto ob){
-    _objs.push_back(ob);
-}
-
-void Scene::actualizaColores(){
-//    bool nuevo = false;
-    for (uint i=0; i < _objs.size(); i++){
-        int p = pertenece(_objs[i]);
-        if (p >= 0){
-            _objs[i] = _objetos[p];
-//        }else{
-//            nuevo = true;
+    _objetos.push_back(ob);
+    double* pmax = ob.getMax();
+    double* pmin = ob.getMin();
+    for (int x=pmin[0]; x<=pmax[0]; x++){
+        for (int y=pmin[1]; y<=pmax[1]; y++){
+            _map[x][y] = ob.getId() + 3;
         }
     }
-    _objetos.clear();
-    for (uint i=0; i < _objs.size(); i++){
-        _objetos.push_back(_objs[i]);
+    Actualizar();
+}
+
+void Scene::deleteObject(int id){
+    for (uint i=0; i < _objetos.size(); i++){
+        if (_objetos[i].getId() == id){
+            double* pmax = _objetos[i].getMax();
+            double* pmin = _objetos[i].getMin();
+            for (int x=pmin[0]; x<=pmax[0]; x++){
+                for (int y=pmin[1]; y<=pmax[1]; y++){
+                    _map[x][y] = -1;
+                }
+            }
+            _objetos.erase(_objetos.begin() + i);
+        }
     }
-    _objs.clear();
+    Actualizar();
 }
 
-void Scene::clearColors(){
-    _objetos.clear();
+void Scene::changeObject(int id, double fin[2], double pM[2], double pm[2]){
+    for (uint i=0; i < _objetos.size(); i++){
+        if (_objetos[i].getId() == id){
+            double* pmax = _objetos[i].getMax();
+            double* pmin = _objetos[i].getMin();
+            for (int x=pmin[0]; x<=pmax[0]; x++){
+                for (int y=pmin[1]; y<=pmax[1]; y++){
+                    _map[x][y] = -1;
+                }
+            }
+//            double* point = _objetos[i].getPos();
+//            _map[(int)(point[0]/_grid_d)][(int)(point[1]/_grid_d)] = 0;
+            for (int x=pm[0]; x<=pM[0]; x++){
+                for (int y=pm[1]; y<=pM[1]; y++){
+                    _map[x][y] = _objetos[i].getId() + 3;
+                }
+            }
+//            _objetos[i].setPos(fin, pM, pm);
+//            _map[(int)(fin[0]/_grid_d)][(int)(fin[1]/_grid_d)] = _objetos[i].getId();
+        }
+    }
+    Actualizar();
 }
 
-void Scene::clearObjs(){
-    _objs.clear();
-}
+//////void Scene::actualizaColores(){
+////////    bool nuevo = false;
+//////    for (uint i=0; i < _objs.size(); i++){
+//////        int p = pertenece(_objs[i]);
+//////        if (p >= 0){
+//////            _objs[i] = _objetos[p];
+////////        }else{
+////////            nuevo = true;
+//////        }
+//////    }
+//////    _objetos.clear();
+//////    for (uint i=0; i < _objs.size(); i++){
+//////        _objetos.push_back(_objs[i]);
+//////    }
+//////    _objs.clear();
+//////}
+//////
+//void Scene::clearColors(){
+//    _objetos.clear();
+//}
+//////
+//////void Scene::clearObjs(){
+//////    _objs.clear();
+//////}
 
 int Scene::pertenece(Objeto ob){
     int pertenece = -1;

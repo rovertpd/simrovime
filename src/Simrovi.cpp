@@ -6,11 +6,12 @@
 
 BOOST_PYTHON_MODULE( State )
 {
-        class_<Estado>("Estado", init<int,int,int,int,int,int,int,std::vector<int> >())
+        class_<Estado>("Estado", init<int,int,int,int,int,int,int,int,std::vector<int> >())
                 .def("get_id", &Estado::get_id)
                 .def("add_mov", &Estado::add_mov)
                 .def("get_posx", &Estado::get_posx)
                 .def("get_posy", &Estado::get_posy)
+                .def("get_ratio", &Estado::get_ratio)
                 .def("get_gridx", &Estado::get_gridx)
                 .def("get_gridy", &Estado::get_gridy)
                 .def("get_posxE", &Estado::get_posxE)

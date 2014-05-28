@@ -20,7 +20,8 @@ class VideoManager {
   cv::Mat* _frameMat;
   Ogre::SceneManager* _sceneManager;
   vector<Scene*> _scene;
-  bool _col;
+  bool _colors[3];  //0->rojo,1->verde,2->azul
+  Objeto* _objs[3];
   Filter* _filter;
 
  public:
@@ -37,6 +38,6 @@ class VideoManager {
 //  bool rect_der(double x, double y);
 //  bool rect_izq(double x, double y);
   int color(int x,int y);
-  bool getColor();
+//  bool getColor();
 };
 #endif

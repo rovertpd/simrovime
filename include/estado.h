@@ -38,15 +38,17 @@ class Estado{
   private:
     int _id;
     int _posx, _posy;
+    int _ratio;
     int _posxE, _posyE;
     int _gridx, _gridy;
     std::vector<char> _m;
     std::vector<int> _map;
   public:
-    Estado(int id, int posx, int posy, int gridx, int gridy, int posxE, int posyE, std::vector<int> map){
+    Estado(int id, int posx, int posy, int ratio, int gridx, int gridy, int posxE, int posyE, std::vector<int> map){
       _id = id;
       _posx = posx;
       _posy = posy;
+      _ratio = ratio;
       _gridx = gridx;
       _gridy = gridy;
       _posxE = posxE;
@@ -56,6 +58,7 @@ class Estado{
     int get_id() { return _id; }
     int get_posx() { return _posx; }
     int get_posy() { return _posy; }
+    int get_ratio() { return _ratio; }
     int get_gridx() { return _gridx; }
     int get_gridy() { return _gridy; }
     int get_posxE() { return _posxE; }

@@ -1,10 +1,10 @@
 #include "ARTKDetector.h"
 
-ARTKDetector::ARTKDetector(int w, int h, int thres/*, int *nObjects, Marca objects[]*/){
+ARTKDetector::ARTKDetector(int w, int h, int thres, Scene *scn){
   _markerNum=0;   _markerInfo=NULL;  _thres = thres;
   _width = w;     _height = h;       _detected = false;
   _nObjects = 5;  l=-1;
-  readConfiguration();
+  readConfiguration();  _scene = scn;
   //readPatterns(/*nObjects,objects*/);
 }
 ARTKDetector::~ARTKDetector(){  argCleanup();  }
@@ -47,14 +47,19 @@ int ARTKDetector::readConfiguration(){
 }
 // ================================================================
 // detectMark (FIXME): Ojo solo soporta una marca de tamano fijo!
-bool ARTKDetector::detectMark(cv::Mat* frame,/*, int nObjects*/ Marca objects[5]) {
+bool ARTKDetector::detectMark(cv::Mat* frame) {
   //double p_width     = 120.0;        // Ancho de marca... FIJO!
   //double p_center[2] = {0.0, 0.0};   // Centro de marca.. FIJO!
   int i, j, k;
   //printf("Nobjets,%d",_nObjects);
-  double center[2];
   double pattTrans[3][4];
+  bool actualizar = false;
   _detected = false;
+  vector<Marca*> m = _scene->getMarcas();
+  Marca* marcas[5];
+  for (int i=0; i<5; i++){
+    marcas[i] = m[i];
+  }
   if(frame->rows==0) return _detected;
   if(arDetectMarker(frame->data, _thres,
                     &_markerInfo, &_markerNum) < 0){
@@ -63,7 +68,7 @@ bool ARTKDetector::detectMark(cv::Mat* frame,/*, int nObjects*/ Marca objects[5]
 
    for (i=0; i<_nObjects; i++) {
     //_marca = _scene->getMarca(i);
-    _marca = &objects[i];
+    _marca = marcas[i];
     for(j = 0, k = -1; j < _markerNum; j++) {
       if(_marca->getId() == _markerInfo[j].id) {
         if (k == -1) k = j;
@@ -72,14 +77,41 @@ bool ARTKDetector::detectMark(cv::Mat* frame,/*, int nObjects*/ Marca objects[5]
     }
 
     if(k != -1) {   // Si ha detectado el patron en algun sitio...
-      _marca->setVisible(true);
       _marca->getPattTans(pattTrans);
-      _marca->getCenter(center);
-      arGetTransMatCont(&_markerInfo[k], pattTrans, center, _marca->getWidth(), pattTrans);
+      arGetTransMatCont(&_markerInfo[k], pattTrans, _marca->getCenter(), _marca->getWidth(), pattTrans);
+      double posicion[2] = {_markerInfo[k].pos[0],_markerInfo[k].pos[1]};
+      if(_marca->getVisible()){
+          double x = _marca->getPos()[0];
+          double y = _marca->getPos()[1];
+          int grid = _scene->getGrid();
+          if ((x/grid != posicion[0]/grid)||(y/grid != posicion[1]/grid)){
+              actualizar = true;
+          }else if(abs(getRotation(_marca)-_marca->getRot()) > 10){
+              actualizar = true;
+          }
+      }else {
+          _marca->setVisible(true);
+          actualizar = true;
+      }
       _marca->setPattTans(pattTrans);
       _marca->setMarkerInfo(_markerInfo[k]);
+      _marca->setPos(posicion);
+      _marca->setRot(getRotation(_marca));
+      double pM[2] = {_markerInfo[k].vertex[0][0],_markerInfo[k].vertex[1][1]};
+      double pm[2] = {_markerInfo[k].vertex[2][0],_markerInfo[k].vertex[3][1]};
+      _marca->setMax(pM);
+      _marca->setMin(pm);
       _detected = true;
-    } else {  _marca->setVisible(false); }  // El objeto no es visible
+    } else {
+      if (_marca->getVisible()){
+        _marca->setVisible(false);
+        actualizar = true;
+      }
+    }  // El objeto no es visible
+  } // Fin del for
+  _scene->setMarcas(marcas);
+  if (actualizar){
+    _scene->Actualizar();
   }
 
   return _detected;
@@ -88,6 +120,15 @@ bool ARTKDetector::detectMark(cv::Mat* frame,/*, int nObjects*/ Marca objects[5]
 // Gl2Mat: Utilidad para convertir entre matriz OpenGL y Matrix4
 void ARTKDetector::Gl2Mat(double *gl, Ogre::Matrix4 &mat){
   for(int i=0;i<4;i++) for(int j=0;j<4;j++) mat[i][j]=gl[i*4+j];
+}
+float ARTKDetector::getRotation(Marca *m){
+    Ogre::Vector3 pos;  Ogre::Vector3 look;   Ogre::Vector3 up;
+    getPosRot(pos, look, up, m);
+    float mod = atan((-up[0])/up[2]) - PI;
+    if (up[2]<0) mod = mod + PI;
+    else if ((-up[0])<0) mod = mod + 2 * PI;
+    if (mod<0) mod = mod + 2 * PI;
+    return mod * 180 / PI;
 }
 // ================================================================
 // getPosRot: Obtiene posicion y rotacion para la camara

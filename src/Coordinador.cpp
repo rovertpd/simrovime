@@ -11,13 +11,12 @@ Coordinador::Coordinador(Scene *scn){
 
   _arobots.push_back(ARobot(0));
   _arobots.push_back(ARobot(1));
-  //_robots[2] = Robot();
+  _arobots.push_back(ARobot(2));
 }
 void Coordinador::Actualizar(){
     for (int i=2; i<5; i++){
         if ((_scene->getMarca(i))->getVisible()&&(getLock()==0 || getLock()==i)){
-            ARobot* arobot;
-            arobot = getARobot(i-2);
+            ARobot* arobot = getARobot(i-2);
 
 //                cout<<"Aqui 66"<<_path<<endl;
 //                if (_path){
@@ -47,12 +46,11 @@ void Coordinador::Actualizar(){
             setLock(i);
             if ((_scene->getObjetos()).size() > 0){
                 std::cout<<"Hay objetos de color: "<<(_scene->getObjetos()).size()<<std::endl;
-                int nObjeto = _scene->getObjeto(i);  //Compruebo si el robot i tiene algún objeto asignado y devuelvo su posición
-                std::cout<<"Hay objetos asignado: "<<_scene->getObjeto(i)<<std::endl;
-                if (nObjeto >= 0){
-                    std::cout<<"Tengo un objeto asignado: "<<nObjeto<<std::endl;
-                    double posicionO[2];
-                    (_scene->getObjetos())[nObjeto].getPos(posicionO);
+                int idObjeto = getObjeto(i);  //Compruebo si el robot i tiene algún objeto asignado y devuelvo su posición
+                std::cout<<"Hay objetos asignado: "<<getObjeto(i)<<std::endl;
+                if (idObjeto >= 0){
+                    std::cout<<"Tengo un objeto asignado: "<<idObjeto<<std::endl;
+                    double* posicionO = (arobot->getObj())->getPos();
 
                     arobot->setFin(posicionO);
                     //cout<<"Objeto x: "<<posicionO[0]<<" Objeto y: "<<posicionO[1]<<endl;
@@ -75,10 +73,9 @@ void Coordinador::Actualizar(){
                     std::cout<<"No tengo objeto asignado"<<std::endl;
                     if((_scene->getObjetos()).size() >= (i-2)){
                         std::cout<<"Hay suficientes objetos de color "<<std::endl;
-                        int prioritario = _scene->getPrioritario();
-                        (_scene->getObjetos())[prioritario].setRobot(i);
-                        double pO[2];
-                        (_scene->getObjetos())[prioritario].getPos(pO);
+                        int prioritario = getPrioritario();
+                        arobot->setObj(&((_scene->getObjetos())[prioritario]));
+                        double* pO = (_scene->getObjetos())[prioritario].getPos();
                         arobot->setFin(pO);
                         double m[2];
                         float v[2];
@@ -158,6 +155,35 @@ int Coordinador::getLock(){
 
 void Coordinador::setLock(int id){
     _lock = id;
+}
+
+int Coordinador::getObjeto(int id){
+    int obj = -1;
+    if (_arobots[id].hasObj()){
+      obj = _arobots[id].getObj()->getId();
+    }
+    return obj;
+}
+
+int Coordinador::getPrioritario(){
+    // falta filtrar el id arobot, para que no devuelva un objeto ya referenciado
+    int idA1, idA2;//, idA3;
+    if (_arobots[0].hasObj())
+      idA1 = _arobots[0].getObj()->getId();
+    if (_arobots[1].hasObj())
+      idA2 = _arobots[1].getObj()->getId();
+//    if (_arobots[0].hasObject())
+//      idA = _arobots[0].hasObject()
+    vector<Objeto> objs = _scene->getObjetos();
+    int obj = 0;
+    int prioridad = -1;
+    for (uint i=0; i < objs.size(); i++){
+        if ((objs[i].getPrioridad() > prioridad) && (objs[i].getId() != idA1) && (objs[i].getId() != idA2) ){// && (objs[i].getId() != idA3)){
+            obj = i;
+            prioridad = objs[obj].getPrioridad();
+        }
+    }
+    return obj;
 }
 
 ARobot* Coordinador::getARobot(int id){

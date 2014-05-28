@@ -3,7 +3,6 @@
 #include "Marca.h"
 #include "ARobot.h"
 #include "Objeto.h"
-#include "ARTKDetector.h"
 #include <OGRE/Ogre.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/python/str.hpp>
@@ -14,6 +13,7 @@
 class Coordinador;
 
 #include "Scene.h"
+#include "ARTKDetector.h"
 
 
 #define PI 3.14159265
@@ -31,6 +31,8 @@ class Coordinador
       void setLock(int id);
       void setMap(int h, int a, int valor);
       int getMap(int h, int a);
+      int getObjeto(int id);
+      int getPrioritario();
    protected:
       //Scene(const Scene & ) ;
       vector<int> arrayToVectorMap();
