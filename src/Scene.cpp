@@ -59,7 +59,7 @@ Marca* Scene::getMarca(int id){
     return _marcas[id];
 }
 
-vector<Objeto> Scene::getObjetos(){
+vector<Objeto*> Scene::getObjetos(){
     return _objetos;
 }
 
@@ -155,7 +155,7 @@ int Scene::getAlto(){
     return _alto;
 }
 
-void Scene::Actualizar(){
+void Scene::Actualizar(int accion, int id){
     cout<<"Aqui 77"<<endl;
     ARMarkerInfo *mark1;
     ARMarkerInfo *mark2;
@@ -220,7 +220,7 @@ void Scene::Actualizar(){
 
     if (_fin[0] != 0.0){
         for (vector<Coordinador*>::iterator it = _coordinador.begin(); it != _coordinador.end(); ++it) {
-            (*it)->Actualizar();
+            (*it)->Actualizar(accion,id);
         }
     }
 }
@@ -333,23 +333,23 @@ ARTKDetector* Scene::getARTK(){
 //    return obj;
 //}
 
-void Scene::addObject(Objeto ob){
+void Scene::addObject(Objeto* ob){
     _objetos.push_back(ob);
-    double* pmax = ob.getMax();
-    double* pmin = ob.getMin();
+    double* pmax = ob->getMax();
+    double* pmin = ob->getMin();
     for (int x=pmin[0]; x<=pmax[0]; x++){
         for (int y=pmin[1]; y<=pmax[1]; y++){
-            _map[x][y] = ob.getId() + 3;
+            _map[x][y] = ob->getId() + 3;
         }
     }
-    Actualizar();
+    Actualizar(4,-1);
 }
 
 void Scene::deleteObject(int id){
     for (uint i=0; i < _objetos.size(); i++){
-        if (_objetos[i].getId() == id){
-            double* pmax = _objetos[i].getMax();
-            double* pmin = _objetos[i].getMin();
+        if (_objetos[i]->getId() == id){
+            double* pmax = _objetos[i]->getMax();
+            double* pmin = _objetos[i]->getMin();
             for (int x=pmin[0]; x<=pmax[0]; x++){
                 for (int y=pmin[1]; y<=pmax[1]; y++){
                     _map[x][y] = -1;
@@ -358,14 +358,14 @@ void Scene::deleteObject(int id){
             _objetos.erase(_objetos.begin() + i);
         }
     }
-    Actualizar();
+    Actualizar(6,id);
 }
 
 void Scene::changeObject(int id, double fin[2], double pM[2], double pm[2]){
     for (uint i=0; i < _objetos.size(); i++){
-        if (_objetos[i].getId() == id){
-            double* pmax = _objetos[i].getMax();
-            double* pmin = _objetos[i].getMin();
+        if (_objetos[i]->getId() == id){
+            double* pmax = _objetos[i]->getMax();
+            double* pmin = _objetos[i]->getMin();
             for (int x=pmin[0]; x<=pmax[0]; x++){
                 for (int y=pmin[1]; y<=pmax[1]; y++){
                     _map[x][y] = -1;
@@ -375,14 +375,14 @@ void Scene::changeObject(int id, double fin[2], double pM[2], double pm[2]){
 //            _map[(int)(point[0]/_grid_d)][(int)(point[1]/_grid_d)] = 0;
             for (int x=pm[0]; x<=pM[0]; x++){
                 for (int y=pm[1]; y<=pM[1]; y++){
-                    _map[x][y] = _objetos[i].getId() + 3;
+                    _map[x][y] = _objetos[i]->getId() + 3;
                 }
             }
 //            _objetos[i].setPos(fin, pM, pm);
 //            _map[(int)(fin[0]/_grid_d)][(int)(fin[1]/_grid_d)] = _objetos[i].getId();
         }
     }
-    Actualizar();
+    Actualizar(5,id);
 }
 
 //////void Scene::actualizaColores(){
@@ -410,7 +410,7 @@ void Scene::changeObject(int id, double fin[2], double pM[2], double pm[2]){
 //////    _objs.clear();
 //////}
 
-int Scene::pertenece(Objeto ob){
+int Scene::pertenece(Objeto *ob){
     int pertenece = -1;
     for (uint i=0; i < _objetos.size(); i++){
         if (_objetos[i] == ob){

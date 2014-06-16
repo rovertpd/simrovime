@@ -43,6 +43,7 @@ class ARobot{
         void setDir(int dir);
         void setObj(Objeto *obj);
         Objeto* getObj();
+        void reset();
         bool hasObj();
         void deleteObj();
 

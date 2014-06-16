@@ -30,7 +30,7 @@ class Scene
       vector<Marca*> getMarcas();
       void setMarcas(Marca* marcas[5]);
       Marca* getMarca(int id);
-      vector<Objeto> getObjetos();
+      vector<Objeto*> getObjetos();
 //      ARobot* getARobot(int id);
       void setP_sup(double x,double y);
       void setP_sup_der(double x,double y);
@@ -44,7 +44,7 @@ class Scene
       int getAlto();
       void setARTK(ARTKDetector *artk);
       ARTKDetector* getARTK();
-      void Actualizar();
+      void Actualizar(int accion, int id);
       float getAngulo(float v[2]);
       float getRotacion(int id);
 //      int getLock();
@@ -53,7 +53,7 @@ class Scene
 //      void setLock(int id);
       double * getCenter();
       double * getFin();
-      void addObject(Objeto ob);
+      void addObject(Objeto* ob);
       void deleteObject(int id);
       void changeObject(int id, double fin[2], double pM[2], double pm[2]);
 //      void actualizaColores();
@@ -61,7 +61,7 @@ class Scene
 //      void clearObjs();
       void setMap(int h, int a, int valor);
       int getMap(int h, int a);
-      int pertenece(Objeto ob);
+      int pertenece(Objeto* ob);
       int getGrid();
       double* getP_sup();
       double* getP_sup_der();
@@ -85,7 +85,7 @@ class Scene
       int _lock;
       VideoManager* _vmanager;
       vector<Marca*> _marcas;
-      vector<Objeto> _objetos;
+      vector<Objeto*> _objetos;
       //vector<Objeto> _objs;
       int _grid_d;
       int _alto;

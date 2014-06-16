@@ -223,7 +223,7 @@ void VideoManager::DrawCurrentFrame(int frame){
             if (!_colors[0]){
                 _objs[0] = (new Objeto(1,5,fin));
                 for (vector<Scene*>::iterator it = _scene.begin(); it != _scene.end(); ++it) {
-                  (*it)->addObject(*_objs[0]);
+                  (*it)->addObject(_objs[0]);
                 }
             }else{
                 double* pAnt = _objs[0]->getPos();

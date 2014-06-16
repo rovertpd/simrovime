@@ -53,7 +53,8 @@ bool ARTKDetector::detectMark(cv::Mat* frame) {
   int i, j, k;
   //printf("Nobjets,%d",_nObjects);
   double pattTrans[3][4];
-  bool actualizar = false;
+  int actualizar = -1;
+  int id = -1;
   _detected = false;
   vector<Marca*> m = _scene->getMarcas();
   Marca* marcas[5];
@@ -85,13 +86,16 @@ bool ARTKDetector::detectMark(cv::Mat* frame) {
           double y = _marca->getPos()[1];
           int grid = _scene->getGrid();
           if ((x/grid != posicion[0]/grid)||(y/grid != posicion[1]/grid)){
-              actualizar = true;
+              actualizar = 2;
+              id = i;
           }else if(abs(getRotation(_marca)-_marca->getRot()) > 10){
-              actualizar = true;
+              actualizar = 2;
+              id = i;
           }
       }else {
           _marca->setVisible(true);
-          actualizar = true;
+          actualizar = 1;
+          id = i;
       }
       _marca->setPattTans(pattTrans);
       _marca->setMarkerInfo(_markerInfo[k]);
@@ -105,13 +109,14 @@ bool ARTKDetector::detectMark(cv::Mat* frame) {
     } else {
       if (_marca->getVisible()){
         _marca->setVisible(false);
-        actualizar = true;
+        actualizar = 3;
+        id = i;
       }
     }  // El objeto no es visible
   } // Fin del for
   _scene->setMarcas(marcas);
-  if (actualizar){
-    _scene->Actualizar();
+  if (actualizar!=-1){
+    _scene->Actualizar(actualizar,id);
   }
 
   return _detected;

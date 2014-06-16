@@ -10,8 +10,8 @@
 
 
 class ia:public IceUtil::Thread{
-    virtual void run(int id, int pos[2],int ratio,int fin[2],int grid[2],vector<int> map,ARobot *agente){
-          Estado * e = new Estado(id,pos[0],pos[1],ratio,grid[0],grid[1],fin[0],fin[1],map);
+    virtual void run(int id, int pos[2],int ratio,int fin[2],int grid[2],int tam[2],vector<int> map,ARobot *agente){
+          Estado * e = new Estado(id,pos[0],pos[1],ratio,grid[0],grid[1],fin[0],fin[1],tam[0],tam[1],map);
           agente->setPath(false);
           cout<<"posx: "<<pos[0]<<endl;
           cout<<"ratio: "<<ratio<<endl;

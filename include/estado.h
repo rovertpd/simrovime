@@ -41,10 +41,11 @@ class Estado{
     int _ratio;
     int _posxE, _posyE;
     int _gridx, _gridy;
+    int _tamx, _tamy;
     std::vector<char> _m;
     std::vector<int> _map;
   public:
-    Estado(int id, int posx, int posy, int ratio, int gridx, int gridy, int posxE, int posyE, std::vector<int> map){
+    Estado(int id, int posx, int posy, int ratio, int gridx, int gridy, int posxE, int posyE, int tamx, int tamy, std::vector<int> map){
       _id = id;
       _posx = posx;
       _posy = posy;
@@ -53,6 +54,8 @@ class Estado{
       _gridy = gridy;
       _posxE = posxE;
       _posyE = posyE;
+      _tamx = tamx;
+      _tamy = tamy;
       _map = map;
     }
     int get_id() { return _id; }
@@ -63,6 +66,8 @@ class Estado{
     int get_gridy() { return _gridy; }
     int get_posxE() { return _posxE; }
     int get_posyE() { return _posyE; }
+    int get_tamx() {return _tamx; }
+    int get_tamy() {return _tamy; }
     void add_mov(char m){ _m.push_back(m); }
     std::vector<char> get_mov() { return _m; }
     py::list get_mapa() { return vector_int_to_py_list(_map); }

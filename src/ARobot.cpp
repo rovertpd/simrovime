@@ -14,6 +14,18 @@ ARobot::ARobot(int id){
     _robot = new Robot(_id);
 }
 
+void ARobot::reset(){
+    _pos[0] = 0.0;
+    _pos[1] = 0.0;
+    _ang = 0.0;
+    _fin[0] = -1.0;
+    _fin[1] = -1.0;
+    _path = false;
+    _ob = false;
+    _object = NULL;
+    _direccion = 0;
+}
+
 int ARobot::getId(){
     return _id;
 }

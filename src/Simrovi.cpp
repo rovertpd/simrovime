@@ -6,7 +6,7 @@
 
 BOOST_PYTHON_MODULE( State )
 {
-        class_<Estado>("Estado", init<int,int,int,int,int,int,int,int,std::vector<int> >())
+        class_<Estado>("Estado", init<int,int,int,int,int,int,int,int,int,int,std::vector<int> >())
                 .def("get_id", &Estado::get_id)
                 .def("add_mov", &Estado::add_mov)
                 .def("get_posx", &Estado::get_posx)
@@ -16,6 +16,8 @@ BOOST_PYTHON_MODULE( State )
                 .def("get_gridy", &Estado::get_gridy)
                 .def("get_posxE", &Estado::get_posxE)
                 .def("get_posyE", &Estado::get_posyE)
+                .def("get_tamx", &Estado::get_tamx)
+                .def("get_tamy", &Estado::get_tamy)
                 .def("get_mapa", &Estado::get_mapa)
                 ;
 }

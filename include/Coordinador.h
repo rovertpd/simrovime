@@ -26,13 +26,16 @@ class Coordinador
       Coordinador();
       Coordinador(Scene* scn);
       ARobot* getARobot(int id);
-      void Actualizar();
+      void Actualizar(int event, int id);
       int getLock();
       void setLock(int id);
       void setMap(int h, int a, int valor);
       int getMap(int h, int a);
       int getObjeto(int id);
       int getPrioritario();
+      int anyIdle();
+      int havePriority(Objeto* ob);
+
    protected:
       //Scene(const Scene & ) ;
       vector<int> arrayToVectorMap();
@@ -41,7 +44,8 @@ class Coordinador
    private:
       Scene *_scene;
       int _lock;
-      vector<ARobot> _arobots;
+      vector<ARobot*> _arobots;
       int **_map;
+      bool _aRo[3];
 };
 #endif
