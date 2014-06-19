@@ -2,12 +2,17 @@
 #ifndef AROBOT_H
     #define AROBOT_H
 
-#include "Robot.h"
 #include <AR/ar.h>
 #include <AR/gsub.h>
 #include <AR/param.h>
 #include <vector>
+
+class ARobot;
+
+#include "Robot.h"
 #include "Objeto.h"
+#include "Scene.h"
+#include "IA.h"
 
 using namespace std;
 
@@ -25,6 +30,7 @@ class ARobot{
         ARMarkerInfo *_markerInfo;
         Objeto *_object;
         bool _ob;
+        void setPos(double p[2]);
         //float angulo;
 
     public:
@@ -48,7 +54,11 @@ class ARobot{
         void deleteObj();
 
         void detener();
-        void planifica(ARMarkerInfo *markerInfo,double inicio[2],double fin[2],int accion,double rotacion);
+        void planifica(Scene *scn,int event);
+
+        bool casillaValida(Scene *scn);
+        void orientar(Scene *scn);
+        void nextMov();
 
         ARobot &operator= (const ARobot &r);
 

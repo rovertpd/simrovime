@@ -135,6 +135,7 @@ void Scene::setMarcas(Marca* marcas[5]){
               }//fin if
             }//fin else
         }
+        marcas[i]->setRatio(((marcas[i]->getMax()[0])/_grid_d) - ((marcas[i]->getMin()[0])/_grid_d));
         _marcas[i] = marcas[i];
     }
 }

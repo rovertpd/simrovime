@@ -16,6 +16,7 @@ class Marca {
   double _pmax[2];              // Punto maximo
   double _pmin[2];              // Punto minimo
   float _rotation;              // Rotacion de la marca
+  int _ratio;                    // Radio de la marca para cada robot (mitad en cuadros de grid)
   ARMarkerInfo _markerInfo;
 
  public:
@@ -30,6 +31,8 @@ class Marca {
   ARMarkerInfo* getMarkerInfo();
   void setRot(float r);
   float getRot();
+  int getRatio();
+  void setRatio(int ratio);
   double* getMax();
   double* getMin();
   void setMax(double* max);

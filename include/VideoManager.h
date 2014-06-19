@@ -4,12 +4,12 @@
 #include <iostream>
 #include "cv.h"
 #include "highgui.h"
-#include "Filter.h"
 #include <vector>
 
 class VideoManager;
 
 #include "Scene.h"
+#include "Filter.h"
 
 class VideoManager {
  private:

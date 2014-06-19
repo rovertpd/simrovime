@@ -7,11 +7,11 @@
 #include <OGRE/Ogre.h>
 #include <iostream>
 #include "cv.h"
-#include "Marca.h"
 
 class ARTKDetector;
 
 #include "Scene.h"
+#include "Marca.h"
 
 class ARTKDetector {
  private:

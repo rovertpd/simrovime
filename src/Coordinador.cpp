@@ -52,27 +52,27 @@ void Coordinador::Actualizar(int event, int id){
         _aRo[id] = true;
         if ((ob = getPrioritario()) != -1){
             getARobot(id)->setObj(_scene->getObjetos()[ob]);
-                    getARobot(id)->planifica((_scene->getMarca(id+2))->getMarkerInfo(),_scene->getCenter(),_scene->getFin(),1,_scene->getRotacion(id+2));
+                    getARobot(id)->planifica(_scene,1);
         }else{
-                    getARobot(id)->planifica((_scene->getMarca(id+2))->getMarkerInfo(),_scene->getCenter(),_scene->getFin(),3,_scene->getRotacion(id+2));
+                    getARobot(id)->planifica(_scene,3);
         }
     }else if(event == NO){
         int rob = -1;
         if ((rob = anyIdle()) != -1){
             getARobot(rob)->setObj(_scene->getObjetos().back());
-            getARobot(rob)->planifica((_scene->getMarca(rob+2))->getMarkerInfo(),_scene->getCenter(),_scene->getFin(),1,_scene->getRotacion(rob+2));
+            getARobot(rob)->planifica(_scene,1);
         }else{
             if ((rob = havePriority(_scene->getObjetos().back())) != -1){
                 getARobot(rob)->setObj(_scene->getObjetos().back());
-                getARobot(rob)->planifica((_scene->getMarca(rob+2))->getMarkerInfo(),_scene->getCenter(),_scene->getFin(),1,_scene->getRotacion(rob+2));
+                getARobot(rob)->planifica(_scene,1);
             }
         }
     }else if (event == MR){
-        getARobot(id)->planifica((_scene->getMarca(id+2))->getMarkerInfo(),_scene->getCenter(),_scene->getFin(),2,_scene->getRotacion(id+2));
+        getARobot(id)->planifica(_scene,2);
     }else if (event == MO){
         for (vector<ARobot*>::iterator it = _arobots.begin(); it != _arobots.end(); ++it) {
             if ((*it)->getObj()->getId() < id){
-                            (*it)->planifica((_scene->getMarca((*it)->getId()+2))->getMarkerInfo(),_scene->getCenter(),_scene->getFin(),1,_scene->getRotacion((*it)->getId()+2));
+                            (*it)->planifica(_scene,1);
             }
         }
     }else if (event == BR){
@@ -84,9 +84,9 @@ void Coordinador::Actualizar(int event, int id){
                 int ob = -1;
                 if ((ob = getPrioritario()) != -1){
                     (*it)->setObj(_scene->getObjetos()[ob]);
-                            (*it)->planifica((_scene->getMarca((*it)->getId()+2))->getMarkerInfo(),_scene->getCenter(),_scene->getFin(),1,_scene->getRotacion((*it)->getId()+2));
+                            (*it)->planifica(_scene,1);
                 }else{
-                            (*it)->planifica((_scene->getMarca((*it)->getId()+2))->getMarkerInfo(),_scene->getCenter(),_scene->getFin(),3,_scene->getRotacion((*it)->getId()+2));
+                            (*it)->planifica(_scene,3);
                 }
             }
         }

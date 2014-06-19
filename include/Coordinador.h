@@ -1,20 +1,18 @@
 #ifndef COORD_H
  #define COORD_H
-#include "Marca.h"
-#include "ARobot.h"
-#include "Objeto.h"
 #include <OGRE/Ogre.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/python/str.hpp>
-#include "estado.h"
 #include <vector>
-#include "ia.h"
 
 class Coordinador;
 
+#include "ARobot.h"
 #include "Scene.h"
 #include "ARTKDetector.h"
-
+#include "Marca.h"
+#include "Objeto.h"
+#include "estado.h"
 
 #define PI 3.14159265
 

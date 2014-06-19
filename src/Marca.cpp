@@ -68,6 +68,14 @@ double* Marca::getMin(){
     return _pmin;
 }
 
+int Marca::getRatio(){
+    return _ratio;
+}
+
+void Marca::setRatio(int ratio){
+    _ratio = ratio;
+}
+
 void Marca::setMax(double* max){
     _pmax[0]=max[0];
     _pmax[1]=max[1];

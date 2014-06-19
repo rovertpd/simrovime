@@ -1,21 +1,20 @@
 #ifndef SCENE_H
  #define SCENE_H
-#include "Marca.h"
-#include "ARobot.h"
-#include "Objeto.h"
 #include <OGRE/Ogre.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/python/str.hpp>
-#include "estado.h"
 #include <vector>
-#include "ia.h"
-#include "Filter.h"
+#include "Objeto.h"
 
 class Scene;
 
 #include "ARTKDetector.h"
 #include "VideoManager.h"
 #include "Coordinador.h"
+#include "ARobot.h"
+#include "Marca.h"
+#include "Filter.h"
+#include "estado.h"
 
 using namespace std;
 
@@ -69,10 +68,11 @@ class Scene
       double* getP_inf();
       double* getP_inf_der();
       double* getP_inf_izq();
+      vector<int> arrayToVectorMap();
    protected:
       //Scene(const Scene & ) ;
       Scene &operator= (const Scene &s) ;
-      vector<int> arrayToVectorMap();
+      //vector<int> arrayToVectorMap();
       //void *Busca_Solucion(void *arg);
       //static void *Busca(void *arg);
    private:
