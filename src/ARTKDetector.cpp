@@ -68,6 +68,7 @@ bool ARTKDetector::detectMark(cv::Mat* frame) {
   }
 
    for (i=0; i<_nObjects; i++) {
+    actualizar = -1;
     //_marca = _scene->getMarca(i);
     _marca = marcas[i];
     for(j = 0, k = -1; j < _markerNum; j++) {
@@ -81,44 +82,56 @@ bool ARTKDetector::detectMark(cv::Mat* frame) {
       _marca->getPattTans(pattTrans);
       arGetTransMatCont(&_markerInfo[k], pattTrans, _marca->getCenter(), _marca->getWidth(), pattTrans);
       double posicion[2] = {_markerInfo[k].pos[0],_markerInfo[k].pos[1]};
+      _marca->setPattTans(pattTrans);
+      _marca->setMarkerInfo(_markerInfo[k]);
+      _marca->setPos(posicion);
+      _marca->setRot(getRotation(_marca));
+      int pm[2] = {_markerInfo[k].vertex[0][0],_markerInfo[k].vertex[1][1]};
+      int pM[2] = {_markerInfo[k].vertex[2][0],_markerInfo[k].vertex[3][1]};
+      _marca->setMax(pM);
+      _marca->setMin(pm);
       if(_marca->getVisible()){
           double x = _marca->getPos()[0];
           double y = _marca->getPos()[1];
           int grid = _scene->getGrid();
           if ((x/grid != posicion[0]/grid)||(y/grid != posicion[1]/grid)){
+              if (i>1)
+                _scene->modificarMarca(_marca);
               actualizar = 2;
               id = i;
           }else if(abs(getRotation(_marca)-_marca->getRot()) > 10){
+              if (i>1)
+                _scene->modificarMarca(_marca);
               actualizar = 2;
               id = i;
           }
       }else {
-          _marca->setVisible(true);
-          actualizar = 1;
-          id = i;
+          if ((i<2) || (i>1 && _scene->getFin()[0]!=0.0)){
+              _marca->setVisible(true);
+              if(i>1)
+                _scene->crearMarca(_marca);
+              actualizar = 1;
+              id = i;
+          }
       }
-      _marca->setPattTans(pattTrans);
-      _marca->setMarkerInfo(_markerInfo[k]);
-      _marca->setPos(posicion);
-      _marca->setRot(getRotation(_marca));
-      double pM[2] = {_markerInfo[k].vertex[0][0],_markerInfo[k].vertex[1][1]};
-      double pm[2] = {_markerInfo[k].vertex[2][0],_markerInfo[k].vertex[3][1]};
-      _marca->setMax(pM);
-      _marca->setMin(pm);
       _detected = true;
     } else {
       if (_marca->getVisible()){
-        _marca->setVisible(false);
-        actualizar = 3;
-        id = i;
+          if ((i<2) || (i>1 && _scene->getFin()[0]!=0.0)){
+            _marca->setVisible(false);
+            if (i>1)
+                _scene->borrarMarca(_marca);
+            actualizar = 3;
+            id = i;
+          }
       }
     }  // El objeto no es visible
-  } // Fin del for
-  _scene->setMarcas(marcas);
-  if (actualizar!=-1){
+//  } // Fin del for
+  if (actualizar!=-1 && ((i==0 && _scene->getCenter()[0]==0.0) || (i==1 && _scene->getFin()[0]==0.0 && _scene->getCenter()[0]!=0.0) || (i>1 && _scene->getFin()[0]!=0.0))){
+    cout<<"ARTKD:: Actualizar por marca: "<< id << (i==0 && _scene->getCenter()[0]==0.0) << (i==1 && _scene->getFin()[0]==0.0 && _scene->getCenter()[0]!=0.0) << (i>1) << endl;
     _scene->Actualizar(actualizar,id);
   }
-
+}
   return _detected;
 }
 // ================================================================

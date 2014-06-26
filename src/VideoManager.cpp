@@ -147,6 +147,7 @@ void VideoManager::DrawCurrentFrame(int frame){
               else if (j>cont[2][6]) cont[2][6] = j;
               if (i<cont[2][5]) cont[2][5] = i;
               else if (i>cont[2][7]) cont[2][7] = i;
+//              cout<<"VideoManager:: Detectado color azul"<<endl;
 //              y_a_total = y_a_total + i;
 //              x_a_total = x_a_total + j;
 //              y_a_cont++;
@@ -166,6 +167,7 @@ void VideoManager::DrawCurrentFrame(int frame){
               else if(j>cont[1][6]) cont[1][6] = j;
               if (i<cont[1][5]) cont[1][5] = i;
               else if(i>cont[1][7]) cont[1][7] = i;
+//              cout<<"VideoManager:: Detectado color verde"<<endl;
 //              y_v_total = y_v_total + i;
 //              x_v_total = x_v_total + j;
 //              y_v_cont++;
@@ -185,6 +187,7 @@ void VideoManager::DrawCurrentFrame(int frame){
               else if(j>cont[0][6]) cont[0][6] = j;
               if (i<cont[0][5]) cont[0][5] = i;
               else if(i>cont[0][7]) cont[0][7] = i;
+//              cout<<"VideoManager:: Detectado color rojo"<<endl;
 //              y_r_total = y_r_total + i;
 //              x_r_total = x_r_total + j;
 //              y_r_cont++;
@@ -204,15 +207,15 @@ void VideoManager::DrawCurrentFrame(int frame){
           pDest[idx+2] = 255;
           pDest[idx+3] = 255;
       }
-//      if ((_filter->getGrid()>0.0)){
-//        if (((i%_filter->getGrid()) == 0) && ((j%_filter->getGrid())==0)){
-//          int idx = ((j) * pixelBox.rowPitch + i )*4;
-//          pDest[idx] = 0;
-//          pDest[idx+1] = 0;
-//          pDest[idx+2] = 0;
-//          pDest[idx+3] = 255;
-//        }
-//      }
+      if ((_filter->getGrid()>0.0)){
+        if (((i%_filter->getGrid()) == 0) && ((j%_filter->getGrid())==0)){
+          int idx = ((j) * pixelBox.rowPitch + i )*4;
+          pDest[idx] = 0;
+          pDest[idx+1] = 0;
+          pDest[idx+2] = 0;
+          pDest[idx+3] = 255;
+        }
+      }
     }
   }
   if (colors){
@@ -223,7 +226,12 @@ void VideoManager::DrawCurrentFrame(int frame){
             if (!_colors[0]){
                 _objs[0] = (new Objeto(1,5,fin));
                 for (vector<Scene*>::iterator it = _scene.begin(); it != _scene.end(); ++it) {
+                  double pM[2] = {cont[0][6], cont[0][7]}, pm[2] = {cont[0][4], cont[0][5]};
+                  _objs[0]->setPos(fin, pM, pm);
                   (*it)->addObject(_objs[0]);
+                  printf("VideoManager:: Punto medio rojo en %f, %f\n",fin[0], fin[1]);
+                  printf("VideoManager:: Punto M: [%f,%f] Punto m: [%f,%f]\n",pM[0]/(*it)->getGrid(), pM[1]/(*it)->getGrid(), pm[0]/(*it)->getGrid(), pm[1]/(*it)->getGrid());
+                  cout<<"VideoManager:: Add object "<<endl;
                 }
             }else{
                 double* pAnt = _objs[0]->getPos();
@@ -232,11 +240,12 @@ void VideoManager::DrawCurrentFrame(int frame){
                     double pM[2] = {cont[0][6], cont[0][7]}, pm[2] = {cont[0][4], cont[0][5]};
                     _objs[0]->setPos(fin, pM, pm);
                     (*it)->changeObject(0, fin, pM, pm);
+                    printf("VideoManager:: Punto medio rojo en %f, %f\n",fin[0], fin[1]);
+                    cout<<"VideoManager:: Change object "<<endl;
                   }
                 }
             }
             _colors[0] = true;
-            printf("Punto medio rojo en %f, %f\n",fin[0], fin[1]);
       }
 //      if (x_v_cont > 0){
 //            fin[1] = x_v_total / x_v_cont;
@@ -287,6 +296,7 @@ void VideoManager::DrawCurrentFrame(int frame){
           _objs[i] = NULL;
           for (vector<Scene*>::iterator it = _scene.begin(); it != _scene.end(); ++it) {
             (*it)->deleteObject(i);
+            cout<<"VideoManager:: Delete object "<<endl;
           }
         }
       }

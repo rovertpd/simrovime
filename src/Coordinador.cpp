@@ -48,15 +48,19 @@ int Coordinador::havePriority(Objeto* ob){
 
 void Coordinador::Actualizar(int event, int id){
     if (event == NR){
+        cout<<"Coordinador:: NR"<<endl;
+        id = id - 2;
         int ob = -1;
         _aRo[id] = true;
         if ((ob = getPrioritario()) != -1){
+            cout<<"Coordinador:: "<<ob<<endl;
             getARobot(id)->setObj(_scene->getObjetos()[ob]);
                     getARobot(id)->planifica(_scene,1);
         }else{
                     getARobot(id)->planifica(_scene,3);
         }
     }else if(event == NO){
+        cout<<"Coordinador:: NO"<<endl;
         int rob = -1;
         if ((rob = anyIdle()) != -1){
             getARobot(rob)->setObj(_scene->getObjetos().back());
@@ -68,16 +72,22 @@ void Coordinador::Actualizar(int event, int id){
             }
         }
     }else if (event == MR){
+        cout<<"Coordinador:: MR"<<endl;
+        id = id - 2;
         getARobot(id)->planifica(_scene,2);
     }else if (event == MO){
+        cout<<"Coordinador:: MO"<<endl;
         for (vector<ARobot*>::iterator it = _arobots.begin(); it != _arobots.end(); ++it) {
             if ((*it)->getObj()->getId() < id){
                             (*it)->planifica(_scene,1);
             }
         }
     }else if (event == BR){
+        cout<<"Coordinador:: BR"<<endl;
+        id = id - 2;
         getARobot(id)->reset();
     }else if (event == BO){
+        cout<<"Coordinador:: BO"<<endl;
         for (vector<ARobot*>::iterator it = _arobots.begin(); it != _arobots.end(); ++it) {
             if ((*it)->getObj()->getId() < id){
                 (*it)->deleteObj();
@@ -251,7 +261,7 @@ int Coordinador::getPrioritario(){
     if (_arobots[2]->hasObj())
       idA3 = _arobots[2]->getObj()->getId();
     vector<Objeto*> objs = _scene->getObjetos();
-    int obj = 0;
+    int obj = -1;
     int prioridad = -1;
     for (uint i=0; i < objs.size(); i++){
         if ((objs[i]->getPrioridad() > prioridad) && (objs[i]->getId() != idA1) && (objs[i]->getId() != idA2) && (objs[i]->getId() != idA3)){

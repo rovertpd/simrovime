@@ -12,9 +12,9 @@ class Marca {
   double _width;                // Ancho del patron
   double _center[2];            // Centro del patron
   double _pattTrans[3][4];      // Matriz asociada al patron
-  double _pos[2];               // Posicion de la marca
-  double _pmax[2];              // Punto maximo
-  double _pmin[2];              // Punto minimo
+  int _pos[2];               // Posicion de la marca
+  int _pmax[2];              // Punto maximo
+  int _pmin[2];              // Punto minimo
   float _rotation;              // Rotacion de la marca
   int _ratio;                    // Radio de la marca para cada robot (mitad en cuadros de grid)
   ARMarkerInfo _markerInfo;
@@ -27,16 +27,16 @@ class Marca {
   double getWidth();
   double* getCenter();
   void getPattTans(double m[3][4]);
-  double* getPos();
+  int* getPos();
   ARMarkerInfo* getMarkerInfo();
   void setRot(float r);
   float getRot();
   int getRatio();
   void setRatio(int ratio);
-  double* getMax();
-  double* getMin();
-  void setMax(double* max);
-  void setMin(double* min);
+  int* getMax();
+  int* getMin();
+  void setMax(int* max);
+  void setMin(int* min);
   void setMarkerInfo(ARMarkerInfo markerInfo);
   void setPos(double p[2]);
   void setId(int id);

@@ -11,6 +11,8 @@ class IA;
 #include "ARobot.h"
 #include "estado.h"
 
+//using namespace std;
+
 class IA:public IceUtil::Thread{
     public:
     IA(Estado *e,ARobot *agente);

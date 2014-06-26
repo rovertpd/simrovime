@@ -31,6 +31,7 @@ class ARobot{
         Objeto *_object;
         bool _ob;
         void setPos(double p[2]);
+        Scene* _scn;
         //float angulo;
 
     public:

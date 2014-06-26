@@ -27,7 +27,7 @@ class Scene
       void attach(Coordinador *c);
 
       vector<Marca*> getMarcas();
-      void setMarcas(Marca* marcas[5]);
+//      void setMarcas(Marca* marcas[5]);
       Marca* getMarca(int id);
       vector<Objeto*> getObjetos();
 //      ARobot* getARobot(int id);
@@ -69,6 +69,9 @@ class Scene
       double* getP_inf_der();
       double* getP_inf_izq();
       vector<int> arrayToVectorMap();
+      void crearMarca(Marca* m);
+      void modificarMarca(Marca* m);
+      void borrarMarca(Marca* m);
    protected:
       //Scene(const Scene & ) ;
       Scene &operator= (const Scene &s) ;

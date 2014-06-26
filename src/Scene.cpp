@@ -95,50 +95,93 @@ vector<Marca*> Scene::getMarcas(){
     return _marcas;
 }
 
-void Scene::setMarcas(Marca* marcas[5]){
-    for (int i=0; i<5; i++){
-        if (i>1){
-            if (marcas[i]->getVisible()){
-              if(_marcas[i]->getVisible()){
-                  if ((_marcas[i]->getMax()[0]/_grid_d != marcas[i]->getMax()[0]/_grid_d)||
-                      (_marcas[i]->getMax()[1]/_grid_d != marcas[i]->getMax()[1]/_grid_d)||
-                      (_marcas[i]->getMin()[0]/_grid_d != marcas[i]->getMin()[0]/_grid_d)||
-                      (_marcas[i]->getMin()[1]/_grid_d != marcas[i]->getMin()[1]/_grid_d)){
-                      // modificar marca en el map
-                        for (int x=_marcas[i]->getMin()[0]; x<=_marcas[i]->getMax()[0]; x++){
-                            for (int y=_marcas[i]->getMin()[1]; y<=_marcas[i]->getMax()[1]; y++){
-                                _map[x][y] = -1;
-                            }
-                        }
-                        for (int x=marcas[i]->getMin()[0]; x<=marcas[i]->getMax()[0]; x++){
-                            for (int y=marcas[i]->getMin()[1]; y<=marcas[i]->getMax()[1]; y++){
-                                _map[x][y] = i-2;
-                            }
-                        }
-                  }
-              }else {
-                  // Crear marca en el map
-                for (int x=marcas[i]->getMin()[0]; x<=marcas[i]->getMax()[0]; x++){
-                    for (int y=marcas[i]->getMin()[1]; y<=marcas[i]->getMax()[1]; y++){
-                        _map[x][y] = i-2;
-                    }
-                }
-              }
-            } else {
-              if (_marcas[i]->getVisible()){
-                  // borrar marca en el map
-                for (int x=_marcas[i]->getMin()[0]; x<=_marcas[i]->getMax()[0]; x++){
-                    for (int y=_marcas[i]->getMin()[1]; y<=_marcas[i]->getMax()[1]; y++){
-                        _map[x][y] = -1;
-                    }
-                }
-              }//fin if
-            }//fin else
+void Scene::crearMarca(Marca* m){
+    cout<<"Scene:: Crear Marca:"<<m->getId()<<" Y:"<<m->getMin()[1]/_grid_d<<";"<<m->getMax()[1]/_grid_d<<" X:"<<m->getMin()[0]/_grid_d<<";"<<m->getMax()[0]/_grid_d<<endl;
+    for (int x=m->getMin()[0]/_grid_d; x<=m->getMax()[0]/_grid_d; x++){
+        for (int y=m->getMin()[1]/_grid_d; y<=m->getMax()[1]/_grid_d; y++){
+            cout<<"Modifica mapa"<<endl;
+            _map[y][x] = m->getId()-2;
         }
-        marcas[i]->setRatio(((marcas[i]->getMax()[0])/_grid_d) - ((marcas[i]->getMin()[0])/_grid_d));
-        _marcas[i] = marcas[i];
     }
+    m->setRatio(((m->getMax()[0])/_grid_d) - ((m->getMin()[0])/_grid_d));
+    _marcas[m->getId()] = m;
 }
+void Scene::modificarMarca(Marca* m){
+    cout<<"Scene:: Modificar Marca"<<endl;
+    if ((_marcas[m->getId()]->getMax()[0]/_grid_d != m->getMax()[0]/_grid_d)||
+       (_marcas[m->getId()]->getMax()[1]/_grid_d != m->getMax()[1]/_grid_d)||
+       (_marcas[m->getId()]->getMin()[0]/_grid_d != m->getMin()[0]/_grid_d)||
+       (_marcas[m->getId()]->getMin()[1]/_grid_d != m->getMin()[1]/_grid_d)){
+       // modificar marca en el map
+         for (int x=_marcas[m->getId()]->getMin()[0]/_grid_d; x<=_marcas[m->getId()]->getMax()[0]/_grid_d; x++){
+             for (int y=_marcas[m->getId()]->getMin()[1]/_grid_d; y<=_marcas[m->getId()]->getMax()[1]/_grid_d; y++){
+                 _map[y][x] = -1;
+             }
+         }
+         for (int x=m->getMin()[0]/_grid_d; x<=m->getMax()[0]/_grid_d; x++){
+             for (int y=m->getMin()[1]/_grid_d; y<=m->getMax()[1]/_grid_d; y++){
+                 _map[y][x] = m->getId()-2;
+             }
+         }
+    }
+    _marcas[m->getId()] = m;
+}
+void Scene::borrarMarca(Marca* m){
+    cout<<"Scene:: Borrar Marca"<<endl;
+    for (int x=_marcas[m->getId()]->getMin()[0]/_grid_d; x<=_marcas[m->getId()]->getMax()[0]/_grid_d; x++){
+        for (int y=_marcas[m->getId()]->getMin()[1]/_grid_d; y<=_marcas[m->getId()]->getMax()[1]/_grid_d; y++){
+            _map[y][x] = -1;
+        }
+    }
+    _marcas[m->getId()] = m;
+}
+//void Scene::setMarcas(Marca* marcas[5]){
+//    for (int i=0; i<5; i++){
+//        if (i>1){
+//            if (marcas[i]->getVisible()){
+//              if(_marcas[i]->getVisible()){
+//                  cout<<"Scene:: Modificar Marca:"<<i<<endl;
+//                  if ((_marcas[i]->getMax()[0]/_grid_d != marcas[i]->getMax()[0]/_grid_d)||
+//                      (_marcas[i]->getMax()[1]/_grid_d != marcas[i]->getMax()[1]/_grid_d)||
+//                      (_marcas[i]->getMin()[0]/_grid_d != marcas[i]->getMin()[0]/_grid_d)||
+//                      (_marcas[i]->getMin()[1]/_grid_d != marcas[i]->getMin()[1]/_grid_d)){
+//                      // modificar marca en el map
+//                        for (int x=_marcas[i]->getMin()[0]/_grid_d; x<=_marcas[i]->getMax()[0]/_grid_d; x++){
+//                            for (int y=_marcas[i]->getMin()[1]/_grid_d; y<=_marcas[i]->getMax()[1]/_grid_d; y++){
+//                                _map[x][y] = -1;
+//                            }
+//                        }
+//                        for (int x=marcas[i]->getMin()[0]/_grid_d; x<=marcas[i]->getMax()[0]/_grid_d; x++){
+//                            for (int y=marcas[i]->getMin()[1]/_grid_d; y<=marcas[i]->getMax()[1]/_grid_d; y++){
+//                                _map[x][y] = i-2;
+//                            }
+//                        }
+//                  }
+//              }else {
+//                cout<<"Scene:: Crear Marca:"<<i<<endl;
+//                  // Crear marca en el map
+//                for (int x=marcas[i]->getMin()[0]/_grid_d; x<=marcas[i]->getMax()[0]/_grid_d; x++){
+//                    for (int y=marcas[i]->getMin()[1]/_grid_d; y<=marcas[i]->getMax()[1]/_grid_d; y++){
+//                        _map[x][y] = i-2;
+//                    }
+//                }
+//              }
+//            } else {
+//              if (_marcas[i]->getVisible()){
+//                cout<<"Scene:: Borrar Marca:"<<i<<endl;
+//                  // borrar marca en el map
+//                for (int x=_marcas[i]->getMin()[0]/_grid_d; x<=_marcas[i]->getMax()[0]/_grid_d; x++){
+//                    for (int y=_marcas[i]->getMin()[1]/_grid_d; y<=_marcas[i]->getMax()[1]/_grid_d; y++){
+//                        _map[x][y] = -1;
+//                    }
+//                }
+//              }//fin if
+//            }//fin else
+//        }
+//        marcas[i]->setRatio(((marcas[i]->getMax()[0])/_grid_d) - ((marcas[i]->getMin()[0])/_grid_d));
+//        _marcas[i] = marcas[i];
+//    }
+//}
 
 void Scene::setMap(int h, int a, int valor){
     _map[h][a] = valor;
@@ -157,10 +200,9 @@ int Scene::getAlto(){
 }
 
 void Scene::Actualizar(int accion, int id){
-    cout<<"Aqui 77"<<endl;
     ARMarkerInfo *mark1;
     ARMarkerInfo *mark2;
-    if(getMarca(0)->getVisible() && _center[0]==0.0){
+    if(id==0 && _center[0]==0.0){
          mark1 = getMarca(0)->getMarkerInfo();
         if (getRotacion(0)>90){
             setP_sup(mark1->vertex[2][0], mark1->vertex[2][1]);
@@ -175,9 +217,8 @@ void Scene::Actualizar(int accion, int id){
         }
         _center[0] = mark1->pos[0];
         _center[1] = mark1->pos[1];
-        std::cout<<"Rotación inicio: "<<getRotacion(0)<<std::endl;
-    }
-    if(getMarca(1)->getVisible() && _fin[0]==0.0 && _center[0]!=0.0){
+        std::cout<<"Scene:: Posicion inicio: "<<_center[0]<<":"<<_center[1]<<std::endl;
+    }else  if(id==1 && _fin[0]==0.0 && _center[0]!=0.0){
         mark2 = getMarca(1)->getMarkerInfo();
         if(getRotacion(1)>90){
             setP_inf(mark2->vertex[0][0], mark2->vertex[0][1]);
@@ -207,20 +248,20 @@ void Scene::Actualizar(int accion, int id){
             }
         }
 
-        _map = new int *[_alto/_grid_d];
-        for (int i = 0; i < _alto/_grid_d; i++){
-            _map[i] = new int [_ancho/_grid_d];
-            for (int j = 0; j < _ancho/_grid_d; j++){
+        _map = new int *[_alto/_grid_d + 1];
+        for (int i = 0; i <= _alto/_grid_d; i++){
+            _map[i] = new int [_ancho/_grid_d + 1];
+            for (int j = 0; j <= _ancho/_grid_d; j++){
                 _map[i][j] = -1;
             }
         }
+        cout<<"Scene:: alto: "<<_alto/_grid_d+1<<" ancho: "<<_ancho/_grid_d+1<<endl;
         _filter->setGrid(_grid_d);
-        std::cout<<"Rotación fin: "<<getRotacion(1)<<std::endl;
-        cout<<"Tamaño del grid: "<<_grid_d<<endl;
-    }
-
-    if (_fin[0] != 0.0){
+        cout<<"Scene:: Posicion fin: "<<_fin[0]<<":"<<_fin[1]<<endl;
+        cout<<"Scene:: Tamaño del grid: "<<_grid_d<<endl;
+    }else if(id!=0 && id!=1){
         for (vector<Coordinador*>::iterator it = _coordinador.begin(); it != _coordinador.end(); ++it) {
+            cout<<"Scene:: Actualizar "<<endl;
             (*it)->Actualizar(accion,id);
         }
     }
@@ -228,9 +269,11 @@ void Scene::Actualizar(int accion, int id){
 
 vector<int> Scene::arrayToVectorMap(){
         vector<int> ret;
-        for(int i = 0; i < _ancho%_grid_d; i++)
-                for(int j = 0; j < _alto%_grid_d; j++)
-                        ret.push_back(_map[i][j]);
+        for(int i = 0; i <= _ancho/_grid_d; i++){
+                for(int j = 0; j <= _alto/_grid_d; j++){
+                        ret.push_back(_map[j][i]);
+                }
+        }
         return ret;
 }
 
@@ -338,12 +381,12 @@ void Scene::addObject(Objeto* ob){
     _objetos.push_back(ob);
     double* pmax = ob->getMax();
     double* pmin = ob->getMin();
-    for (int x=pmin[0]; x<=pmax[0]; x++){
-        for (int y=pmin[1]; y<=pmax[1]; y++){
+    for (int x=pmin[0]/_grid_d; x<=pmax[0]/_grid_d; x++){
+        for (int y=pmin[1]/_grid_d; y<=pmax[1]/_grid_d; y++){
             _map[x][y] = ob->getId() + 3;
         }
     }
-    Actualizar(4,-1);
+    Actualizar(4,ob->getId());
 }
 
 void Scene::deleteObject(int id){
@@ -351,8 +394,8 @@ void Scene::deleteObject(int id){
         if (_objetos[i]->getId() == id){
             double* pmax = _objetos[i]->getMax();
             double* pmin = _objetos[i]->getMin();
-            for (int x=pmin[0]; x<=pmax[0]; x++){
-                for (int y=pmin[1]; y<=pmax[1]; y++){
+            for (int x=pmin[0]/_grid_d; x<=pmax[0]/_grid_d; x++){
+                for (int y=pmin[1]/_grid_d; y<=pmax[1]/_grid_d; y++){
                     _map[x][y] = -1;
                 }
             }
@@ -367,8 +410,8 @@ void Scene::changeObject(int id, double fin[2], double pM[2], double pm[2]){
         if (_objetos[i]->getId() == id){
             double* pmax = _objetos[i]->getMax();
             double* pmin = _objetos[i]->getMin();
-            for (int x=pmin[0]; x<=pmax[0]; x++){
-                for (int y=pmin[1]; y<=pmax[1]; y++){
+            for (int x=pmin[0]/_grid_d; x<=pmax[0]/_grid_d; x++){
+                for (int y=pmin[1]/_grid_d; y<=pmax[1]/_grid_d; y++){
                     _map[x][y] = -1;
                 }
             }

@@ -34,12 +34,12 @@ void Marca::getPattTans(double m[3][4]){
         for (int j=0; j<4; ++j)
             m[i][j] = _pattTrans[i][j];
 }
-double* Marca::getPos(){
+int* Marca::getPos(){
     return _pos;
 }
 void Marca::setPos(double p[2]){
-    _pos[0]=p[0];
-    _pos[1]=p[1];
+    _pos[0]=static_cast<int>(p[0]);
+    _pos[1]=static_cast<int>(p[1]);
 }
 void Marca::setId(int id){
     _id=id;
@@ -60,11 +60,11 @@ void Marca::setRot(float r){
     _rotation = r;
 }
 
-double* Marca::getMax(){
+int* Marca::getMax(){
     return _pmax;
 }
 
-double* Marca::getMin(){
+int* Marca::getMin(){
     return _pmin;
 }
 
@@ -76,12 +76,12 @@ void Marca::setRatio(int ratio){
     _ratio = ratio;
 }
 
-void Marca::setMax(double* max){
+void Marca::setMax(int* max){
     _pmax[0]=max[0];
     _pmax[1]=max[1];
 }
 
-void Marca::setMin(double* min){
+void Marca::setMin(int* min){
     _pmin[0]=min[0];
     _pmin[1]=min[1];
 }

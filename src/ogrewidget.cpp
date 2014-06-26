@@ -166,14 +166,15 @@
           //_videoManager->DrawCurrentFrame();
           if ((frame % 10 ==1) && (_scene->getGrid()>0)){
               std::cout<<"Entra aqui"<<std::endl;
-              for (int j=0;j<_scene->getAncho()/_scene->getGrid();j++){
-                for (int i=0;i<_scene->getAlto()/_scene->getGrid();i++){
+              for (int j=0;j<=_scene->getAncho()/_scene->getGrid();j++){
+                for (int i=0;i<=_scene->getAlto()/_scene->getGrid();i++){
                   std::cout<<_scene->getMap(i,j);
                 }
                 std::cout<<""<<std::endl;
               }
               std::cout<<"Sale de aqui"<<std::endl;
           }
+//          cout<<"OW::Frame:: "<<frame<<endl;
               _videoManager->DrawCurrentFrame(frame);
 
               //Marca marcas[5];
