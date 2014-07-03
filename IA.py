@@ -16,11 +16,15 @@ def Ejecutar(Estado):
 
 	idp = (Estado.get_id())
 	posJ = (Estado.get_posx(), Estado.get_posy())
-	ratio = (Estado.get_ratio())
+	ratio = (Estado.get_ratiox(), Estado.get_ratioy())
 	grid = (Estado.get_gridx(), Estado.get_gridy())
 	posE = (Estado.get_posxE(), Estado.get_posyE())
 	tam = (Estado.get_tamx(),Estado.get_tamy())
 	mapa_aux = Estado.get_mapa()
+	f = open ("fichero.txt", "a")
+    f.write("idp\n")
+    f.write(str(idp))
+    f.close()
 	mapa=[]
 	cont = 0
 	for x in range (0,grid[0]):
@@ -33,20 +37,26 @@ def Ejecutar(Estado):
 	m=Map(celda=tam,tablero=grid)
 	for x in range(0,m.tablero[0]):
 		for y in range(0,m.tablero[1]):
-			if int(mapa[y][x])<>0:
-				m.ModificaMapaS(int(mapa[y][x]),(x,y))
+            m.ModificaMapaS(int(mapa[x][y]),(x,y))
 	Ggrid=GrafoMapa(m)
-
-	P=ProblemaGrafo(Ggrid,ratio,(posJ[1],posJ[0]),(posE[1],posE[0]),(grid[0],grid[1]),(tam[0],tam[1]))
+	P=ProblemaGrafo(idp,(ratio[0],ratio[1]),Ggrid,(posJ[0],posJ[1]),(posE[0],posE[1]),(grid[0],grid[1]),(tam[0],tam[1]))
 	n=BuscaSolucionesA(P)
-	l=n.camino()
-
+	f = open ("fichero.txt", "a")
+    f.write("Buscar soluciones")
+    f.close()
+    l=n.camino()
 	for a in l:
 		m.ModificaMapaS(6,(a.estado[1],a.estado[0]))
-	mov=[]
+	f = open ("fichero.txt", "a")
+    f.write("HHHOLA")
+    f.close()
 	for a in l:
 		if a.accion<>None:
 			Estado.add_mov(a.accion['Acc'])
+			f = open ("fichero.txt", "a")
+            f.write(str(a.accion['Acc']))
+            f.close()
+
 
 
 class Grafo:
@@ -71,11 +81,11 @@ class Grafo:
 		pass
 
 class ProblemaGrafo():
-	def __init__(self,Ratio,Grafo,NodoInicial,NodoFinal,Grid,Tam):
+	def __init__(self,idp,Ratio,Grafo,NodoInicial,NodoFinal,Grid,Tam):
 		self.id=idp
 		self.ratio=Ratio
-		self.estInit=NodoInicial
-		self.estadoFin=(NodoFinal/Ratio)
+		self.estInit=(NodoInicial[0],NodoInicial[1])
+		self.estadoFin=(NodoFinal)
 		self.graf=Grafo
 		self.tam=Tam
 		self.grid=Grid
@@ -83,7 +93,7 @@ class ProblemaGrafo():
 		return Nodo in self.graf.g.keys()
 	def sucesor(self,Nodo,Ratio,Tam):
 		return self.graf.nodosSucesores(Nodo,Ratio,Tam)
-	def meta(self,Nodo,Ratio):
+	def meta(self,Nodo):
         return Nodo==self.estadoFin
 	def estadoInit(self):
 		return self.estInit
@@ -102,104 +112,128 @@ class GrafoMapa(Grafo):
 		pass
 	def nodosSucesores(self,Nodo,Ratio,Tam):
 		f,c=Nodo
-		mv=[]
-		valido=[TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE]
+		valido=[True,True,True,True,True,True,True,True]
 		anchura,altura=self.dato.tablero
 		if (c%Tam[0]<0.5):
+		    c = c/Tam[0]
 			if (f%Tam[1]<0.5):
+			    f = f/Tam[1]
 #                        falta comprobar altura y anchura
-				if (Ratio%2==0):
-					inicio=(f-(Ratio/2),f-(Ratio/2)-1,f-(Ratio/2)+1,c-(Ratio/2),c-(Ratio/2)-1,c-(Ratio/2)+1)
-					fin=(f+(Ratio/2)-1,f+(Ratio/2)-2,f+(Ratio/2),c+(Ratio/2)-1,c+(Ratio/2)-2,c+(Ratio/2))
+				if (Ratio[0]%2==0):
+				    if (Ratio[1]%2==0):
+                        inicio=(f-(Ratio[1]/2),f-(Ratio[1]/2)-1,f-(Ratio[1]/2)+1,c-(Ratio[0]/2),c-(Ratio[0]/2)-1,c-(Ratio[0]/2)+1)
+                        fin=(f+(Ratio[1]/2)-1,f+(Ratio[1]/2)-2,f+(Ratio[1]/2),c+(Ratio[0]/2)-1,c+(Ratio[0]/2)-2,c+(Ratio[0]/2))
+                    else:
+                        inicio=(f-(Ratio[1]/2),f-(Ratio[1]/2)-1,f-(Ratio[1]/2)+1,c-(Ratio[0]/2),c-(Ratio[0]/2)-1,c-(Ratio[0]/2)+1)
+                        fin=(f+(Ratio[1]/2),f+(Ratio[1]/2)-1,f+(Ratio[1]/2)+1,c+(Ratio[0]/2)-1,c+(Ratio[0]/2)-2,c+(Ratio[0]/2))
 				else:
-					inicio=(f-(Ratio/2),f-(Ratio/2)-1,f-(Ratio/2)+1,c-(Ratio/2),c-(Ratio/2)-1,c-(Ratio/2)+1)
-					fin=(f+(Ratio/2),f+(Ratio/2)-1,f+(Ratio/2)+1,c+(Ratio/2),c+(Ratio/2)-1,c+(Ratio/2)+1)
+				    if (Ratio[1]%2==0):
+                        inicio=(f-(Ratio[1]/2),f-(Ratio[1]/2)-1,f-(Ratio[1]/2)+1,c-(Ratio[0]/2),c-(Ratio[0]/2)-1,c-(Ratio[0]/2)+1)
+                        fin=(f+(Ratio[1]/2)-1,f+(Ratio[1]/2)-2,f+(Ratio[1]/2),c+(Ratio[0]/2),c+(Ratio[0]/2)-1,c+(Ratio[0]/2)+1)
+                    else:
+                        inicio=(f-(Ratio[1]/2),f-(Ratio[1]/2)-1,f-(Ratio[1]/2)+1,c-(Ratio[0]/2),c-(Ratio[0]/2)-1,c-(Ratio[0]/2)+1)
+                        fin=(f+(Ratio[1]/2),f+(Ratio[1]/2)-1,f+(Ratio[1]/2)+1,c+(Ratio[0]/2),c+(Ratio[0]/2)-1,c+(Ratio[0]/2)+1)
 			else:
-				if (Ratio%2==0):
-					inicio=(f-(Ratio/2)+1,f-(Ratio/2),f-(Ratio/2)+2,c-(Ratio/2),c-(Ratio/2)-1,c-(Ratio/2)+1)
-					fin=(f+(Ratio/2),f+(Ratio/2)-1,f+(Ratio/2)+1,c+(Ratio/2)-1,c+(Ratio/2)-2,c+(Ratio/2))
+			    f = f/Tam[1]
+				if (Ratio[0]%2==0):
+				    if (Ratio[1]%2==0):
+                        inicio=(f-(Ratio[1]/2)+1,f-(Ratio[1]/2),f-(Ratio[1]/2)+2,c-(Ratio[0]/2),c-(Ratio[0]/2)-1,c-(Ratio[0]/2)+1)
+                        fin=(f+(Ratio[1]/2),f+(Ratio[1]/2)-1,f+(Ratio[1]/2)+1,c+(Ratio[0]/2)-1,c+(Ratio[0]/2)-2,c+(Ratio[0]/2))
+                    else:
+                        inicio=(f-(Ratio[1]/2),f-(Ratio[1]/2)-1,f-(Ratio[1]/2)+1,c-(Ratio[0]/2),c-(Ratio[0]/2)-1,c-(Ratio[0]/2)+1)
+                        fin=(f+(Ratio[1]/2),f+(Ratio[1]/2)-1,f+(Ratio[1]/2)+1,c+(Ratio[0]/2)-1,c+(Ratio[0]/2)-2,c+(Ratio[0]/2))
 				else:
-					inicio=(f-(Ratio/2),f-(Ratio/2)-1,f-(Ratio/2)+1,c-(Ratio/2),c-(Ratio/2)-1,c-(Ratio/2)+1)
-					fin=(f+(Ratio/2),f+(Ratio/2)-1,f+(Ratiosport/2)+1,c+(Ratio/2),c+(Ratio/2)-1,c+(Ratio/2)+1)
+				    if (Ratio[1]%2==0):
+                        inicio=(f-(Ratio[1]/2)+1,f-(Ratio[1]/2),f-(Ratio[1]/2)+2,c-(Ratio[0]/2),c-(Ratio[0]/2)-1,c-(Ratio[0]/2)+1)
+                        fin=(f+(Ratio[1]/2),f+(Ratio[1]/2)-1,f+(Ratio[1]/2)+1,c+(Ratio[0]/2),c+(Ratio[0]/2)-1,c+(Ratio[0]/2)+1)
+                    else:
+                        inicio=(f-(Ratio[1]/2),f-(Ratio[1]/2)-1,f-(Ratio[1]/2)+1,c-(Ratio[0]/2),c-(Ratio[0]/2)-1,c-(Ratio[0]/2)+1)
+                        fin=(f+(Ratio[1]/2),f+(Ratio[1]/2)-1,f+(Ratio[1]/2)+1,c+(Ratio[0]/2),c+(Ratio[0]/2)-1,c+(Ratio[0]/2)+1)
 		else:
+		    c = c/Tam[0]
 			if (f%Tam[1]<0.5):
-				if (Ratio%2==0):
-					inicio=(f-(Ratio/2),f-(Ratio/2)-1,f-(Ratio/2)+1,c-(Ratio/2)+1,c-(Ratio/2),c-(Ratio/2)+2)
-					fin=(f+(Ratio/2)-1,f+(Ratio/2)-2,f+(Ratio/2),c+(Ratio/2),c+(Ratio/2)-1,c+(Ratio/2)+1)
+			    f = f/Tam[1]
+				if (Ratio[0]%2==0):
+				    if (Ratio[1]%2==0):
+                        inicio=(f-(Ratio[1]/2),f-(Ratio[1]/2)-1,f-(Ratio[1]/2)+1,c-(Ratio[0]/2)+1,c-(Ratio[0]/2),c-(Ratio[0]/2)+2)
+                        fin=(f+(Ratio[1]/2)-1,f+(Ratio[1]/2)-2,f+(Ratio[1]/2),c+(Ratio[0]/2),c+(Ratio[0]/2)-1,c+(Ratio[0]/2)+1)
+                    else:
+                        inicio=(f-(Ratio[1]/2),f-(Ratio[1]/2)-1,f-(Ratio[1]/2)+1,c-(Ratio[0]/2)+1,c-(Ratio[0]/2),c-(Ratio[0]/2)+2)
+                        fin=(f+(Ratio[1]/2),f+(Ratio[1]/2)-1,f+(Ratio[1]/2)+1,c+(Ratio[0]/2),c+(Ratio[0]/2)-1,c+(Ratio[0]/2)+1)
 				else:
-					inicio=(f-(Ratio/2),f-(Ratio/2)-1,f-(Ratio/2)+1,c+(Ratio/2),c+(Ratio/2)-1,c+(Ratio/2)+1)
-					fin=(f+(Ratio/2),f+(Ratio/2)-1,f+(Ratio/2)+1,c+(Ratio/2),c+(Ratio/2)-1,c+(Ratio/2)+1)
+				    if (Ratio[1]%2==0):
+				        inicio=(f-(Ratio[1]/2),f-(Ratio[1]/2)-1,f-(Ratio[1]/2)+1,c-(Ratio[0]/2),c-(Ratio[0]/2)-1,c-(Ratio[0]/2)+1)
+                        fin=(f+(Ratio[1]/2)-1,f+(Ratio[1]/2)-2,f+(Ratio[1]/2),c+(Ratio[0]/2),c+(Ratio[0]/2)-1,c+(Ratio[0]/2)+1)
+                    else:
+                        inicio=(f-(Ratio[1]/2),f-(Ratio[1]/2)-1,f-(Ratio[1]/2)+1,c-(Ratio[0]/2),c-(Ratio[0]/2)-1,c-(Ratio[0]/2)+1)
+                        fin=(f+(Ratio[1]/2),f+(Ratio[1]/2)-1,f+(Ratio[1]/2)+1,c+(Ratio[0]/2),c+(Ratio[0]/2)-1,c+(Ratio[0]/2)+1)
 			else:
-				if (Ratio%2==0):
-					inicio=(f-(Ratio/2)+1,f-(Ratio/2),f-(Ratio/2)+2,c-(Ratio/2)+1,c-(Ratio/2),c-(Ratio/2)+2)
-					fin=(f+(Ratio/2),f+(Ratio/2)-1,f+(Ratio/2)+1,c+(Ratio/2),c+(Ratio/2)-1,c+(Ratio/2)+1)
+			    f = f/Tam[1]
+				if (Ratio[0]%2==0):
+				    if (Ratio[1]%2==0):
+                        inicio=(f-(Ratio[1]/2)+1,f-(Ratio[1]/2),f-(Ratio[1]/2)+2,c-(Ratio[0]/2)+1,c-(Ratio[0]/2),c-(Ratio[0]/2)+2)
+                        fin=(f+(Ratio[1]/2),f+(Ratio[1]/2)-1,f+(Ratio[1]/2)+1,c+(Ratio[0]/2),c+(Ratio[0]/2)-1,c+(Ratio[0]/2)+1)
+                    else:
+                        inicio=(f-(Ratio[1]/2),f-(Ratio[1]/2)-1,f-(Ratio[1]/2)+1,c-(Ratio[0]/2)+1,c-(Ratio[0]/2),c-(Ratio[0]/2)+2)
+                        fin=(f+(Ratio[1]/2),f+(Ratio[1]/2)-1,f+(Ratio[1]/2)+1,c+(Ratio[0]/2),c+(Ratio[0]/2)-1,c+(Ratio[0]/2)+1)
 				else:
-					inicio=(f-(Ratio/2),f-(Ratio/2)-1,f-(Ratio/2)+1,c+(Ratio/2),c+(Ratio/2)-1,c+(Ratio/2)+1)
-					fin=(f+(Ratio/2),f+(Ratio/2)-1,f+(Ratio/2)+1,c+(Ratio/2),c+(Ratio/2)-1,c+(Ratio/2)+1)
+				    if (Ratio[1]%2==0):
+				        inicio=(f-(Ratio[1]/2)+1,f-(Ratio[1]/2),f-(Ratio[1]/2)+2,c-(Ratio[0]/2),c-(Ratio[0]/2)-1,c-(Ratio[0]/2)+1)
+                        fin=(f+(Ratio[1]/2),f+(Ratio[1]/2)-1,f+(Ratio[1]/2)+1,c+(Ratio[0]/2),c+(Ratio[0]/2)-1,c+(Ratio[0]/2)+1)
+                    else:
+                        inicio=(f-(Ratio[1]/2),f-(Ratio[1]/2)-1,f-(Ratio[1]/2)+1,c-(Ratio[0]/2),c-(Ratio[0]/2)-1,c-(Ratio[0]/2)+1)
+                        fin=(f+(Ratio[1]/2),f+(Ratio[1]/2)-1,f+(Ratio[1]/2)+1,c+(Ratio[0]/2),c+(Ratio[0]/2)-1,c+(Ratio[0]/2)+1)
+		fi = open ("fichero.txt", "a")
+        fi.write("Despues del tocho1")
+        fi.close()
 		for y in range(inicio[0],fin[0]):
-			if (self.dato.mapa[fin[5]][y]!=-1):
-				valido[0]=FALSE
-			if (self.dato.mapa[inicio[4]][y]!=-1):
-				valido[4]=FALSE
+		    if ((fin[5]<0 | fin[5]>anchura | y<0 | y>altura) | (self.dato.mapa[fin[5]][y]!=-1)):
+                valido[0]=False
+            if ((inicio[4]<0 | inicio[4]>anchura | y<0 | y>altura) | (self.dato.mapa[inicio[4]][y]!=-1)):
+                valido[4]=False
 		for y in range(inicio[1],fin[1]):
-			if (self.dato.mapa[fin[5]][y]!=-1):
-				valido[7]=FALSE
-			if (self.dato.mapa[inicio[4]][y]!=-1):
-				valido[5]=FALSE
+		    if ((fin[5]<0 | fin[5]>anchura | y<0 | y>altura) | (self.dato.mapa[fin[5]][y]!=-1)):
+                valido[7]=False
+            if ((inicio[4]<0 | inicio[4]>anchura | y<0 | y>altura) | (self.dato.mapa[inicio[4]][y]!=-1)):
+                valido[5]=False
 		for y in range(inicio[2],fin[2]):
-			if (self.dato.mapa[fin[5]][y]!=-1):
-				valido[1]=FALSE
-			if (self.dato.mapa[inicio[4]][y]!=-1):
-				valido[3]=FALSE
+		    if ((fin[5]<0 | fin[5]>anchura | y<0 | y>altura) | (self.dato.mapa[fin[5]][y]!=-1)):
+                valido[1]=False
+            if ((inicio[4]<0 | inicio[4]>anchura | y<0 | y>altura) | (self.dato.mapa[inicio[4]][y]!=-1)):
+                valido[3]=False
 
 		for x in range(inicio[3],fin[3]):
-			if (self.dato.mapa[x][fin[2]]!=-1):
-				valido[2]=FALSE
-			if (self.dato.mapa[x][inicio[1]]!=-1):
-				valido[6]=FALSE
+		    if ((x<0 | x>anchura | fin[2]<0 | fin[2]>altura) | (self.dato.mapa[x][fin[2]]!=-1)):
+                valido[2]=False
+            if ((x<0 | x>anchura | inicio[1]<0 | inicio[1]>altura) | (self.dato.mapa[x][inicio[1]]!=-1)):
+                valido[6]=False
 		for x in range(inicio[4],fin[4]):
-			if (self.dato.mapa[x][fin[2]]!=-1):
-				valido[3]=FALSE
-			if (self.dato.mapa[x][inicio[1]]!=-1):
-				valido[5]=FALSE
+		    if ((x<0 | x>anchura | fin[2]<0 | fin[2]>altura) | (self.dato.mapa[x][fin[2]]!=-1)):
+                valido[3]=False
+            if ((x<0 | x>anchura | inicio[1]<0 | inicio[1]>altura) | (self.dato.mapa[x][inicio[1]]!=-1)):
+                valido[5]=False
 		for x in range(inicio[5],fin[5]):
-			if (self.dato.mapa[x][fin[2]]!=-1):
-				valido[1]=FALSE
-			if (self.dato.mapa[x][inicio[1]]!=-1):
-				valido[7]=FALSE
-		if (valido[0]==TRUE):
+		    if ((x<0 & x>anchura | fin[2]<0 | fin[2]>altura) | (self.dato.mapa[x][fin[2]]!=-1)):
+                valido[1]=False
+            if ((x<0 | x>anchura | inicio[1]<0 | inicio[1]>altura) | (self.dato.mapa[x][inicio[1]]!=-1)):
+                valido[7]=False
+        mv=[]
+		if (valido[0]):
 			mv.append(({'Acc':'R','val':3},(f,c+1)))
-		if (valido[1]==TRUE):
-			mv.append(({'Acc':'I','val':3},(f+1,c+1)))
-		if (valido[2]==TRUE):
+		if (valido[1]):
+            mv.append(({'Acc':'I','val':3},(f+1,c+1)))
+		if (valido[2]):
 			mv.append(({'Acc':'D','val':3},(f+1,c)))
-		if (valido[3]==TRUE):
+		if (valido[3]):
 			mv.append(({'Acc':'W','val':3},(f+1,c-1)))
-		if (valido[4]==TRUE):
+		if (valido[4]):
 			mv.append(({'Acc':'L','val':3},(f,c-1)))
-		if (valido[5]==TRUE):
+		if (valido[5]):
 			mv.append(({'Acc':'O','val':3},(f-1,c-1)))
-		if (valido[6]==TRUE):
+		if (valido[6]):
 			mv.append(({'Acc':'U','val':3},(f-1,c)))
-		if (valido[7]==TRUE):
+		if (valido[7]):
 			mv.append(({'Acc':'E','val':3},(f-1,c+1)))
-###################################################################################################################
-#                if (f<(altura-1)) and (not self.dato.mapa[f+1][c]==1):
-#                        mv.append(({'Acc':'D','val':3},(f+1,c)))
-#                        if (c<(anchura-1)) and (not self.dato.mapa[f][c+1]==1):
-#                                mv.append(({'Acc':'I','val':3},(f+1,c+1)))
-#                        if (c>0) and (not self.dato.mapa[f][c-1]==1):
-#                                mv.append(({'Acc':'W','val':3},(f+1,c-1)))
-#                if (f>0) and (not self.dato.mapa[f-1][c]==1):
-#                        mv.append(({'Acc':'U','val':3},(f-1,c)))
-#                        if (c<(anchura-1)) and (not self.dato.mapa[f][c+1]==1):
-#                                mv.append(({'Acc':'E','val':3},(f-1,c+1)))
-#                        if (c>0) and (not self.dato.mapa[f][c-1]==1):
-#                                mv.append(({'Acc':'O','val':3},(f-1,c-1)))
-#                if (c<(anchura-1)) and (not self.dato.mapa[f][c+1]==1):
-#                        mv.append(({'Acc':'R','val':3},(f,c+1)))
-#                if (c>0) and (not self.dato.mapa[f][c-1]==1):
-#                        mv.append(({'Acc':'L','val':3},(f,c-1)))
 		return mv
 	def heuristica(self,nodo1,nodo2):
 		y1,x1=nodo1
@@ -212,7 +246,6 @@ class GrafoMapa(Grafo):
 		else:
 			s= abs(x2-x1)+abs(y2-y1)
 		return s
-
 class AlmacenNodos:
 	def __init__(self,nombre="NoName"):
 		self.id=idp
@@ -289,14 +322,38 @@ def BuscaSolucionesA(prob,maxIter=-1,estr='A'):
 	solucion=None
 	frontera.add((n.val,n.estado,n))
 	while (not frontera.esVacia()) and (solucion==None):
+	    f = open ("fichero.txt", "a")
+        f.write("Dentro\n")
+        f.close()
 		n=frontera.get()
-		if prob.meta(n.estado,prob.ratio):
+		f = open ("fichero.txt", "a")
+        f.write(str(prob.estadoInit()))
+        f.write(str(prob.ratio))
+        f.close()
+		if prob.meta(n.estado):
 			solucion=n
 		else:
+		    f = open ("fichero.txt", "a")
+            f.write("No meta\n")
+            f.close()
 			for ac,est in prob.sucesor(n.estado,prob.ratio,prob.tam):
+			    f = open ("fichero.txt", "a")
+                f.write("For\n")
+                f.write(str(ac))
+                f.write(str(est))
+                f.close()
 				if not frontera.esta(est):
+				    f = open ("fichero.txt", "a")
+                    f.write("If\n")
+                    f.close()
 					h=GeneraNodo(prob,n,ac,est,estr)
+					f = open ("fichero.txt", "a")
+                    f.write("GeneraNodo\n")
+                    f.close()
 					frontera.add((h.val,h.estado,h))
+					f = open ("fichero.txt", "a")
+                    f.write("add\n")
+                    f.close()
 	return solucion
 
 class Map:
