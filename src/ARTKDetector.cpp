@@ -84,30 +84,39 @@ bool ARTKDetector::detectMark(cv::Mat* frame) {
       double posicion[2] = {_markerInfo[k].pos[0],_markerInfo[k].pos[1]};
       _marca->setPattTans(pattTrans);
       _marca->setMarkerInfo(_markerInfo[k]);
-      _marca->setPos(posicion);
-      _marca->setRot(getRotation(_marca));
-      int pm[2] = {_markerInfo[k].vertex[0][0],_markerInfo[k].vertex[1][1]};
-      int pM[2] = {_markerInfo[k].vertex[2][0],_markerInfo[k].vertex[3][1]};
+      int pm[2] = {_markerInfo[k].vertex[2][0],_markerInfo[k].vertex[3][1]};
+      int pM[2] = {_markerInfo[k].vertex[0][0],_markerInfo[k].vertex[1][1]};
       _marca->setMax(pM);
       _marca->setMin(pm);
       if(_marca->getVisible()){
           double x = _marca->getPos()[0];
           double y = _marca->getPos()[1];
           int grid = _scene->getGrid();
-          if ((x/grid != posicion[0]/grid)||(y/grid != posicion[1]/grid)){
+          if ((static_cast<int>(x/grid) != static_cast<int>(posicion[0]/grid))||(static_cast<int>(y/grid) != static_cast<int>(posicion[1]/grid))){
+              cout<<"ARTKD:: (x/grid != posicion[0]/grid)::"<<static_cast<int>(x/grid)<<"."<<static_cast<int>(posicion[0]/grid)<<endl;
+              cout<<"ARTKD:: (y/grid != posicion[1]/grid)::"<<(x/grid)<<"."<<(posicion[0]/grid)<<endl;
+              _marca->setPos(posicion);
+              _marca->setRot(getRotation(_marca));
               if (i>1)
                 _scene->modificarMarca(_marca);
               actualizar = 2;
               id = i;
           }else if(abs(getRotation(_marca)-_marca->getRot()) > 10){
+              cout<<"ARTKD:: abs(getRotation(_marca)-_marca->getRot()) > 10::"<<(abs(getRotation(_marca)-_marca->getRot()) > 10)<<endl;
+              _marca->setPos(posicion);
+              _marca->setRot(getRotation(_marca));
               if (i>1)
                 _scene->modificarMarca(_marca);
               actualizar = 2;
               id = i;
           }
+          _marca->setPos(posicion);
+          _marca->setRot(getRotation(_marca));
       }else {
           if ((i<2) || (i>1 && _scene->getFin()[0]!=0.0)){
               _marca->setVisible(true);
+              _marca->setPos(posicion);
+              _marca->setRot(getRotation(_marca));
               if(i>1)
                 _scene->crearMarca(_marca);
               actualizar = 1;

@@ -14,7 +14,6 @@ class Scene;
 #include "ARobot.h"
 #include "Marca.h"
 #include "Filter.h"
-#include "estado.h"
 
 using namespace std;
 
@@ -23,6 +22,8 @@ class Scene
    public:
       Scene();
       Scene(VideoManager *vm);
+
+      void init();
 
       void attach(Coordinador *c);
 
@@ -68,6 +69,7 @@ class Scene
       double* getP_inf();
       double* getP_inf_der();
       double* getP_inf_izq();
+      int ** getMap();
       vector<int> arrayToVectorMap();
       void crearMarca(Marca* m);
       void modificarMarca(Marca* m);

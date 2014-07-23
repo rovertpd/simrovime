@@ -23,6 +23,7 @@ class Coordinador
    public:
       Coordinador();
       Coordinador(Scene* scn);
+      void init();
       ARobot* getARobot(int id);
       void Actualizar(int event, int id);
       int getLock();

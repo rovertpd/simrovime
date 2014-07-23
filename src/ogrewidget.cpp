@@ -136,11 +136,13 @@
          createScene();
          _videoManager = new VideoManager(1, 640, 480, mSceneMgr);
          _scene = new Scene(_videoManager);
+         _scene->init();
          _scene->setAlto(480);
          _scene->setAncho(640);
          _arDetector = new ARTKDetector(640, 480, 100, _scene);
          _scene->setARTK(_arDetector);
-         new Coordinador(_scene);
+         Coordinador* coor = new Coordinador(_scene);
+         coor->init();
           // Start idle function for frame update/rendering
           Glib::signal_idle().connect( sigc::mem_fun(*this, &OgreWidget::on_idle) );
 
@@ -164,16 +166,16 @@
           Ogre::Vector3 pos;  Ogre::Vector3 look;   Ogre::Vector3 up;
           _videoManager->UpdateFrame();
           //_videoManager->DrawCurrentFrame();
-          if ((frame % 10 ==1) && (_scene->getGrid()>0)){
-              std::cout<<"Entra aqui"<<std::endl;
-              for (int j=0;j<=_scene->getAncho()/_scene->getGrid();j++){
-                for (int i=0;i<=_scene->getAlto()/_scene->getGrid();i++){
-                  std::cout<<_scene->getMap(i,j);
-                }
-                std::cout<<""<<std::endl;
-              }
-              std::cout<<"Sale de aqui"<<std::endl;
-          }
+//          if ((frame % 10 ==1) && (_scene->getGrid()>0)){
+//              std::cout<<"Entra aqui"<<std::endl;
+//              for (int j=0;j<=_scene->getAlto()/_scene->getGrid();j++){
+//                for (int i=0;i<=_scene->getAncho()/_scene->getGrid();i++){
+//                  std::cout<<_scene->getMap(i,j);
+//                }
+//                std::cout<<""<<std::endl;
+//              }
+//              std::cout<<"Sale de aqui"<<std::endl;
+//          }
 //          cout<<"OW::Frame:: "<<frame<<endl;
               _videoManager->DrawCurrentFrame(frame);
 

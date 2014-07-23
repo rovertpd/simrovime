@@ -9,15 +9,15 @@
 class IA;
 
 #include "ARobot.h"
-#include "estado.h"
+#include "busqueda.h"
 
 //using namespace std;
 
 class IA:public IceUtil::Thread{
     public:
-    IA(Estado *e,ARobot *agente);
+    IA(Busqueda *b,ARobot *agente);
     virtual void run();
-    Estado* _state;
+    Busqueda* _busqueda;
     ARobot* _agent;
 };
 #endif

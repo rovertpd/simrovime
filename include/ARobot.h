@@ -13,6 +13,7 @@ class ARobot;
 #include "Objeto.h"
 #include "Scene.h"
 #include "IA.h"
+#include "busqueda.h"
 
 using namespace std;
 
@@ -32,10 +33,12 @@ class ARobot{
         bool _ob;
         void setPos(double p[2]);
         Scene* _scn;
+        vector<IceUtil::ThreadControl> threads;
         //float angulo;
 
     public:
         ARobot(int id);
+        void init();
         int getDir();
         int getId();
         double getAng();
@@ -51,6 +54,7 @@ class ARobot{
         void setObj(Objeto *obj);
         Objeto* getObj();
         void reset();
+        void det();
         bool hasObj();
         void deleteObj();
 

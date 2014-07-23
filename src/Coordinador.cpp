@@ -14,6 +14,9 @@ Coordinador::Coordinador(Scene *scn){
   _scene = scn;
   _lock = -1;
   _arobots.clear();
+}
+
+void Coordinador::init(){
   _scene->attach(this);
   _aRo[0] = false;
   _aRo[1] = false;
@@ -21,12 +24,15 @@ Coordinador::Coordinador(Scene *scn){
   _arobots.push_back(new ARobot(0));
   _arobots.push_back(new ARobot(1));
   _arobots.push_back(new ARobot(2));
+  _arobots[0]->init();
+  _arobots[1]->init();
+  _arobots[2]->init();
 }
 
 int Coordinador::anyIdle(){
     int idle = -1;
     for (int i=0; i<3; i++){
-        if (!getARobot(i)->hasObj()){
+        if (!getARobot(i)->hasObj() && _scene->getMarca(i+2)->getVisible()){
             idle = i;
             break;
         }
@@ -38,9 +44,11 @@ int Coordinador::havePriority(Objeto* ob){
     int priority = ob->getPrioridad();
     int rob = -1;
     for (vector<ARobot*>::iterator it = _arobots.begin(); it != _arobots.end(); ++it) {
-        if ((*it)->getObj()->getPrioridad() < priority){
-            priority = (*it)->getObj()->getPrioridad();
-            rob = (*it)->getId();
+        if (_scene->getMarca((*it)->getId()+2)->getVisible()){
+            if ((*it)->getObj()->getPrioridad() < priority){
+                priority = (*it)->getObj()->getPrioridad();
+                rob = (*it)->getId();
+            }
         }
     }
     return rob;
@@ -63,10 +71,12 @@ void Coordinador::Actualizar(int event, int id){
         cout<<"Coordinador:: NO"<<endl;
         int rob = -1;
         if ((rob = anyIdle()) != -1){
+            cout<< "Idle"<<endl;
             getARobot(rob)->setObj(_scene->getObjetos().back());
             getARobot(rob)->planifica(_scene,1);
         }else{
             if ((rob = havePriority(_scene->getObjetos().back())) != -1){
+                cout<< "Priority"<<endl;
                 getARobot(rob)->setObj(_scene->getObjetos().back());
                 getARobot(rob)->planifica(_scene,1);
             }
@@ -78,8 +88,10 @@ void Coordinador::Actualizar(int event, int id){
     }else if (event == MO){
         cout<<"Coordinador:: MO"<<endl;
         for (vector<ARobot*>::iterator it = _arobots.begin(); it != _arobots.end(); ++it) {
-            if ((*it)->getObj()->getId() < id){
-                            (*it)->planifica(_scene,1);
+            if (_scene->getMarca((*it)->getId()+2)->getVisible()){
+                if ((*it)->getObj()->getId() == id){
+                    (*it)->planifica(_scene,1);
+                }
             }
         }
     }else if (event == BR){
@@ -89,14 +101,16 @@ void Coordinador::Actualizar(int event, int id){
     }else if (event == BO){
         cout<<"Coordinador:: BO"<<endl;
         for (vector<ARobot*>::iterator it = _arobots.begin(); it != _arobots.end(); ++it) {
-            if ((*it)->getObj()->getId() < id){
-                (*it)->deleteObj();
-                int ob = -1;
-                if ((ob = getPrioritario()) != -1){
-                    (*it)->setObj(_scene->getObjetos()[ob]);
-                            (*it)->planifica(_scene,1);
-                }else{
-                            (*it)->planifica(_scene,3);
+            if (_scene->getMarca((*it)->getId()+2)->getVisible()){
+                if ((*it)->getObj()->getId() == id){
+                    (*it)->deleteObj();
+                    int ob = -1;
+                    if ((ob = getPrioritario()) != -1){
+                        (*it)->setObj(_scene->getObjetos()[ob]);
+                                (*it)->planifica(_scene,1);
+                    }else{
+                                (*it)->planifica(_scene,3);
+                    }
                 }
             }
         }

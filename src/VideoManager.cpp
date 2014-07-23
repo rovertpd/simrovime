@@ -81,7 +81,7 @@ int VideoManager::color(int x,int y){
         return 1;
     }else if ((data[x*anchura_fila+y*canales + 1] > 80) && !((data[x*anchura_fila+y*canales + 0] > data[x*anchura_fila+y*canales + 1]/2) || (data[x*anchura_fila+y*canales + 2] > data[x*anchura_fila+y*canales + 1]/2))){
             return 2;
-    }else if ((data[x*anchura_fila+y*canales + 2] > 80) && !((data[x*anchura_fila+y*canales + 0] > data[x*anchura_fila+y*canales + 2]/2) || (data[x*anchura_fila+y*canales + 1] > data[x*anchura_fila+y*canales + 2]/2))){
+    }else if ((data[x*anchura_fila+y*canales + 2] > 120) && !((data[x*anchura_fila+y*canales + 0] > data[x*anchura_fila+y*canales + 2]/2) || (data[x*anchura_fila+y*canales + 1] > data[x*anchura_fila+y*canales + 2]/2))){
             return 3;
     }
     return 0;
@@ -228,20 +228,24 @@ void VideoManager::DrawCurrentFrame(int frame){
                 for (vector<Scene*>::iterator it = _scene.begin(); it != _scene.end(); ++it) {
                   double pM[2] = {cont[0][6], cont[0][7]}, pm[2] = {cont[0][4], cont[0][5]};
                   _objs[0]->setPos(fin, pM, pm);
-                  (*it)->addObject(_objs[0]);
                   printf("VideoManager:: Punto medio rojo en %f, %f\n",fin[0], fin[1]);
                   printf("VideoManager:: Punto M: [%f,%f] Punto m: [%f,%f]\n",pM[0]/(*it)->getGrid(), pM[1]/(*it)->getGrid(), pm[0]/(*it)->getGrid(), pm[1]/(*it)->getGrid());
                   cout<<"VideoManager:: Add object "<<endl;
+                  (*it)->addObject(_objs[0]);
                 }
             }else{
                 double* pAnt = _objs[0]->getPos();
-                if (sqrt(pow((fin[0]-pAnt[0]),2)+pow((fin[1]-pAnt[1]),2)) > 20){
                   for (vector<Scene*>::iterator it = _scene.begin(); it != _scene.end(); ++it) {
-                    double pM[2] = {cont[0][6], cont[0][7]}, pm[2] = {cont[0][4], cont[0][5]};
-                    _objs[0]->setPos(fin, pM, pm);
-                    (*it)->changeObject(0, fin, pM, pm);
-                    printf("VideoManager:: Punto medio rojo en %f, %f\n",fin[0], fin[1]);
-                    cout<<"VideoManager:: Change object "<<endl;
+                      double pM[2] = {cont[0][6], cont[0][7]}, pm[2] = {cont[0][4], cont[0][5]};
+                      if (/*(static_cast<int>(pAnt[0]/(*it)->getGrid())!=static_cast<int>(fin[0]/(*it)->getGrid())) || (static_cast<int>(pAnt[1]/(*it)->getGrid())!=static_cast<int>(fin[1])/(*it)->getGrid())
+                    || */((static_cast<int>(_objs[0]->getMax()[0]/(*it)->getGrid()))!=(static_cast<int>(pM[0]/(*it)->getGrid()))) || ((static_cast<int>(_objs[0]->getMax()[1]/(*it)->getGrid()))!=(static_cast<int>(pM[1]/(*it)->getGrid())))
+                    || ((static_cast<int>(_objs[0]->getMin()[0]/(*it)->getGrid()))!=(static_cast<int>(pm[0]/(*it)->getGrid()))) || ((static_cast<int>(_objs[0]->getMin()[1]/(*it)->getGrid()))!=(static_cast<int>(pm[1]/(*it)->getGrid())))){
+                        printf("VideoManager:: Punto medio rojo en %f, %f\n",fin[0], fin[1]);
+                        printf("VideoManager:: Punto M: [%f,%f] Punto m: [%f,%f]\n",_objs[0]->getMax()[0]/(*it)->getGrid(), _objs[0]->getMax()[1]/(*it)->getGrid(), _objs[0]->getMin()[0]/(*it)->getGrid(), _objs[0]->getMin()[1]/(*it)->getGrid());
+                        printf("VideoManager:: Punto M: [%f,%f] Punto m: [%f,%f]\n",pM[0]/(*it)->getGrid(), pM[1]/(*it)->getGrid(), pm[0]/(*it)->getGrid(), pm[1]/(*it)->getGrid());
+                        cout<<"VideoManager:: Change object "<<endl;
+                        (*it)->changeObject(1, fin, pM, pm);
+                        _objs[0]->setPos(fin, pM, pm);
                   }
                 }
             }
