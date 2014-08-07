@@ -69,7 +69,7 @@ void Robot::enviar_hacia_arduino(int puerto)
 }
 
 
-int Robot::recibir_desde_arduino(int puerto)
+char* Robot::recibir_desde_arduino(int puerto)
 {
    int n;
    n = 0;
@@ -87,43 +87,48 @@ int Robot::recibir_desde_arduino(int puerto)
        else if(dato[0] > 0 && n < 98)
           codigo_desde_arduino[n++] = dato[0];
    }
-   return strlen(codigo_desde_arduino);
+   return codigo_desde_arduino;
 }
 
 void Robot::avanzar(){
     strcpy(codigo_hacia_arduino,"w");
     puerto=fd;
     enviar_hacia_arduino(puerto);
-    std::cout<<_id<<"::"<<"AVANZAR"<<std::endl;
+    cout<<_id<<"::"<<"AVANZAR"<<endl;
     enviar_hacia_arduino(puerto);
+//    cout<<recibir_desde_arduino(puerto)<<endl;
 }
 void Robot::retroceder(){
     strcpy(codigo_hacia_arduino,"s");
     puerto=fd;
     enviar_hacia_arduino(puerto);
-    std::cout<<_id<<"::"<<"RETROCEDER"<<std::endl;
+    cout<<_id<<"::"<<"RETROCEDER"<<endl;
     enviar_hacia_arduino(puerto);
+//    cout<<recibir_desde_arduino(puerto)<<endl;
 }
 void Robot::izquierda(){
     strcpy(codigo_hacia_arduino,"a");
     puerto=fd;
     enviar_hacia_arduino(puerto);
-    std::cout<<_id<<"::"<<"IZQUIERDA"<<std::endl;
+    cout<<_id<<"::"<<"IZQUIERDA"<<endl;
     enviar_hacia_arduino(puerto);
+//    cout<<recibir_desde_arduino(puerto)<<endl;
 }
 void Robot::derecha(){
     strcpy(codigo_hacia_arduino,"d");
     puerto=fd;
     enviar_hacia_arduino(puerto);
-    std::cout<<_id<<"::"<<"DERECHA"<<std::endl;
+    cout<<_id<<"::"<<"DERECHA"<<endl;
     enviar_hacia_arduino(puerto);
+//    cout<<recibir_desde_arduino(puerto)<<endl;
 }
 void Robot::parar(){
     strcpy(codigo_hacia_arduino,"x");
     puerto=fd;
     enviar_hacia_arduino(puerto);
-    std::cout<<_id<<"::"<<"PARAR"<<std::endl;
+    cout<<_id<<"::"<<"PARAR"<<endl;
     enviar_hacia_arduino(puerto);
+//    cout<<recibir_desde_arduino(puerto)<<endl;
 }
 
 int Robot::getDir(){

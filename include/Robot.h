@@ -13,6 +13,8 @@
 #include <signal.h>
 #include <iostream>
 
+using namespace std;
+
 
 class Robot{
     private:
@@ -30,7 +32,7 @@ class Robot{
         //float angulo;
         void open_port();
         void enviar_hacia_arduino(int puerto);
-        int recibir_desde_arduino(int puerto);
+        char* recibir_desde_arduino(int puerto);
 
     public:
         Robot(int id);

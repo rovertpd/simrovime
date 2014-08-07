@@ -24,7 +24,9 @@ class ARobot{
         int _id;
         int _direccion;
         double _fin[2];
+        int fin0,fin1;
         int _estado;
+        int _guardia;
         Robot *_robot;
         bool _path;
         vector<char> _lMov;

@@ -34,6 +34,7 @@ class Coordinador
       int getPrioritario();
       int anyIdle();
       int havePriority(Objeto* ob);
+      int getColision(int id);
 
    protected:
       //Scene(const Scene & ) ;

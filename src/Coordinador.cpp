@@ -84,7 +84,16 @@ void Coordinador::Actualizar(int event, int id){
     }else if (event == MR){
         cout<<"Coordinador:: MR"<<endl;
         id = id - 2;
-        getARobot(id)->planifica(_scene,2);
+        int gc = getColision(id);
+        if (gc == 0){
+            getARobot(id)->planifica(_scene,2);
+        }
+        else if (gc == -1){
+            getARobot(id)->planifica(_scene,3);
+        }
+        else{
+            getARobot(id)->detener();
+        }
     }else if (event == MO){
         cout<<"Coordinador:: MO"<<endl;
         for (vector<ARobot*>::iterator it = _arobots.begin(); it != _arobots.end(); ++it) {
@@ -267,7 +276,7 @@ int Coordinador::getObjeto(int id){
 }
 
 int Coordinador::getPrioritario(){
-    int idA1, idA2, idA3;
+    int idA1=-1, idA2=-1, idA3=-1;
     if (_arobots[0]->hasObj())
       idA1 = _arobots[0]->getObj()->getId();
     if (_arobots[1]->hasObj())
@@ -288,4 +297,28 @@ int Coordinador::getPrioritario(){
 
 ARobot* Coordinador::getARobot(int id){
     return _arobots[id];
+}
+
+int Coordinador::getColision(int id){
+    for (int x=0;x<3;x++){
+        if (_arobots[x]->getId()!=id){
+            if (_scene->getMarca(x+2)->getVisible()){
+                if (sqrt(pow(_scene->getMarca(x+2)->getPos()[0]-_scene->getMarca(id+2)->getPos()[0],2)+pow(_scene->getMarca(x+2)->getPos()[1]-_scene->getMarca(id+2)->getPos()[1],2))<_scene->getGrid()*4){
+                    if (_arobots[id]->hasObj()){
+                        if (_arobots[x]->hasObj()){
+                            if (_arobots[id]->getObj()->getId()<_arobots[x]->getObj()->getId()){
+                                return 1;
+                            }
+                        }
+                    }else{
+                        if (_arobots[x]->hasObj()){
+                            return 1;
+                        }
+                    }
+                    return -1;
+                }
+            }
+        }
+    }
+    return 0;
 }

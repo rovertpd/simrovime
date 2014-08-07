@@ -95,23 +95,26 @@ bool ARTKDetector::detectMark(cv::Mat* frame) {
           if ((static_cast<int>(x/grid) != static_cast<int>(posicion[0]/grid))||(static_cast<int>(y/grid) != static_cast<int>(posicion[1]/grid))){
               cout<<"ARTKD:: (x/grid != posicion[0]/grid)::"<<static_cast<int>(x/grid)<<"."<<static_cast<int>(posicion[0]/grid)<<endl;
               cout<<"ARTKD:: (y/grid != posicion[1]/grid)::"<<(x/grid)<<"."<<(posicion[0]/grid)<<endl;
-              _marca->setPos(posicion);
-              _marca->setRot(getRotation(_marca));
+//              _marca->setPos(posicion);
+//              _marca->setRot(getRotation(_marca));
               if (i>1)
                 _scene->modificarMarca(_marca);
-              actualizar = 2;
-              id = i;
+//              actualizar = 2;
+//              id = i;
           }else if(abs(getRotation(_marca)-_marca->getRot()) > 10){
               cout<<"ARTKD:: abs(getRotation(_marca)-_marca->getRot()) > 10::"<<(abs(getRotation(_marca)-_marca->getRot()) > 10)<<endl;
-              _marca->setPos(posicion);
-              _marca->setRot(getRotation(_marca));
+//              _marca->setPos(posicion);
+//              _marca->setRot(getRotation(_marca));
               if (i>1)
                 _scene->modificarMarca(_marca);
-              actualizar = 2;
-              id = i;
+//              actualizar = 2;
+//              id = i;
           }
           _marca->setPos(posicion);
           _marca->setRot(getRotation(_marca));
+          actualizar = 2;
+          id = i;
+
       }else {
           if ((i<2) || (i>1 && _scene->getFin()[0]!=0.0)){
               _marca->setVisible(true);

@@ -67,16 +67,33 @@ void VideoManager::UpdateFrame(){
 IplImage* VideoManager::getCurrentFrameIpl(){ return _frameIpl; }
 // = IplImage* getCurrentFrameMat =================================
 cv::Mat* VideoManager::getCurrentFrameMat(){  return _frameMat; }
+void VideoManager::setHSV(){
+    cv::cvtColor(*_frameMat, _hsv, CV_BGR2HSV);
+}
+cv::Mat VideoManager::getCurrentFrameIplHSV(){
+//    IplImage* imgHSV = cvCreateImage(cvGetSize(_frameIpl), 8, 3);
+//    cvCvtColor(_frameIpl, imgHSV, CV_BGR2HSV);
+    return _hsv;
+}
 
 int VideoManager::color(int x,int y){
-    IplImage* img = 0;
+//    cv::Mat img ;
     int anchura_fila,canales;
     uchar *data;
-    img=getCurrentFrameIpl();
-    anchura_fila = img->widthStep;
-    canales = img->nChannels;
-    data = (uchar *)img->imageData;
+//    img=getCurrentFrameIplHSV();
+//
+//    cv::Vec3b hsv=img.at<cv::Vec3b>(0,0);
+//    int H=hsv.val[0]; //hue
+//    int S=hsv.val[1]; //saturation
+//    int V=hsv.val[2]; //value
 
+    anchura_fila = _frameIpl->widthStep;
+    canales = _frameIpl->nChannels;
+    data = (uchar *)_frameIpl->imageData;
+//
+//    if ((H > 160) && (H <= 179) && (S > 100) && (S <= 255) && (V > 100) && (V <= 255)){
+//        return 3;
+//    }
     if ((data[x*anchura_fila+y*canales + 0] > 80) && !((data[x*anchura_fila+y*canales + 1] > data[x*anchura_fila+y*canales + 0]/2) || (data[x*anchura_fila+y*canales + 2] > data[x*anchura_fila+y*canales + 0]/2))){
         return 1;
     }else if ((data[x*anchura_fila+y*canales + 1] > 80) && !((data[x*anchura_fila+y*canales + 0] > data[x*anchura_fila+y*canales + 1]/2) || (data[x*anchura_fila+y*canales + 2] > data[x*anchura_fila+y*canales + 1]/2))){
@@ -104,6 +121,7 @@ void VideoManager::DrawCurrentFrame(int frame){
   const Ogre::PixelBox& pixelBox = pBuffer->getCurrentLock();
   bool colors = false;
   vector<int*> cont;
+  CvScalar s;
   int c[8] = {0,0,0,0,99999999,99999999,-1,-1}; // x_cont, y_cont, x_total, y_total, x_min, y_min, x_max, y_max
   cont.push_back(c);    // Rojo
   cont.push_back(c);    // Verde
@@ -127,17 +145,15 @@ void VideoManager::DrawCurrentFrame(int frame){
 ////////////////////////////          _scene->setMap(i,j,0);
 ////////////////////////////  }
   //_col=false;
-
+  //setHSV();
   for(int j=0;j<_frameMat->rows;j++) {
     for(int i=0;i<_frameMat->cols;i++) {
-      if(_filter->rect_sup(i,j)&&_filter->rect_der(i,j)&&_filter->rect_inf(i,j)&&_filter->rect_izq(i,j)){
-          int col = color(j,i);
-          if (col == 1){
-              int idx = ((j) * pixelBox.rowPitch + i )*4;
-              pDest[idx] = 0;
-              pDest[idx+1] = 0;
-              pDest[idx+2] = 255;
-              pDest[idx+3] = 255;
+//      if(_filter->rect_sup(i,j)&&_filter->rect_der(i,j)&&_filter->rect_inf(i,j)&&_filter->rect_izq(i,j)){
+          s=cvGet2D(_frameIpl,j,i);
+          if((s.val[2]>100)&&(s.val[1]<50)&&(s.val[0]<100)){
+              s.val[0] = 0;
+              s.val[1] = 0;
+              s.val[2] = 255;
               colors=true;
               cont[2][2] = cont[2][2] + j;
               cont[2][3] = cont[2][3] + i;
@@ -147,51 +163,68 @@ void VideoManager::DrawCurrentFrame(int frame){
               else if (j>cont[2][6]) cont[2][6] = j;
               if (i<cont[2][5]) cont[2][5] = i;
               else if (i>cont[2][7]) cont[2][7] = i;
-//              cout<<"VideoManager:: Detectado color azul"<<endl;
-//              y_a_total = y_a_total + i;
-//              x_a_total = x_a_total + j;
-//              y_a_cont++;
-//              x_a_cont++;
-          }else if (col == 2){
-              int idx = ((j) * pixelBox.rowPitch + i )*4;
-              pDest[idx] = 255;
-              pDest[idx+1] = 0;
-              pDest[idx+2] = 0;
-              pDest[idx+3] = 255;
-              colors=true;
-              cont[1][2] = cont[1][2] + j;
-              cont[1][3] = cont[1][3] + i;
-              cont[1][0] = cont[1][0] + 1;
-              cont[1][1] = cont[1][1] + 1;
-              if (j<cont[1][4]) cont[1][4] = j;
-              else if(j>cont[1][6]) cont[1][6] = j;
-              if (i<cont[1][5]) cont[1][5] = i;
-              else if(i>cont[1][7]) cont[1][7] = i;
-//              cout<<"VideoManager:: Detectado color verde"<<endl;
-//              y_v_total = y_v_total + i;
-//              x_v_total = x_v_total + j;
-//              y_v_cont++;
-//              x_v_cont++;
-          }else if (col == 3){
-              int idx = ((j) * pixelBox.rowPitch + i )*4;
-              pDest[idx] = 0;
-              pDest[idx+1] = 255;
-              pDest[idx+2] = 0;
-              pDest[idx+3] = 255;
-              colors=true;
-              cont[0][2] = cont[0][2] + j;
-              cont[0][3] = cont[0][3] + i;
-              cont[0][0] = cont[0][0] + 1;
-              cont[0][1] = cont[0][1] + 1;
-              if (j<cont[0][4]) cont[0][4] = j;
-              else if(j>cont[0][6]) cont[0][6] = j;
-              if (i<cont[0][5]) cont[0][5] = i;
-              else if(i>cont[0][7]) cont[0][7] = i;
-//              cout<<"VideoManager:: Detectado color rojo"<<endl;
-//              y_r_total = y_r_total + i;
-//              x_r_total = x_r_total + j;
-//              y_r_cont++;
-//              x_r_cont++;
+
+//////////          int col = color(j,i);
+//////////          if (col == 1){
+//////////              int idx = ((j) * pixelBox.rowPitch + i )*4;
+//////////              pDest[idx] = 0;
+//////////              pDest[idx+1] = 0;
+//////////              pDest[idx+2] = 255;
+//////////              pDest[idx+3] = 255;
+//////////              colors=true;
+//////////              cont[2][2] = cont[2][2] + j;
+//////////              cont[2][3] = cont[2][3] + i;
+//////////              cont[2][0] = cont[2][0] + 1;
+//////////              cont[2][1] = cont[2][1] + 1;
+//////////              if (j<cont[2][4]) cont[2][4] = j;
+//////////              else if (j>cont[2][6]) cont[2][6] = j;
+//////////              if (i<cont[2][5]) cont[2][5] = i;
+//////////              else if (i>cont[2][7]) cont[2][7] = i;
+////////////              cout<<"VideoManager:: Detectado color azul"<<endl;
+////////////              y_a_total = y_a_total + i;
+////////////              x_a_total = x_a_total + j;
+////////////              y_a_cont++;
+////////////              x_a_cont++;
+//////////          }else if (col == 2){
+//////////              int idx = ((j) * pixelBox.rowPitch + i )*4;
+//////////              pDest[idx] = 255;
+//////////              pDest[idx+1] = 0;
+//////////              pDest[idx+2] = 0;
+//////////              pDest[idx+3] = 255;
+//////////              colors=true;
+//////////              cont[1][2] = cont[1][2] + j;
+//////////              cont[1][3] = cont[1][3] + i;
+//////////              cont[1][0] = cont[1][0] + 1;
+//////////              cont[1][1] = cont[1][1] + 1;
+//////////              if (j<cont[1][4]) cont[1][4] = j;
+//////////              else if(j>cont[1][6]) cont[1][6] = j;
+//////////              if (i<cont[1][5]) cont[1][5] = i;
+//////////              else if(i>cont[1][7]) cont[1][7] = i;
+////////////              cout<<"VideoManager:: Detectado color verde"<<endl;
+////////////              y_v_total = y_v_total + i;
+////////////              x_v_total = x_v_total + j;
+////////////              y_v_cont++;
+////////////              x_v_cont++;
+//////////          }else if (col == 3){
+//////////              int idx = ((j) * pixelBox.rowPitch + i )*4;
+//////////              pDest[idx] = 0;
+//////////              pDest[idx+1] = 255;
+//////////              pDest[idx+2] = 0;
+//////////              pDest[idx+3] = 255;
+//////////              colors=true;
+//////////              cont[0][2] = cont[0][2] + j;
+//////////              cont[0][3] = cont[0][3] + i;
+//////////              cont[0][0] = cont[0][0] + 1;
+//////////              cont[0][1] = cont[0][1] + 1;
+//////////              if (j<cont[0][4]) cont[0][4] = j;
+//////////              else if(j>cont[0][6]) cont[0][6] = j;
+//////////              if (i<cont[0][5]) cont[0][5] = i;
+//////////              else if(i>cont[0][7]) cont[0][7] = i;
+////////////              cout<<"VideoManager:: Detectado color rojo"<<endl;
+////////////              y_r_total = y_r_total + i;
+////////////              x_r_total = x_r_total + j;
+////////////              y_r_cont++;
+////////////              x_r_cont++;
           }else{
               int idx = ((j) * pixelBox.rowPitch + i )*4;
               pDest[idx] = _frameMat->data[(j*_frameMat->cols+i)*3];
@@ -199,14 +232,14 @@ void VideoManager::DrawCurrentFrame(int frame){
               pDest[idx+2] = _frameMat->data[(j*_frameMat->cols+i)*3+2];
               pDest[idx+3] = 255;
           }
-      }
-      else{
-          int idx = ((j) * pixelBox.rowPitch + i )*4;
-          pDest[idx] = 255;
-          pDest[idx+1] = 255;
-          pDest[idx+2] = 255;
-          pDest[idx+3] = 255;
-      }
+//      }
+//      else{
+//          int idx = ((j) * pixelBox.rowPitch + i )*4;
+//          pDest[idx] = _frameMat->data[(j*_frameMat->cols+i)*3];
+//          pDest[idx+1] = _frameMat->data[(j*_frameMat->cols+i)*3+1];
+//          pDest[idx+2] = _frameMat->data[(j*_frameMat->cols+i)*3+2];
+//          pDest[idx+3] = 255;
+//      }
       if ((_filter->getGrid()>0.0)){
         if (((i%_filter->getGrid()) == 0) && ((j%_filter->getGrid())==0)){
           int idx = ((j) * pixelBox.rowPitch + i )*4;
@@ -218,6 +251,7 @@ void VideoManager::DrawCurrentFrame(int frame){
       }
     }
   }
+
   if (colors){
       double fin[2];
       if (cont[0][0] > 0){
@@ -305,6 +339,5 @@ void VideoManager::DrawCurrentFrame(int frame){
         }
       }
   }
-
   pBuffer->unlock();
 }

@@ -16,6 +16,7 @@ ARobot::ARobot(int id){
     _object = NULL;
     _id = id;
     _direccion = 0;
+    _guardia = -1;
 }
 
 void ARobot::init(){
@@ -37,6 +38,7 @@ void ARobot::reset(){
     _ob = false;
     _object = NULL;
     _direccion = 0;
+    _guardia = -1;
 }
 
 int ARobot::getId(){
@@ -200,21 +202,34 @@ void ARobot::orientar(Scene *scn){
         _ang = scn->getAngulo(v);
         cout<<"ARobot:: Angulo:"<<_ang<<" Rotaciopn actual:"<<scn->getRotacion(_id+2)<<endl;
         if (scn->getRotacion(_id+2)>(_ang+10) || scn->getRotacion(_id+2)<(_ang-10)){
-            if (_ang>scn->getRotacion(_id+2)){
-                if (_ang-scn->getRotacion(_id+2)<180){
+            if (_ang>=180){
+                if (scn->getRotacion(_id+2) < _ang && scn->getRotacion(_id+2) > _ang-180){
                     _robot->izquierda();
-                }
-                else{
+                }else{
                     _robot->derecha();
                 }
             }else{
-                if (_ang-scn->getRotacion(_id+2)<180){
+                if (scn->getRotacion(_id+2)>180+_ang || scn->getRotacion(_id+2)<_ang){
+                    _robot->izquierda();
+                }else{
                     _robot->derecha();
                 }
-                else{
-                    _robot->izquierda();
-                }
             }
+//            if (_ang>scn->getRotacion(_id+2)){
+//                if (_ang-scn->getRotacion(_id+2)<180){
+//                    _robot->izquierda();
+//                }
+//                else{
+//                    _robot->derecha();
+//                }
+//            }else{
+//                if (_ang-scn->getRotacion(_id+2)<180){
+//                    _robot->derecha();
+//                }
+//                else{
+//                    _robot->izquierda();
+//                }
+//            }
         }else{  //Ya está orientado (Dentro del umbral)
             if (_lMov.size()!=1)
                 _robot->avanzar();
@@ -228,14 +243,10 @@ void ARobot::nextMov(){
 }
 
 void ARobot::planifica(Scene *scn,int event){
+//    _robot->parar();
     _scn=scn;
     tiposEstrategias es=AMANHATTAN;
     if (event == NEWIA){
-        if (!_path){
-            det();
-        }
-        _robot->parar();
-        sleep(0.7);
         cout<<"ARobot::"<<_id<<":: NEWIA"<<endl;
         _lMov.clear();
         Busqueda *b = new Busqueda(_id, scn->getMap(), scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(), scn->getAncho()/scn->getGrid()+1, scn->getAlto()/scn->getGrid()+1, scn->getMarca(_id+2)->getRatio()[0], scn->getMarca(_id+2)->getRatio()[1], es, _object->getId()+3, _object->getPos()[0], _object->getPos()[1]);
@@ -244,44 +255,78 @@ void ARobot::planifica(Scene *scn,int event){
         t->start();
 
     }else if (event == MOVIMIENTO){
-        _robot->parar();
-        sleep(0.7);
         cout<<"ARobot::"<<_id<<":: MOVIMIENTO"<<endl;
         if (casillaValida(scn)){
-            if (_lMov.size() == 1){
-                orientar(scn);
+            if ((int)_lMov.size() <= scn->getMarca(_id+2)->getRatio()[0]+2){
+                if(_guardia>=0){
+                    fin0 = -1, fin1 = -1;
+                    switch(_guardia){
+                        case 1:
+                            _guardia = 2;
+                            fin0 = scn->getFin()[0]/scn->getGrid();
+                            fin1 = 0;
+                        break;
+                        case 2:
+                            _guardia = 3;
+                            fin0 = 0;
+                            fin1 = 0;
+                        break;
+                        case 3:
+                            _guardia = 4;
+                            fin0 = 0;
+                            fin1 = scn->getFin()[1]/scn->getGrid();
+                        break;
+                        case 4:
+                            _guardia = 1;
+                            fin0 = scn->getFin()[0]/scn->getGrid();
+                            fin1 = scn->getFin()[1]/scn->getGrid();
+                        break;
+                    }
+                    _lMov.clear();
+                    Busqueda *b = new Busqueda(_id, scn->getMap(), scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(), scn->getAncho()/scn->getGrid()+1, scn->getAlto()/scn->getGrid()+1, scn->getMarca(_id+2)->getRatio()[0], scn->getMarca(_id+2)->getRatio()[1], es, _id, fin0,fin1);
+                    IceUtil::ThreadPtr t = new IA(b,this);
+                    IceUtil::ThreadControl tc=t->start();
+                    cout<<"TIDDDDDD:"<<tc.id()<<endl;
+                } else {
+                    orientar(scn);
+                }
             }else{
                 if ((scn->getMarca(_id+2)->getPos()[0]/scn->getGrid() == static_cast<int>(_pos[0]/scn->getGrid())) && (scn->getMarca(_id+2)->getPos()[1]/scn->getGrid()) == static_cast<int>(_pos[1]/scn->getGrid())){
                     orientar(scn);
                 }else{
+                    cout<<"nextm ove"<<endl;
                     nextMov();
                     orientar(scn);
                 }
             }
         }else{
-            if (!_path){
-                det();
-            }
             _lMov.clear();
-            Busqueda *b = new Busqueda(_id, scn->getMap(), scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(), scn->getAncho()/scn->getGrid()+1, scn->getAlto()/scn->getGrid()+1, scn->getMarca(_id+2)->getRatio()[0], scn->getMarca(_id+2)->getRatio()[1], es, _id, scn->getFin()[0]/scn->getGrid(),scn->getFin()[1]/scn->getGrid());
-            //Estado *e = new Estado(_id,scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(),scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(),scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(),scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(),scn->getMarca(_id+2)->getRatio()[0],scn->getMarca(_id+2)->getRatio()[1],scn->getAncho()/scn->getGrid()+1,scn->getAlto()/scn->getGrid()+1,scn->getFin()[0]/scn->getGrid(),scn->getFin()[1]/scn->getGrid(),scn->getGrid(),scn->getGrid(),scn->arrayToVectorMap());
-            IceUtil::ThreadPtr t = new IA(b,this);
-            t->start();
+            if(_guardia>0){
+                Busqueda *b = new Busqueda(_id, scn->getMap(), scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(), scn->getAncho()/scn->getGrid()+1, scn->getAlto()/scn->getGrid()+1, scn->getMarca(_id+2)->getRatio()[0], scn->getMarca(_id+2)->getRatio()[1], es, _id, fin0,fin1);
+                IceUtil::ThreadPtr t = new IA(b,this);
+                IceUtil::ThreadControl tc=t->start();
+                cout<<"TIDDDDDD:"<<tc.id()<<endl;
+            }else{
+                Busqueda *b = new Busqueda(_id, scn->getMap(), scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(), scn->getAncho()/scn->getGrid()+1, scn->getAlto()/scn->getGrid()+1, scn->getMarca(_id+2)->getRatio()[0], scn->getMarca(_id+2)->getRatio()[1], es, _object->getId()+3, _object->getPos()[0], _object->getPos()[1]);
+                //Estado *e = new Estado(_id,scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(),scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(),scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(),scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(),scn->getMarca(_id+2)->getRatio()[0],scn->getMarca(_id+2)->getRatio()[1],scn->getAncho()/scn->getGrid()+1,scn->getAlto()/scn->getGrid()+1,scn->getFin()[0]/scn->getGrid(),scn->getFin()[1]/scn->getGrid(),scn->getGrid(),scn->getGrid(),scn->arrayToVectorMap());
+                IceUtil::ThreadPtr t = new IA(b,this);
+                t->start();
+            }
         }
     }else if (event == GUARDIA){
-        if (!_path){
-            det();
-        }
         cout<<"ARobot::"<<_id<<":: GUARDIA"<<endl;
         _lMov.clear();
-//        _robot->parar();
-//        sleep(0.7);
-        for (int j=0;j<=scn->getAlto()/scn->getGrid();j++){
-            for (int i=0;i<=scn->getAncho()/scn->getGrid();i++){
-              std::cout<<scn->getMap(i,j);
-            }
-            std::cout<<""<<std::endl;
-          }
+        if (_guardia==-1){
+            _guardia = 1;
+//        for (int j=0;j<=scn->getAlto()/scn->getGrid();j++){
+//            for (int i=0;i<=scn->getAncho()/scn->getGrid();i++){
+//              std::cout<<scn->getMap(i,j);
+//            }
+//            std::cout<<""<<std::endl;
+//          }
+          fin0=scn->getAncho()/scn->getGrid();
+          fin1=scn->getAlto()/scn->getGrid();
+        }
         cout<<"ARobot:: Inicio: "<<scn->getMarca(_id+2)->getPos()[0]/scn->getGrid()<<" : "<<scn->getMarca(_id+2)->getPos()[1]/scn->getGrid()<<endl;
         cout<<"ARobot:: ratio: "<<scn->getMarca(_id+2)->getRatio()[0]<<" : "<<scn->getMarca(_id+2)->getRatio()[1]<<endl;
         Busqueda *b = new Busqueda(_id, scn->getMap(), scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(), scn->getAncho()/scn->getGrid()+1, scn->getAlto()/scn->getGrid()+1, scn->getMarca(_id+2)->getRatio()[0], scn->getMarca(_id+2)->getRatio()[1], es, _id, scn->getAncho()/scn->getGrid(),scn->getAlto()/scn->getGrid());

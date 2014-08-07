@@ -18,11 +18,13 @@ class VideoManager {
   CvCapture* _capture;
   IplImage* _frameIpl;
   cv::Mat* _frameMat;
+  cv::Mat _hsv;
   Ogre::SceneManager* _sceneManager;
   vector<Scene*> _scene;
   bool _colors[3];  //0->rojo,1->verde,2->azul
   Objeto* _objs[3];
   Filter* _filter;
+  cv::Vec3b hsv;
 
  public:
   void attach(Scene *s);
@@ -31,6 +33,8 @@ class VideoManager {
   ~VideoManager();
   void UpdateFrame();
   IplImage* getCurrentFrameIpl();
+  cv::Mat getCurrentFrameIplHSV();
+  void setHSV();
   cv::Mat* getCurrentFrameMat();
   void DrawCurrentFrame(int frame);
 //  bool rect_sup(double x, double y);
