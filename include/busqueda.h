@@ -27,6 +27,7 @@ class Busqueda{
 		int _costeSol;
 	public:
 		Busqueda(int id, int ** m, int posRX, int posRY, int posIX, int posIY, int tamX, int tamY, int ratioX, int ratioY, tiposEstrategias es, int col, int posFX, int posFY);
+		void init();
 		int costePosicion(const int posX, const int posY);
 		bool fin();
 		double estrategia(const int coste, const int posX, const int posY) const;

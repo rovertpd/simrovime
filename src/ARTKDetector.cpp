@@ -93,22 +93,11 @@ bool ARTKDetector::detectMark(cv::Mat* frame) {
           double y = _marca->getPos()[1];
           int grid = _scene->getGrid();
           if ((static_cast<int>(x/grid) != static_cast<int>(posicion[0]/grid))||(static_cast<int>(y/grid) != static_cast<int>(posicion[1]/grid))){
-              cout<<"ARTKD:: (x/grid != posicion[0]/grid)::"<<static_cast<int>(x/grid)<<"."<<static_cast<int>(posicion[0]/grid)<<endl;
-              cout<<"ARTKD:: (y/grid != posicion[1]/grid)::"<<(x/grid)<<"."<<(posicion[0]/grid)<<endl;
-//              _marca->setPos(posicion);
-//              _marca->setRot(getRotation(_marca));
               if (i>1)
                 _scene->modificarMarca(_marca);
-//              actualizar = 2;
-//              id = i;
           }else if(abs(getRotation(_marca)-_marca->getRot()) > 10){
-              cout<<"ARTKD:: abs(getRotation(_marca)-_marca->getRot()) > 10::"<<(abs(getRotation(_marca)-_marca->getRot()) > 10)<<endl;
-//              _marca->setPos(posicion);
-//              _marca->setRot(getRotation(_marca));
               if (i>1)
                 _scene->modificarMarca(_marca);
-//              actualizar = 2;
-//              id = i;
           }
           _marca->setPos(posicion);
           _marca->setRot(getRotation(_marca));
@@ -140,7 +129,6 @@ bool ARTKDetector::detectMark(cv::Mat* frame) {
     }  // El objeto no es visible
 //  } // Fin del for
   if (actualizar!=-1 && ((i==0 && _scene->getCenter()[0]==0.0) || (i==1 && _scene->getFin()[0]==0.0 && _scene->getCenter()[0]!=0.0) || (i>1 && _scene->getFin()[0]!=0.0))){
-    cout<<"ARTKD:: Actualizar por marca: "<< id << (i==0 && _scene->getCenter()[0]==0.0) << (i==1 && _scene->getFin()[0]==0.0 && _scene->getCenter()[0]!=0.0) << (i>1) << endl;
     _scene->Actualizar(actualizar,id);
   }
 }
@@ -182,9 +170,3 @@ void ARTKDetector::getPosRot(Ogre::Vector3 &pos,
   up   = Ogre::Vector3 (m[1][0],         m[1][1],        m[1][2]);
 
 }
-
-/*void ARTKDetector::getObjects(Marca ob[5]){
-    for (int i=0;i<_nObjects; i++){
-        ob[i]=_objects[i];
-    }
-}*/

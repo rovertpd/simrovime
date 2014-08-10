@@ -113,8 +113,8 @@ void Coordinador::Actualizar(int event, int id){
             if (_scene->getMarca((*it)->getId()+2)->getVisible()){
                 if ((*it)->getObj()->getId() == id){
                     (*it)->deleteObj();
-                    int ob = -1;
-                    if ((ob = getPrioritario()) != -1){
+                    int ob = getPrioritario();
+                    if (ob != -1){
                         (*it)->setObj(_scene->getObjetos()[ob]);
                                 (*it)->planifica(_scene,1);
                     }else{

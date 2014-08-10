@@ -9,7 +9,6 @@ Busqueda::Busqueda(int id, int ** m, int posRX, int posRY, int posIX, int posIY,
 	_posRY = posRY;
 	_tamX = tamX;
 	_tamY = tamY;
-	cout<<"Busqueda::X:"<<_tamX<<" Y:"<<_tamY<<endl;
 	_color = col;
 	_ratioX = ratioX;
 	_ratioY = ratioY;
@@ -17,14 +16,16 @@ Busqueda::Busqueda(int id, int ** m, int posRX, int posRY, int posIX, int posIY,
 	_posFinX = posFX;
 	_posFinY = posFY;
 	_estrategia = es;
-	_sol = false;
-	_visitados = new int*[_tamX];
-	for(int i = 0; i < _tamX; i++)
-		_visitados[i] = new int[_tamY];
+}
 
-	for(int i = 0; i < _tamX; i++)
+void Busqueda::init(){
+    _sol = false;
+	_visitados = new int*[_tamX];
+	for(int i = 0; i < _tamX; i++){
+        _visitados[i] = new int[_tamY];
 		for(int j = 0; j < _tamY; j++)
 			_visitados[i][j] = -1;
+	}
 }
 
 vector<Estado*> Busqueda::getSolucion() const{
@@ -41,14 +42,10 @@ bool Busqueda::fin(){
             if (x>=0 && x<=_tamX && y>=0 && y<=_tamY){
                 if (_color == _id){
                     if (x == _posFinX && y == _posFinY){
-                        cout<<"Metaaa posicion"<<endl;
-                        cout<<"X:"<<x<<" Y:"<<y<<endl;
-                        cout<<"Pos fin X:"<<x<<" Y:"<<y<<endl;
                         return true;
                     }
                 }else{
                     if (_mapa[x][y]==_color){
-                        cout<<"Metaaa color"<<endl;
                         return true;
                     }
                 }
@@ -322,7 +319,7 @@ bool Busqueda::puedoGenerar(movimientos mov, int * c, int * f, int * coste){
 	switch(mov){
 		case NORTE:
 			for (int x =inicio[3];x<fin[3];x++){
-                if (x<0 || x>_tamX || inicio[1]<0 || inicio[1]>_tamY)
+                if (x<0 || x>=_tamX || inicio[1]<0 || inicio[1]>=_tamY)
                     return false;
                 else
                     if (_mapa[x][inicio[1]]!=-1)
@@ -334,7 +331,7 @@ bool Busqueda::puedoGenerar(movimientos mov, int * c, int * f, int * coste){
 
 		case SUR:
 			for (int x =inicio[3];x<fin[3];x++){
-                if (x<0 || x>_tamX || fin[2]<0 || fin[2]>_tamY)
+                if (x<0 || x>=_tamX || fin[2]<0 || fin[2]>=_tamY)
                     return false;
                 else
                     if (_mapa[x][fin[2]]!=-1)
@@ -346,7 +343,7 @@ bool Busqueda::puedoGenerar(movimientos mov, int * c, int * f, int * coste){
 
 		case ESTE:
 			for (int y =inicio[0];y<fin[0];y++){
-                if (y<0 || y>_tamY || fin[5]<0 || fin[5]>_tamX)
+                if (y<0 || y>=_tamY || fin[5]<0 || fin[5]>=_tamX)
                     return false;
                 else
                     if (_mapa[fin[5]][y]!=-1)
@@ -358,7 +355,7 @@ bool Busqueda::puedoGenerar(movimientos mov, int * c, int * f, int * coste){
 
 		case OESTE:
 			for (int y =inicio[0];y<fin[0];y++){
-                if (y<0 || y>_tamY || inicio[4]<0 || inicio[4]>_tamX)
+                if (y<0 || y>=_tamY || inicio[4]<0 || inicio[4]>=_tamX)
                     return false;
                 else
                     if (_mapa[inicio[4]][y]!=-1)
@@ -370,14 +367,14 @@ bool Busqueda::puedoGenerar(movimientos mov, int * c, int * f, int * coste){
 
         case NESTE:
 			for (int x =inicio[5];x<fin[5];x++){
-                if (x<0 || x>_tamX || inicio[1]<0 || inicio[1]>_tamY)
+                if (x<0 || x>=_tamX || inicio[1]<0 || inicio[1]>=_tamY)
                     return false;
                 else
                     if (_mapa[x][inicio[1]]!=-1)
                         return false;
 			}
 			for (int y =inicio[1];y<fin[1];y++){
-                if (y<0 || y>_tamY || fin[5]<0 || fin[5]>_tamX)
+                if (y<0 || y>=_tamY || fin[5]<0 || fin[5]>=_tamX)
                     return false;
                 else
                     if (_mapa[fin[5]][y]!=-1)
@@ -389,14 +386,14 @@ bool Busqueda::puedoGenerar(movimientos mov, int * c, int * f, int * coste){
 
         case NOESTE:
 			for (int x =inicio[4];x<fin[4];x++){
-                if (x<0 || x>_tamX || inicio[1]<0 || inicio[1]>_tamY)
+                if (x<0 || x>=_tamX || inicio[1]<0 || inicio[1]>=_tamY)
                     return false;
                 else
                     if (_mapa[x][inicio[1]]!=-1)
                         return false;
 			}
 			for (int y =inicio[1];y<fin[1];y++){
-                if (y<0 || y>_tamY || inicio[4]<0 || inicio[4]>_tamX)
+                if (y<0 || y>=_tamY || inicio[4]<0 || inicio[4]>=_tamX)
                     return false;
                 else
                     if (_mapa[inicio[4]][y]!=-1)
@@ -408,14 +405,14 @@ bool Busqueda::puedoGenerar(movimientos mov, int * c, int * f, int * coste){
 
         case SESTE:
 			for (int x =inicio[5];x<fin[5];x++){
-                if (x<0 || x>_tamX || fin[2]<0 || fin[2]>_tamY)
+                if (x<0 || x>=_tamX || fin[2]<0 || fin[2]>=_tamY)
                     return false;
                 else
                     if (_mapa[x][fin[2]]!=-1)
                         return false;
 			}
 			for (int y =inicio[2];y<fin[2];y++){
-                if (y<0 || y>_tamY || fin[5]<0 || fin[5]>_tamX)
+                if (y<0 || y>=_tamY || fin[5]<0 || fin[5]>=_tamX)
                     return false;
                 else
                     if (_mapa[fin[5]][y]!=-1)
@@ -427,14 +424,14 @@ bool Busqueda::puedoGenerar(movimientos mov, int * c, int * f, int * coste){
 
         case SOESTE:
 			for (int x =inicio[4];x<fin[4];x++){
-                if (x<0 || x>_tamX || fin[2]<0 || fin[2]>_tamY)
+                if (x<0 || x>=_tamX || fin[2]<0 || fin[2]>=_tamY)
                     return false;
                 else
                     if (_mapa[x][fin[2]]!=-1)
                         return false;
 			}
 			for (int y =inicio[2];y<fin[2];y++){
-                if (y<0 || y>_tamY || inicio[4]<0 || inicio[4]>_tamX)
+                if (y<0 || y>=_tamY || inicio[4]<0 || inicio[4]>=_tamX)
                     return false;
                 else
                     if (_mapa[inicio[4]][y]!=-1)

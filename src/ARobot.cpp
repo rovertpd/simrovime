@@ -38,7 +38,7 @@ void ARobot::reset(){
     _ob = false;
     _object = NULL;
     _direccion = 0;
-    _guardia = -1;
+//    _guardia = -1;
 }
 
 int ARobot::getId(){
@@ -131,7 +131,7 @@ void ARobot::det(){
 //tam = tamaño de cada casilla
 
 bool ARobot::casillaValida(Scene *scn){
-    cout<<"ARobot::"<<_id<<":: Casilla Valida: "<<_lMov[0]<<" pos:"<<_pos[0]/scn->getGrid()<<":"<<_pos[1]/scn->getGrid()<<" Pos actual:"<<scn->getMarca(_id+2)->getPos()[0]/scn->getGrid()<<":"<<scn->getMarca(_id+2)->getPos()[1]/scn->getGrid()<<endl;
+//    cout<<"ARobot::"<<_id<<":: Casilla Valida: "<<_lMov[0]<<" pos:"<<_pos[0]/scn->getGrid()<<":"<<_pos[1]/scn->getGrid()<<" Pos actual:"<<scn->getMarca(_id+2)->getPos()[0]/scn->getGrid()<<":"<<scn->getMarca(_id+2)->getPos()[1]/scn->getGrid()<<endl;
     if ((scn->getMarca(_id+2)->getPos()[0]/scn->getGrid() == static_cast<int>(_pos[0]/scn->getGrid())) && (scn->getMarca(_id+2)->getPos()[1]/scn->getGrid()) == static_cast<int>(_pos[1]/scn->getGrid())){
         return true;
     }else if (_lMov[0] == 'R' && ((scn->getMarca(_id+2)->getPos()[0]/scn->getGrid() +1) == static_cast<int>(_pos[0]/scn->getGrid())) && (scn->getMarca(_id+2)->getPos()[1]/scn->getGrid()) == static_cast<int>(_pos[1]/scn->getGrid())){
@@ -196,49 +196,140 @@ void ARobot::orientar(Scene *scn){
         }
         v[0] = _fin[0] - ((scn->getMarca(_id+2))->getMarkerInfo()->pos[0]);
         v[1] = _fin[1] - ((scn->getMarca(_id+2))->getMarkerInfo()->pos[1]);
-        cout<<_lMov.front()<<endl;
+        cout<<_lMov.front()<<"      "<<_guardia<<endl;
         cout<<"Fin :"<<_fin[0]<<"-"<<(scn->getMarca(_id+2))->getMarkerInfo()->pos[0]<<endl;
         cout<<"Fin :"<<_fin[1]<<"-"<<(scn->getMarca(_id+2))->getMarkerInfo()->pos[1]<<endl;
         _ang = scn->getAngulo(v);
         cout<<"ARobot:: Angulo:"<<_ang<<" Rotaciopn actual:"<<scn->getRotacion(_id+2)<<endl;
-        if (scn->getRotacion(_id+2)>(_ang+10) || scn->getRotacion(_id+2)<(_ang-10)){
-            if (_ang>=180){
-                if (scn->getRotacion(_id+2) < _ang && scn->getRotacion(_id+2) > _ang-180){
-                    _robot->izquierda();
+        if(_ang==0 || _ang==-0){
+            if (scn->getRotacion(_id+2)>(_ang+10) || scn->getRotacion(_id+2)<(350)){
+                if (_ang>=180){
+                    if (scn->getRotacion(_id+2) < _ang && scn->getRotacion(_id+2) > _ang-180){
+                        _robot->izquierda();
+                    }else{
+                        _robot->derecha();
+                    }
                 }else{
-                    _robot->derecha();
+                    if (scn->getRotacion(_id+2)>180+_ang || scn->getRotacion(_id+2)<_ang){
+                        _robot->izquierda();
+                    }else{
+                        _robot->derecha();
+                    }
                 }
-            }else{
-                if (scn->getRotacion(_id+2)>180+_ang || scn->getRotacion(_id+2)<_ang){
-                    _robot->izquierda();
-                }else{
-                    _robot->derecha();
-                }
+            }else{  //Ya está orientado (Dentro del umbral)
+                    if (_lMov.size()!=1)
+                    _robot->avanzar();
             }
-//            if (_ang>scn->getRotacion(_id+2)){
-//                if (_ang-scn->getRotacion(_id+2)<180){
-//                    _robot->izquierda();
-//                }
-//                else{
-//                    _robot->derecha();
-//                }
-//            }else{
-//                if (_ang-scn->getRotacion(_id+2)<180){
-//                    _robot->derecha();
-//                }
-//                else{
-//                    _robot->izquierda();
-//                }
-//            }
-        }else{  //Ya está orientado (Dentro del umbral)
-            if (_lMov.size()!=1)
-                _robot->avanzar();
+        }else{
+            if (scn->getRotacion(_id+2)>(_ang+10) || scn->getRotacion(_id+2)<(_ang-10)){
+                if (_ang>=180){
+                    if (scn->getRotacion(_id+2) < _ang && scn->getRotacion(_id+2) > _ang-180){
+                        _robot->izquierda();
+                    }else{
+                        _robot->derecha();
+                    }
+                }else{
+                    if (scn->getRotacion(_id+2)>180+_ang || scn->getRotacion(_id+2)<_ang){
+                        _robot->izquierda();
+                    }else{
+                        _robot->derecha();
+                    }
+                }
+            }else{  //Ya está orientado (Dentro del umbral)
+                    if (_lMov.size()!=1)
+                    _robot->avanzar();
+            }
+        }
+    }
+}
+
+void ARobot::orientarO(Scene *scn){
+    cout<<"ARobot::"<<_id<<":: OrientarO"<<endl;
+    float v[2];
+    if (_path){
+        switch(_lMov.front()){
+            case 'R':
+                _fin[0] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[0] + scn->getGrid();
+                _fin[1] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[1];
+                break;
+            case 'I':
+                _fin[0] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[0] + scn->getGrid();
+                _fin[1] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[1] + scn->getGrid();
+                break;
+            case 'D':
+                _fin[0] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[0] ;
+                _fin[1] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[1] + scn->getGrid();
+                break;
+            case 'W':
+                _fin[0] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[0] - scn->getGrid();
+                _fin[1] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[1] + scn->getGrid();
+                break;
+            case 'L':
+                _fin[0] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[0] - scn->getGrid();
+                _fin[1] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[1] ;
+                break;
+            case 'O':
+                _fin[0] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[0] - scn->getGrid();
+                _fin[1] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[1] - scn->getGrid();
+                break;
+            case 'U':
+                _fin[0] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[0] ;
+                _fin[1] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[1] - scn->getGrid();
+                break;
+            case 'E':
+                _fin[0] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[0] + scn->getGrid();
+                _fin[1] = (scn->getMarca(_id+2))->getMarkerInfo()->pos[1] - scn->getGrid();
+                break;
+        }
+        v[0] = _fin[0] - ((scn->getMarca(_id+2))->getMarkerInfo()->pos[0]);
+        v[1] = _fin[1] - ((scn->getMarca(_id+2))->getMarkerInfo()->pos[1]);
+        cout<<_lMov.front()<<"      "<<_guardia<<endl;
+//        cout<<"Fin :"<<_fin[0]<<"-"<<(scn->getMarca(_id+2))->getMarkerInfo()->pos[0]<<endl;
+//        cout<<"Fin :"<<_fin[1]<<"-"<<(scn->getMarca(_id+2))->getMarkerInfo()->pos[1]<<endl;
+        _ang = scn->getAngulo(v);
+        cout<<"ARobot:: Angulo:"<<_ang<<" Rotaciopn actual:"<<scn->getRotacion(_id+2)<<endl;
+        if(_ang==0 || _ang==-0){
+            if (scn->getRotacion(_id+2)>(_ang+10) || scn->getRotacion(_id+2)<(350)){
+                if (_ang>=180){
+                    if (scn->getRotacion(_id+2) < _ang && scn->getRotacion(_id+2) > _ang-180){
+                        _robot->izquierda();
+                    }else{
+                        _robot->derecha();
+                    }
+                }else{
+                    if (scn->getRotacion(_id+2)>180+_ang || scn->getRotacion(_id+2)<_ang){
+                        _robot->izquierda();
+                    }else{
+                        _robot->derecha();
+                    }
+                }
+            }else{  //Ya está orientado (Dentro del umbral)
+                    _robot->parar();
+            }
+        }else{
+            if (scn->getRotacion(_id+2)>(_ang+10) || scn->getRotacion(_id+2)<(_ang-10)){
+                if (_ang>=180){
+                    if (scn->getRotacion(_id+2) < _ang && scn->getRotacion(_id+2) > _ang-180){
+                        _robot->izquierda();
+                    }else{
+                        _robot->derecha();
+                    }
+                }else{
+                    if (scn->getRotacion(_id+2)>180+_ang || scn->getRotacion(_id+2)<_ang){
+                        _robot->izquierda();
+                    }else{
+                        _robot->derecha();
+                    }
+                }
+            }else{  //Ya está orientado (Dentro del umbral)
+                    _robot->parar();
+            }
         }
     }
 }
 
 void ARobot::nextMov(){
-    cout<<"ARobot::"<<_id<<":: Next Mov"<<endl;
+//    cout<<"ARobot::"<<_id<<":: Next Mov"<<endl;
     _lMov.pop_back();
 }
 
@@ -247,8 +338,9 @@ void ARobot::planifica(Scene *scn,int event){
     _scn=scn;
     tiposEstrategias es=AMANHATTAN;
     if (event == NEWIA){
-        cout<<"ARobot::"<<_id<<":: NEWIA"<<endl;
+        cout<<"ARobot::"<<_id<<":: NEWIA:"<<_object->getPos()[0]<<":"<<_object->getPos()[1]<<endl;
         _lMov.clear();
+        _guardia = -1;
         Busqueda *b = new Busqueda(_id, scn->getMap(), scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(), scn->getAncho()/scn->getGrid()+1, scn->getAlto()/scn->getGrid()+1, scn->getMarca(_id+2)->getRatio()[0], scn->getMarca(_id+2)->getRatio()[1], es, _object->getId()+3, _object->getPos()[0], _object->getPos()[1]);
         //Estado *e = new Estado(_id,scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(),scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(),scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(),scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(),scn->getMarca(_id+2)->getRatio()[0],scn->getMarca(_id+2)->getRatio()[1],scn->getAncho()/scn->getGrid()+1,scn->getAlto()/scn->getGrid()+1,_object->getPos()[0],_object->getPos()[1],scn->getGrid(),scn->getGrid(),scn->arrayToVectorMap());
         IceUtil::ThreadPtr t = new IA(b,this);
@@ -257,23 +349,23 @@ void ARobot::planifica(Scene *scn,int event){
     }else if (event == MOVIMIENTO){
         cout<<"ARobot::"<<_id<<":: MOVIMIENTO"<<endl;
         if (casillaValida(scn)){
-            if ((int)_lMov.size() <= scn->getMarca(_id+2)->getRatio()[0]+2){
-                if(_guardia>=0){
+            if ((int)_lMov.size() <= scn->getMarca(_id+2)->getRatio()[0]+1){
+                if(_guardia>0){
                     fin0 = -1, fin1 = -1;
                     switch(_guardia){
                         case 1:
                             _guardia = 2;
                             fin0 = scn->getFin()[0]/scn->getGrid();
-                            fin1 = 0;
+                            fin1 = scn->getCenter()[1]/scn->getGrid();
                         break;
                         case 2:
                             _guardia = 3;
-                            fin0 = 0;
-                            fin1 = 0;
+                            fin0 = scn->getCenter()[0]/scn->getGrid();;
+                            fin1 = scn->getCenter()[1]/scn->getGrid();;
                         break;
                         case 3:
                             _guardia = 4;
-                            fin0 = 0;
+                            fin0 = scn->getCenter()[0]/scn->getGrid();;
                             fin1 = scn->getFin()[1]/scn->getGrid();
                         break;
                         case 4:
@@ -286,15 +378,15 @@ void ARobot::planifica(Scene *scn,int event){
                     Busqueda *b = new Busqueda(_id, scn->getMap(), scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(), scn->getAncho()/scn->getGrid()+1, scn->getAlto()/scn->getGrid()+1, scn->getMarca(_id+2)->getRatio()[0], scn->getMarca(_id+2)->getRatio()[1], es, _id, fin0,fin1);
                     IceUtil::ThreadPtr t = new IA(b,this);
                     IceUtil::ThreadControl tc=t->start();
-                    cout<<"TIDDDDDD:"<<tc.id()<<endl;
+//                    cout<<"TIDDDDDD:"<<tc.id()<<endl;
                 } else {
-                    orientar(scn);
+                    orientarO(scn);
                 }
             }else{
                 if ((scn->getMarca(_id+2)->getPos()[0]/scn->getGrid() == static_cast<int>(_pos[0]/scn->getGrid())) && (scn->getMarca(_id+2)->getPos()[1]/scn->getGrid()) == static_cast<int>(_pos[1]/scn->getGrid())){
                     orientar(scn);
                 }else{
-                    cout<<"nextm ove"<<endl;
+//                    cout<<"nextm ove"<<endl;
                     nextMov();
                     orientar(scn);
                 }
@@ -305,7 +397,7 @@ void ARobot::planifica(Scene *scn,int event){
                 Busqueda *b = new Busqueda(_id, scn->getMap(), scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(), scn->getAncho()/scn->getGrid()+1, scn->getAlto()/scn->getGrid()+1, scn->getMarca(_id+2)->getRatio()[0], scn->getMarca(_id+2)->getRatio()[1], es, _id, fin0,fin1);
                 IceUtil::ThreadPtr t = new IA(b,this);
                 IceUtil::ThreadControl tc=t->start();
-                cout<<"TIDDDDDD:"<<tc.id()<<endl;
+//                cout<<"TIDDDDDD:"<<tc.id()<<endl;
             }else{
                 Busqueda *b = new Busqueda(_id, scn->getMap(), scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(), scn->getAncho()/scn->getGrid()+1, scn->getAlto()/scn->getGrid()+1, scn->getMarca(_id+2)->getRatio()[0], scn->getMarca(_id+2)->getRatio()[1], es, _object->getId()+3, _object->getPos()[0], _object->getPos()[1]);
                 //Estado *e = new Estado(_id,scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(),scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(),scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(),scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(),scn->getMarca(_id+2)->getRatio()[0],scn->getMarca(_id+2)->getRatio()[1],scn->getAncho()/scn->getGrid()+1,scn->getAlto()/scn->getGrid()+1,scn->getFin()[0]/scn->getGrid(),scn->getFin()[1]/scn->getGrid(),scn->getGrid(),scn->getGrid(),scn->arrayToVectorMap());
@@ -324,16 +416,16 @@ void ARobot::planifica(Scene *scn,int event){
 //            }
 //            std::cout<<""<<std::endl;
 //          }
-          fin0=scn->getAncho()/scn->getGrid();
-          fin1=scn->getAlto()/scn->getGrid();
+          fin0=scn->getFin()[0]/scn->getGrid();
+          fin1=scn->getFin()[1]/scn->getGrid();
         }
-        cout<<"ARobot:: Inicio: "<<scn->getMarca(_id+2)->getPos()[0]/scn->getGrid()<<" : "<<scn->getMarca(_id+2)->getPos()[1]/scn->getGrid()<<endl;
-        cout<<"ARobot:: ratio: "<<scn->getMarca(_id+2)->getRatio()[0]<<" : "<<scn->getMarca(_id+2)->getRatio()[1]<<endl;
-        Busqueda *b = new Busqueda(_id, scn->getMap(), scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(), scn->getAncho()/scn->getGrid()+1, scn->getAlto()/scn->getGrid()+1, scn->getMarca(_id+2)->getRatio()[0], scn->getMarca(_id+2)->getRatio()[1], es, _id, scn->getAncho()/scn->getGrid(),scn->getAlto()/scn->getGrid());
+//        cout<<"ARobot:: Inicio: "<<scn->getMarca(_id+2)->getPos()[0]/scn->getGrid()<<" : "<<scn->getMarca(_id+2)->getPos()[1]/scn->getGrid()<<endl;
+//        cout<<"ARobot:: ratio: "<<scn->getMarca(_id+2)->getRatio()[0]<<" : "<<scn->getMarca(_id+2)->getRatio()[1]<<endl;
+        Busqueda *b = new Busqueda(_id, scn->getMap(), scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(), scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(), scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(), scn->getAncho()/scn->getGrid()+1, scn->getAlto()/scn->getGrid()+1, scn->getMarca(_id+2)->getRatio()[0], scn->getMarca(_id+2)->getRatio()[1], es, _id, fin0,fin1);
         //Estado *e = new Estado(_id,scn->getMarca(_id+2)->getPos()[0]%scn->getGrid(),scn->getMarca(_id+2)->getPos()[1]%scn->getGrid(),scn->getMarca(_id+2)->getPos()[0]/scn->getGrid(),scn->getMarca(_id+2)->getPos()[1]/scn->getGrid(),scn->getMarca(_id+2)->getRatio()[0],scn->getMarca(_id+2)->getRatio()[1],scn->getAncho()/scn->getGrid()+1,scn->getAlto()/scn->getGrid()+1,scn->getFin()[0]/scn->getGrid(),scn->getFin()[1]/scn->getGrid(),scn->getGrid(),scn->getGrid(),scn->arrayToVectorMap());
         IceUtil::ThreadPtr t = new IA(b,this);
         IceUtil::ThreadControl tc=t->start();
-        cout<<"TIDDDDDD:"<<tc.id()<<endl;
+//        cout<<"TIDDDDDD:"<<tc.id()<<endl;
     }
     double po[2] = {scn->getMarca(_id+2)->getPos()[0],scn->getMarca(_id+2)->getPos()[1]};
     setPos(po);

@@ -65,6 +65,7 @@ class ARobot{
 
         bool casillaValida(Scene *scn);
         void orientar(Scene *scn);
+        void orientarO(Scene *scn);
         void nextMov();
 
         ARobot &operator= (const ARobot &r);

@@ -104,10 +104,10 @@ vector<Marca*> Scene::getMarcas(){
 }
 
 void Scene::crearMarca(Marca* m){
-    cout<<"Scene:: Crear Marca:"<<m->getId()<<" Y:"<<m->getMin()[1]/_grid_d<<";"<<m->getMax()[1]/_grid_d<<" X:"<<m->getMin()[0]/_grid_d<<";"<<m->getMax()[0]/_grid_d<<endl;
+//    cout<<"Scene:: Crear Marca:"<<m->getId()<<" Y:"<<m->getMin()[1]/_grid_d<<";"<<m->getMax()[1]/_grid_d<<" X:"<<m->getMin()[0]/_grid_d<<";"<<m->getMax()[0]/_grid_d<<endl;
     for (int x=m->getMin()[0]/_grid_d; x<=m->getMax()[0]/_grid_d; x++){
         for (int y=m->getMin()[1]/_grid_d; y<=m->getMax()[1]/_grid_d; y++){
-            cout<<"Modifica mapa"<<endl;
+//            cout<<"Modifica mapa"<<endl;
             _map[x][y] = m->getId()-2;
         }
     }
@@ -116,7 +116,7 @@ void Scene::crearMarca(Marca* m){
     _marcas[m->getId()] = m;
 }
 void Scene::modificarMarca(Marca* m){
-    cout<<"Scene:: Modificar Marca"<<endl;
+//    cout<<"Scene:: Modificar Marca"<<endl;
     if ((_marcas[m->getId()]->getMax()[0]/_grid_d != m->getMax()[0]/_grid_d)||
        (_marcas[m->getId()]->getMax()[1]/_grid_d != m->getMax()[1]/_grid_d)||
        (_marcas[m->getId()]->getMin()[0]/_grid_d != m->getMin()[0]/_grid_d)||
@@ -136,7 +136,7 @@ void Scene::modificarMarca(Marca* m){
     _marcas[m->getId()] = m;
 }
 void Scene::borrarMarca(Marca* m){
-    cout<<"Scene:: Borrar Marca"<<endl;
+//    cout<<"Scene:: Borrar Marca"<<endl;
     for (int x=_marcas[m->getId()]->getMin()[0]/_grid_d; x<=_marcas[m->getId()]->getMax()[0]/_grid_d; x++){
         for (int y=_marcas[m->getId()]->getMin()[1]/_grid_d; y<=_marcas[m->getId()]->getMax()[1]/_grid_d; y++){
             _map[x][y] = -1;
@@ -268,9 +268,9 @@ void Scene::Actualizar(int accion, int id){
         _filter->setGrid(_grid_d);
         cout<<"Scene:: Posicion fin: "<<_fin[0]<<":"<<_fin[1]<<endl;
         cout<<"Scene:: Tamaño del grid: "<<_grid_d<<endl;
-    }else if((id!=0 && id!=1)){//} || (accion == 4 || accion ==5 || accion == 6)){
+    }else if((id!=0 && id!=1) || (accion == 4 || accion ==5 || accion == 6)){
         for (vector<Coordinador*>::iterator it = _coordinador.begin(); it != _coordinador.end(); ++it) {
-            cout<<"Scene:: Actualizar "<<endl;
+//            cout<<"Scene:: Actualizar "<<endl;
             (*it)->Actualizar(accion,id);
         }
     }
@@ -387,12 +387,13 @@ ARTKDetector* Scene::getARTK(){
 //}
 
 void Scene::addObject(Objeto* ob){
+    cout<<"AddObject"<<endl;
     _objetos.push_back(ob);
     double* pmax = ob->getMax();
     double* pmin = ob->getMin();
     for (int x=pmin[0]/_grid_d; x<=pmax[0]/_grid_d; x++){
         for (int y=pmin[1]/_grid_d; y<=pmax[1]/_grid_d; y++){
-            _map[y][x] = ob->getId() + 3;
+            _map[x][y] = ob->getId() + 3;
         }
     }
     Actualizar(4,ob->getId());
@@ -401,11 +402,12 @@ void Scene::addObject(Objeto* ob){
 void Scene::deleteObject(int id){
     for (uint i=0; i < _objetos.size(); i++){
         if (_objetos[i]->getId() == id){
+            cout<<"Scene:: Borrar obj"<<endl;
             double* pmax = _objetos[i]->getMax();
             double* pmin = _objetos[i]->getMin();
             for (int x=pmin[0]/_grid_d; x<=pmax[0]/_grid_d; x++){
                 for (int y=pmin[1]/_grid_d; y<=pmax[1]/_grid_d; y++){
-                    _map[y][x] = -1;
+                    _map[x][y] = -1;
                 }
             }
             _objetos.erase(_objetos.begin() + i);
@@ -422,14 +424,14 @@ void Scene::changeObject(int id, double fin[2], double pM[2], double pm[2]){
             double* pmin = _objetos[i]->getMin();
             for (int x=pmin[0]/_grid_d; x<=pmax[0]/_grid_d; x++){
                 for (int y=pmin[1]/_grid_d; y<=pmax[1]/_grid_d; y++){
-                    _map[y][x] = -1;
+                    _map[x][y] = -1;
                 }
             }
 //            double* point = _objetos[i].getPos();
 //            _map[(int)(point[0]/_grid_d)][(int)(point[1]/_grid_d)] = 0;
             for (int x=pm[0]/_grid_d; x<=pM[0]/_grid_d; x++){
                 for (int y=pm[1]/_grid_d; y<=pM[1]/_grid_d; y++){
-                    _map[y][x] = _objetos[i]->getId() + 3;
+                    _map[x][y] = _objetos[i]->getId() + 3;
                 }
             }
 //            _objetos[i].setPos(fin, pM, pm);

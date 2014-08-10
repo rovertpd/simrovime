@@ -177,15 +177,16 @@
 //              std::cout<<"Sale de aqui"<<std::endl;
 //          }
 //          cout<<"OW::Frame:: "<<frame<<endl;
+if (_arDetector->detectMark(_videoManager->getCurrentFrameMat()));
               _videoManager->DrawCurrentFrame(frame);
 
               //Marca marcas[5];
               //_scene->getMarcas(marcas);
-              if (_arDetector->detectMark(_videoManager->getCurrentFrameMat())){
-                  //_scene->setMarcas(marcas);
-                  //_scene->Actualizar();     // LLamamos a la escena para que se actualice
-                  //else  mSceneMgr->getEntity("Esfera")->setVisible(false);
-              }
+//              if (_arDetector->detectMark(_videoManager->getCurrentFrameMat())){
+//                  //_scene->setMarcas(marcas);
+//                  //_scene->Actualizar();     // LLamamos a la escena para que se actualice
+//                  //else  mSceneMgr->getEntity("Esfera")->setVisible(false);
+//              }
 
           //}
           frame ++;

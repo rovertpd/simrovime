@@ -25,6 +25,7 @@ class VideoManager {
   Objeto* _objs[3];
   Filter* _filter;
   cv::Vec3b hsv;
+  cv::Mat* img ;
 
  public:
   void attach(Scene *s);
@@ -33,7 +34,7 @@ class VideoManager {
   ~VideoManager();
   void UpdateFrame();
   IplImage* getCurrentFrameIpl();
-  cv::Mat getCurrentFrameIplHSV();
+  cv::Mat* getCurrentFrameIplHSV();
   void setHSV();
   cv::Mat* getCurrentFrameMat();
   void DrawCurrentFrame(int frame);
