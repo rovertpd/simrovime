@@ -84,21 +84,33 @@ bool ARTKDetector::detectMark(cv::Mat* frame) {
       double posicion[2] = {_markerInfo[k].pos[0],_markerInfo[k].pos[1]};
       _marca->setPattTans(pattTrans);
       _marca->setMarkerInfo(_markerInfo[k]);
-      int pm[2] = {_markerInfo[k].vertex[2][0],_markerInfo[k].vertex[3][1]};
-      int pM[2] = {_markerInfo[k].vertex[0][0],_markerInfo[k].vertex[1][1]};
+      int pm[2] = {100000,100000};
+      int pM[2] = {-1,-1};
+      for (int x=0;x<4;x++){
+          if (_markerInfo[k].vertex[x][0]>pM[0])
+            pM[0]=_markerInfo[k].vertex[x][0];
+          if (_markerInfo[k].vertex[x][1]>pM[1])
+            pM[1]=_markerInfo[k].vertex[x][1];
+          if (_markerInfo[k].vertex[x][0]<pm[0])
+            pm[0]=_markerInfo[k].vertex[x][0];
+          if (_markerInfo[k].vertex[x][1]<pm[1])
+            pm[1]=_markerInfo[k].vertex[x][1];
+      }
+//      int pm[2] = {_markerInfo[k].vertex[2][0],_markerInfo[k].vertex[3][1]};
+//      int pM[2] = {_markerInfo[k].vertex[0][0],_markerInfo[k].vertex[1][1]};
       _marca->setMax(pM);
       _marca->setMin(pm);
       if(_marca->getVisible()){
-          double x = _marca->getPos()[0];
-          double y = _marca->getPos()[1];
-          int grid = _scene->getGrid();
-          if ((static_cast<int>(x/grid) != static_cast<int>(posicion[0]/grid))||(static_cast<int>(y/grid) != static_cast<int>(posicion[1]/grid))){
+//          double x = _marca->getPos()[0];
+//          double y = _marca->getPos()[1];
+//          int grid = _scene->getGrid();
+//          if ((static_cast<int>(x/grid) != static_cast<int>(posicion[0]/grid))||(static_cast<int>(y/grid) != static_cast<int>(posicion[1]/grid))){
+//              if (i>1)
+//                _scene->modificarMarca(_marca);
+//          }else if(abs(getRotation(_marca)-_marca->getRot()) > 10){
               if (i>1)
                 _scene->modificarMarca(_marca);
-          }else if(abs(getRotation(_marca)-_marca->getRot()) > 10){
-              if (i>1)
-                _scene->modificarMarca(_marca);
-          }
+//          }
           _marca->setPos(posicion);
           _marca->setRot(getRotation(_marca));
           actualizar = 2;
@@ -153,20 +165,18 @@ float ARTKDetector::getRotation(Marca *m){
 void ARTKDetector::getPosRot(Ogre::Vector3 &pos,
                    Ogre::Vector3 &look, Ogre::Vector3 &up,Marca* marca){
    //std::cout<<"Marca PosRot "<<marca->getId()<<std::endl;
-  if (!_detected) return;
+   if (!_detected) return;
+  marca->getPattTans(_pattTrans);
 
   double glAuxd[16]; Ogre::Matrix4 m;
-  marca->getPattTans(_pattTrans);
   argConvGlpara(_pattTrans,glAuxd);
   Gl2Mat(glAuxd, m);   // Convertir a Matrix4 de Ogre
 
-  m[0][1]*=-1; m[1][1]*=-1;  m[2][1]*=-1; m[3][1]*=-1;
+  m[0][1]*=-1; m[1][1]*=-1;  m[2][1]*=-1; m[3][1]*=1;
   m = m.inverse();
-  m = m.concatenate(Ogre::Matrix4(
-      Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_X)));
-  pos  = Ogre::Vector3 (m[3][0],         m[3][1],        m[3][2]);
-  look = Ogre::Vector3 (m[2][0]+m[3][0], m[2][1]+m[3][1],
-                                                 m[2][2]+m[3][2]);
-  up   = Ogre::Vector3 (m[1][0],         m[1][1],        m[1][2]);
+  m = m.concatenate(Ogre::Matrix4(Ogre::Quaternion(Ogre::Degree(90),Ogre::Vector3::UNIT_X)));
 
+  pos  = Ogre::Vector3 (m[3][0],         m[3][1],         m[3][2]);
+  look = Ogre::Vector3 (m[2][0]+m[3][0], m[2][1]+m[3][1], m[2][2]+m[3][2]);
+  up   = Ogre::Vector3 (m[1][0],         m[1][1],         m[1][2]);
 }

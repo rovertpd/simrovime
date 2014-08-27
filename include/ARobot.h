@@ -12,8 +12,8 @@ class ARobot;
 #include "Robot.h"
 #include "Objeto.h"
 #include "Scene.h"
-#include "IA.h"
-#include "busqueda.h"
+#include "AI.h"
+#include "Search.h"
 
 using namespace std;
 
@@ -25,7 +25,7 @@ class ARobot{
         int _direccion;
         double _fin[2];
         int fin0,fin1;
-        int _estado;
+        int _State;
         int _guardia;
         Robot *_robot;
         bool _path;
@@ -33,13 +33,20 @@ class ARobot{
         ARMarkerInfo *_markerInfo;
         Objeto *_object;
         bool _ob;
-        void setPos(double p[2]);
         Scene* _scn;
         vector<IceUtil::ThreadControl> threads;
+
+        void setPos(double p[2]);
+        bool casillaValida(Scene *scn);
+        void orientar(Scene *scn);
+        void orientarO(Scene *scn);
+        void nextMov();
+
         //float angulo;
 
     public:
         ARobot(int id);
+        int getGuardia();
         void init();
         int getDir();
         int getId();
@@ -56,17 +63,11 @@ class ARobot{
         void setObj(Objeto *obj);
         Objeto* getObj();
         void reset();
-        void det();
         bool hasObj();
         void deleteObj();
 
-        void detener();
         void planifica(Scene *scn,int event);
-
-        bool casillaValida(Scene *scn);
-        void orientar(Scene *scn);
-        void orientarO(Scene *scn);
-        void nextMov();
+        void detener();
 
         ARobot &operator= (const ARobot &r);
 

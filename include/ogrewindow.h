@@ -14,10 +14,6 @@
 
     public:
       OgreWindow();
-      void avanzar();
-      void retroceder();
-      void derecha();
-      void izquierda();
       virtual ~OgreWindow();
       virtual bool on_delete_event(GdkEventAny* event);
       bool hasExited() { return mExited; }

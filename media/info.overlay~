@@ -23,7 +23,7 @@ InfoRG
 		    element TextArea(esquina) : MyTemplates/Text 
 		    {
 				  top 71
-				  left 166 
+				  left 167 
 		    }
 
 		    element TextArea(direccion) : MyTemplates/Text 

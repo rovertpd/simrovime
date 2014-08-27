@@ -134,6 +134,7 @@
          mRefGdkWindow->set_back_pixmap(Glib::RefPtr<Gdk::Pixmap>(),false);
          loadResources();
          createScene();
+         createOverlay();
          _videoManager = new VideoManager(1, 640, 480, mSceneMgr);
          _scene = new Scene(_videoManager);
          _scene->init();
@@ -141,7 +142,7 @@
          _scene->setAncho(640);
          _arDetector = new ARTKDetector(640, 480, 100, _scene);
          _scene->setARTK(_arDetector);
-         Coordinador* coor = new Coordinador(_scene);
+         coor = new Coordinator(_scene);
          coor->init();
           // Start idle function for frame update/rendering
           Glib::signal_idle().connect( sigc::mem_fun(*this, &OgreWidget::on_idle) );
@@ -166,19 +167,30 @@
           Ogre::Vector3 pos;  Ogre::Vector3 look;   Ogre::Vector3 up;
           _videoManager->UpdateFrame();
           //_videoManager->DrawCurrentFrame();
-//          if ((frame % 10 ==1) && (_scene->getGrid()>0)){
-//              std::cout<<"Entra aqui"<<std::endl;
-//              for (int j=0;j<=_scene->getAlto()/_scene->getGrid();j++){
-//                for (int i=0;i<=_scene->getAncho()/_scene->getGrid();i++){
-//                  std::cout<<_scene->getMap(i,j);
-//                }
-//                std::cout<<""<<std::endl;
-//              }
-//              std::cout<<"Sale de aqui"<<std::endl;
-//          }
+          if ((frame % 10 ==1) && (_scene->getGrid()>0)){
+              for (int j=0;j<=_scene->getAlto()/_scene->getGrid();j++){
+                for (int i=0;i<=_scene->getAncho()/_scene->getGrid();i++){
+                  std::cout<<_scene->getMap(i,j);
+                }
+                std::cout<<""<<std::endl;
+              }
+          }
 //          cout<<"OW::Frame:: "<<frame<<endl;
-if (_arDetector->detectMark(_videoManager->getCurrentFrameMat()));
-              _videoManager->DrawCurrentFrame(frame);
+          _videoManager->DrawCurrentFrame(frame);
+          if (_arDetector->detectMark(_videoManager->getCurrentFrameMat())){
+              //for (int i = 2; i < 5; i++){
+                  if (_scene->getMarca(4)->getVisible()){
+                      _arDetector->getPosRot(pos, look, up, _scene->getMarca(4));
+                      mCamera->setPosition(pos);
+                      mCamera->lookAt(look);
+                      mCamera->setFixedYawAxis(true, up);
+                      mSceneMgr->getSceneNode("SinbadNode")->setVisible(true);
+                  }else{
+                      mSceneMgr->getSceneNode("SinbadNode")->setVisible(false);
+                  }
+              //}
+          }
+
 
               //Marca marcas[5];
               //_scene->getMarcas(marcas);
@@ -222,6 +234,12 @@ if (_arDetector->detectMark(_videoManager->getCurrentFrameMat()));
       Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
     }
 
+    void OgreWidget::createOverlay() {
+      mOverlayMgr = Ogre::OverlayManager::getSingletonPtr();
+//      Ogre::Overlay *overlay = mOverlayMgr->getByName("Info");
+//      overlay->show();
+    }
+
     void OgreWidget::createScene()
     {
         // Set default mipmap level & texture filtering
@@ -233,8 +251,8 @@ if (_arDetector->detectMark(_videoManager->getCurrentFrameMat()));
 
         // Create the mCameraera
         mCamera = mSceneMgr->createCamera("Camera");
-        mCamera->setPosition(Ogre::Vector3(5,10.5,12));
-        mCamera->lookAt(Ogre::Vector3(1.4,4.3,3));
+        mCamera->setPosition(Ogre::Vector3(50,250,250));
+        mCamera->lookAt(Ogre::Vector3(0,0,0));
         mCamera->setNearClipDistance(5);
         mCamera->setFarClipDistance(10000);
         mCamera->setFOVy(Ogre::Degree(48));
@@ -247,25 +265,20 @@ if (_arDetector->detectMark(_videoManager->getCurrentFrameMat()));
         // Alter the camera aspect ratio to match the viewport
         mCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight()));
 
-        Ogre::Entity* ent2 = mSceneMgr->createEntity("Esfera", "Esfera.mesh");
-        Ogre::SceneNode* node2 = mSceneMgr->createSceneNode("Esfera");
-        ent2->setMaterialName("Material2");
-        ent2->setVisible(false);
-        node2->attachObject(ent2);
-        mSceneMgr->getRootSceneNode()->addChild(node2);
+        Ogre::Entity* ent1 = mSceneMgr->createEntity("Sinbad","Sinbad.mesh");
+          Ogre::SceneNode* node1 = mSceneMgr->createSceneNode("SinbadNode");
+
+          node1->attachObject(ent1);
+          node1->setScale(2,2,2);
+          node1->translate(Ogre::Vector3(0,0,0), Ogre::Node::TS_LOCAL);
+          node1->setVisible(false);
+          mSceneMgr->getRootSceneNode()->addChild(node1);
 
         mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
-        mSceneMgr->setAmbientLight(Ogre::ColourValue(0.2, 0.2, 0.2));
-
-        Ogre::Light* light = mSceneMgr->createLight("Light1");
-        light->setType(Ogre::Light::LT_DIRECTIONAL);
-        light->setDirection(Ogre::Vector3(1,-1,0));
-
-        Ogre::Light* light2 = mSceneMgr->createLight("Light2");
-        light2->setType(Ogre::Light::LT_POINT);
-        light2->setPosition(8, 8, -2);
-        light2->setSpecularColour(0.9, 0.9, 0.9);
-        light2->setDiffuseColour(0.9, 0.9, 0.9);
+          Ogre::Light* light = mSceneMgr->createLight("Light1");
+          light->setType(Ogre::Light::LT_DIRECTIONAL);
+          light->setDirection(Ogre::Vector3(1,-1,0));
+          node1->attachObject(light);
 
         /*Ogre::Plane plane1(Ogre::Vector3::UNIT_Y, 0);
         Ogre::MeshManager::getSingleton().createPlane("plane1",
@@ -295,7 +308,55 @@ if (_arDetector->detectMark(_videoManager->getCurrentFrameMat()));
     }
 
     bool OgreWidget::on_button_release_event(GdkEventButton *event) {
-       std::cout << "button release\n";
+       if (event->button == 3){
+         std::cout << "button right release "<<event->x/_scene->getGrid()<<":"<<event->y/_scene->getGrid()<<std::endl;
+              Ogre::Overlay *overlay = mOverlayMgr->getByName("InfoRG");
+              overlay->hide();
+              overlay = mOverlayMgr->getByName("InfoOS");
+              overlay->hide();
+       }else if (event->button == 1){
+           if (_scene->getPixel(event->x,event->y)!=-1){
+               if (_scene->getPixel(event->x,event->y)<3){
+                  Ogre::Overlay *overlay = mOverlayMgr->getByName("InfoRG");
+                  overlay->show();
+                  Ogre::OverlayElement *oe;
+                  oe = mOverlayMgr->getOverlayElement("esquina");
+                  oe->setCaption(" inferior");
+                  oe = mOverlayMgr->getOverlayElement("direccion");
+                  oe->setCaption(" derecha");
+//                  switch(coor->getARobot(_scene->getPixel(event->x,event->y))->getGuardia()){
+//                      case 1:
+//                          oe = mOverlayMgr->getOverlayElement("esquina");
+//                          oe->setCaption(Ogre::StringConverter::toString("inferior"));
+//                          oe = mOverlayMgr->getOverlayElement("direccion");
+//                          oe->setCaption(Ogre::StringConverter::toString("derecha"));
+//                      break;
+//                      case 2:
+//                          oe = mOverlayMgr->getOverlayElement("esquina");
+//                          oe->setCaption(Ogre::StringConverter::toString("superior"));
+//                          oe = mOverlayMgr->getOverlayElement("direccion");
+//                          oe->setCaption(Ogre::StringConverter::toString("derecha"));
+//                      break;
+//                      case 3:
+//                          oe = mOverlayMgr->getOverlayElement("esquina");
+//                          oe->setCaption(Ogre::StringConverter::toString("superior"));
+//                          oe = mOverlayMgr->getOverlayElement("direccion");
+//                          oe->setCaption(Ogre::StringConverter::toString("izquierda"));
+//                      break;
+//                      case 4:
+//                          oe = mOverlayMgr->getOverlayElement("esquina");
+//                          oe->setCaption(Ogre::StringConverter::toString("inferior"));
+//                          oe = mOverlayMgr->getOverlayElement("direccion");
+//                          oe->setCaption(Ogre::StringConverter::toString("izquierda"));
+//                      break;
+//                  }
+               }else{
+                  Ogre::Overlay *overlay = mOverlayMgr->getByName("InfoOS");
+                  overlay->show();
+               }
+           }
+           std::cout << "button left release "<<event->x<<":"<<event->y<<std::endl;
+       }
        return true;
     }
 

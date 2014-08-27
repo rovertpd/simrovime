@@ -10,7 +10,7 @@ class Scene;
 
 #include "ARTKDetector.h"
 #include "VideoManager.h"
-#include "Coordinador.h"
+#include "Coordinator.h"
 #include "ARobot.h"
 #include "Marca.h"
 #include "Filter.h"
@@ -24,8 +24,8 @@ class Scene
       Scene(VideoManager *vm);
 
       void init();
-
-      void attach(Coordinador *c);
+      int getPixel(int x, int y);
+      void attach(Coordinator *c);
 
       vector<Marca*> getMarcas();
 //      void setMarcas(Marca* marcas[5]);
@@ -84,7 +84,6 @@ class Scene
       pthread_mutex_t ptmutex1;
       pthread_t mithread001;
       ARTKDetector* _arDetector;
-      static Scene* pinstance;
       double _center[2];
       double _fin[2];
       int _lock;
@@ -96,7 +95,7 @@ class Scene
       int _alto;
       int _ancho;
       int **_map;
-      vector<Coordinador*> _coordinador;
+      vector<Coordinator*> _Coordinator;
       double _p_sup[2];
       double _p_sup_der[2];
       double _p_inf_der[2];

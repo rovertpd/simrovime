@@ -1,4 +1,4 @@
-material panelInfoM 
+material panelInfoRG 
 {
  technique 
  {
@@ -7,21 +7,50 @@ material panelInfoM
      scene_blend src_alpha one_minus_src_alpha
      texture_unit 
      {
-       texture panel.png
+       texture panelRG.png
      }
    }
  }
 }
 
-material matUCLM 
+material panelInfoRV 
 {
  technique 
  {
    pass 
    {
+     scene_blend src_alpha one_minus_src_alpha
      texture_unit 
      {
-       texture logouclm.jpg
+       texture panelRV.png
+     }
+   }
+ }
+}
+material panelInfoOV
+{
+ technique 
+ {
+   pass 
+   {
+     scene_blend src_alpha one_minus_src_alpha
+     texture_unit 
+     {
+       texture panelOV.png
+     }
+   }
+ }
+}
+material panelInfoOS
+{
+ technique 
+ {
+   pass 
+   {
+     scene_blend src_alpha one_minus_src_alpha
+     texture_unit 
+     {
+       texture panelOS.png
      }
    }
  }

@@ -149,11 +149,11 @@ double Robot::getRot(){
 }
 
 int Robot::getEst(){
-    return _estado;
+    return _State;
 }
 
 void Robot::setEst(int est){
-    _estado = est;
+    _State = est;
 }
 
 void Robot::setRot(double rot){

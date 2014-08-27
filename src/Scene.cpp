@@ -10,7 +10,7 @@ Scene::Scene(VideoManager *vm)
   _vmanager = vm;
   _vmanager->attach(this);
   _filter = Filter::Instance();
-  //_coordinador = new Coordinador(this);
+  //_Coordinator = new Coordinator(this);
   _grid_d=0;
   _center[0]=0.0;
   _center[1]=0.0;
@@ -75,8 +75,12 @@ int ** Scene::getMap(){
 //    return &(_arobots[id]);
 //}
 
-void Scene::attach(Coordinador *c){
-    _coordinador.push_back(c);
+int Scene::getPixel(int x, int y){
+    return _map[static_cast<int>(x/_grid_d)][static_cast<int>(y/_grid_d)];
+}
+
+void Scene::attach(Coordinator *c){
+    _Coordinator.push_back(c);
 }
 
 void Scene::setP_sup(double x,double y){_p_sup[0] = x; _p_sup[1] = y;}
@@ -104,7 +108,7 @@ vector<Marca*> Scene::getMarcas(){
 }
 
 void Scene::crearMarca(Marca* m){
-//    cout<<"Scene:: Crear Marca:"<<m->getId()<<" Y:"<<m->getMin()[1]/_grid_d<<";"<<m->getMax()[1]/_grid_d<<" X:"<<m->getMin()[0]/_grid_d<<";"<<m->getMax()[0]/_grid_d<<endl;
+    cout<<"Scene:: Crear Marca"<<endl;
     for (int x=m->getMin()[0]/_grid_d; x<=m->getMax()[0]/_grid_d; x++){
         for (int y=m->getMin()[1]/_grid_d; y<=m->getMax()[1]/_grid_d; y++){
 //            cout<<"Modifica mapa"<<endl;
@@ -116,27 +120,22 @@ void Scene::crearMarca(Marca* m){
     _marcas[m->getId()] = m;
 }
 void Scene::modificarMarca(Marca* m){
-//    cout<<"Scene:: Modificar Marca"<<endl;
-    if ((_marcas[m->getId()]->getMax()[0]/_grid_d != m->getMax()[0]/_grid_d)||
-       (_marcas[m->getId()]->getMax()[1]/_grid_d != m->getMax()[1]/_grid_d)||
-       (_marcas[m->getId()]->getMin()[0]/_grid_d != m->getMin()[0]/_grid_d)||
-       (_marcas[m->getId()]->getMin()[1]/_grid_d != m->getMin()[1]/_grid_d)){
-       // modificar marca en el map
-         for (int x=_marcas[m->getId()]->getMin()[0]/_grid_d; x<=_marcas[m->getId()]->getMax()[0]/_grid_d; x++){
-             for (int y=_marcas[m->getId()]->getMin()[1]/_grid_d; y<=_marcas[m->getId()]->getMax()[1]/_grid_d; y++){
-                 _map[x][y] = -1;
-             }
+    cout<<"Scene:: Modificar Marca"<<endl;
+   // modificar marca en el map
+     for (int x=0; x<=_ancho/_grid_d; x++){
+         for (int y=0; y<=_alto/_grid_d; y++){
+             _map[x][y] = -1;
          }
-         for (int x=m->getMin()[0]/_grid_d; x<=m->getMax()[0]/_grid_d; x++){
-             for (int y=m->getMin()[1]/_grid_d; y<=m->getMax()[1]/_grid_d; y++){
-                 _map[x][y] = m->getId()-2;
-             }
+     }
+     for (int x=m->getMin()[0]/_grid_d; x<=m->getMax()[0]/_grid_d; x++){
+         for (int y=m->getMin()[1]/_grid_d; y<=m->getMax()[1]/_grid_d; y++){
+             _map[x][y] = m->getId()-2;
          }
-    }
+     }
     _marcas[m->getId()] = m;
 }
 void Scene::borrarMarca(Marca* m){
-//    cout<<"Scene:: Borrar Marca"<<endl;
+    cout<<"Scene:: Borrar Marca"<<endl;
     for (int x=_marcas[m->getId()]->getMin()[0]/_grid_d; x<=_marcas[m->getId()]->getMax()[0]/_grid_d; x++){
         for (int y=_marcas[m->getId()]->getMin()[1]/_grid_d; y<=_marcas[m->getId()]->getMax()[1]/_grid_d; y++){
             _map[x][y] = -1;
@@ -256,7 +255,6 @@ void Scene::Actualizar(int accion, int id){
                 }
             }
         }
-
         _map = new int *[_ancho/_grid_d + 1];
         for (int i = 0; i <= _ancho/_grid_d; i++){
             _map[i] = new int [_alto/_grid_d + 1];
@@ -269,7 +267,7 @@ void Scene::Actualizar(int accion, int id){
         cout<<"Scene:: Posicion fin: "<<_fin[0]<<":"<<_fin[1]<<endl;
         cout<<"Scene:: Tamaño del grid: "<<_grid_d<<endl;
     }else if((id!=0 && id!=1) || (accion == 4 || accion ==5 || accion == 6)){
-        for (vector<Coordinador*>::iterator it = _coordinador.begin(); it != _coordinador.end(); ++it) {
+        for (vector<Coordinator*>::iterator it = _Coordinator.begin(); it != _Coordinator.end(); ++it) {
 //            cout<<"Scene:: Actualizar "<<endl;
             (*it)->Actualizar(accion,id);
         }
@@ -297,20 +295,20 @@ vector<int> Scene::arrayToVectorMap(){
 //  int posy = ida[2];
 //  int posxF = ida[3];
 //  int posyF = ida[4];
-//  Estado * e = new Estado(id,posx,posy,_ancho%_grid_d,_alto%_grid_d,posxF,posyF,arrayToVectorMap());
+//  State * e = new State(id,posx,posy,_ancho%_grid_d,_alto%_grid_d,posxF,posyF,arrayToVectorMap());
 //  _path = false;
 //  cout<<"posx: "<<posx<<endl;
-//  cout<<"posx de estado: "<<e->get_posx()<<endl;
+//  cout<<"posx de State: "<<e->get_posx()<<endl;
 //  try{
 //      object mainobj = import("__main__");
 //      object dictionary(mainobj.attr("__dict__"));
 //      object result;
-//      result = exec_file("IA.py",dictionary, dictionary);
-//      object busqueda = dictionary["Ejecutar"];
-//      if(!busqueda.is_none()){
-//        boost::shared_ptr<Estado> estado(e);
-//          busqueda(ptr(estado.get()));
-//          Estado *obj = ptr(estado.get());
+//      result = exec_file("AI.py",dictionary, dictionary);
+//      object Search = dictionary["Ejecutar"];
+//      if(!Search.is_none()){
+//        boost::shared_ptr<State> State(e);
+//          Search(ptr(State.get()));
+//          State *obj = ptr(State.get());
 //          std::vector<char> aux = obj->get_mov();
 //          for(std::vector<char>::iterator it = aux.begin(); it != aux.end(); it++)
 //              _lMov.push_back(*it);

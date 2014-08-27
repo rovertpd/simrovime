@@ -28,7 +28,7 @@ class Robot{
         int puerto;
         int direccion;
         double _fin[2];
-        int _estado;
+        int _State;
         //float angulo;
         void open_port();
         void enviar_hacia_arduino(int puerto);

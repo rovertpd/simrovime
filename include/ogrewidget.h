@@ -21,6 +21,7 @@
     protected:
       void loadResources();
       void createScene();
+      void createOverlay();
 
       virtual void on_size_request(Gtk::Requisition* requisition);
       virtual void on_size_allocate(Gtk::Allocation& allocation);
@@ -44,9 +45,11 @@
       Ogre::RenderWindow* mRenderWindow;
       Ogre::SceneManager* mSceneMgr;
       Ogre::Viewport* mViewport;
+      Ogre::OverlayManager* mOverlayMgr;
       Ogre::Camera* mCamera;
       VideoManager* _videoManager;
       ARTKDetector* _arDetector;
+      Coordinator* coor;
       Scene* _scene;
       Marca* _marcas[5];
       double _center[2];
